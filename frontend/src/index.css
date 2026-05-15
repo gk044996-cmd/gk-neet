@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #0ea5e9;
+  --color-secondary: #0f172a;
+  --color-accent: #22d3ee;
+  --color-dark: #1e293b;
+  --color-darker: #0f172a;
+}
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900;
+  }
+}
+
+.glass-panel {
+  @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-xl;
+}
+
+.dark .glass-panel {
+  @apply bg-slate-900/70 border-slate-700/50 shadow-slate-900/50;
+}
