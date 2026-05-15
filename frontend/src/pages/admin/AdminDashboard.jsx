@@ -6,6 +6,7 @@ import {
   QueueListIcon, AcademicCapIcon, TrashIcon, 
   PencilSquareIcon, CheckCircleIcon, EyeIcon, MagnifyingGlassIcon, FunnelIcon, XMarkIcon 
 } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
 import AdminUsers from '../../components/admin/AdminUsers';
 import AdminResults from '../../components/admin/AdminResults';
 import Leaderboard from '../../components/Leaderboard';
@@ -27,14 +28,15 @@ const AdminDashboard = () => {
   // Question browsing & selection states
   const [qSearch, setQSearch] = useState('');
   const [qSubject, setQSubject] = useState('');
-  const [qDifficulty, setQDifficulty] = useState('');
   const [qUsageStatus, setQUsageStatus] = useState('');
   const [qPage, setQPage] = useState(1);
   const [qTotalPages, setQTotalPages] = useState(1);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [previewQuestion, setPreviewQuestion] = useState(null);
   const [allowRepeated, setAllowRepeated] = useState(true);
-  const [newQuestion, setNewQuestion] = useState({ text: '', option1: '', option2: '', option3: '', option4: '', correctAnswerIndex: 0, subject: 'Physics', chapter: '', difficulty: 'medium', explanation: '', imageUrl: '' });
+  const [selectedForDelete, setSelectedForDelete] = useState([]);
+  const [newQuestion, setNewQuestion] = useState({ text: '', option1: '', option2: '', option3: '', option4: '', correctAnswerIndex: 0, subject: 'Physics', chapter: '', explanation: '', imageUrl: '' });
+  const [editQuestionId, setEditQuestionId] = useState(null);
   const [createQuestionStatus, setCreateQuestionStatus] = useState({ loading: false, error: null, success: null });
 
 
@@ -42,7 +44,7 @@ const AdminDashboard = () => {
     fetchStats();
     if (activeTab === 'manage_tests' || activeTab === 'published_tests') fetchTests();
     if (activeTab === 'manage_questions' || activeTab === 'create_test') fetchQuestions();
-  }, [activeTab, qPage, qSearch, qSubject, qDifficulty, qUsageStatus]);
+  }, [activeTab, qPage, qSearch, qSubject, qUsageStatus]);
 
   const fetchStats = async () => {
     try {
@@ -82,7 +84,6 @@ const AdminDashboard = () => {
       const query = new URLSearchParams({ page: qPage, limit: 15 });
       if (qSearch) query.append('search', qSearch);
       if (qSubject) query.append('subject', qSubject);
-      if (qDifficulty) query.append('difficulty', qDifficulty);
       if (qUsageStatus) query.append('usageStatus', qUsageStatus);
 
       const res = await fetch(`${BASE_URL}/questions?${query.toString()}`, {
@@ -142,6 +143,7 @@ const AdminDashboard = () => {
       if (!res.ok) throw new Error(data.error || 'Upload failed');
       
       setUploadStatus({ loading: false, error: null, success: data.message });
+      toast.success(data.message);
       setUploadFile(null);
       setPreviewData(null);
       fetchStats();
@@ -232,6 +234,7 @@ const AdminDashboard = () => {
       if (!res.ok) throw new Error(data.error || 'Failed to create test');
       
       setCreateTestStatus({ loading: false, error: null, success: 'Test created successfully!' });
+      toast.success('Test created successfully!');
       setNewTest({ title: '', description: '', duration: 180, totalMarks: 720, published: false, type: 'Custom Test' });
       setSelectedQuestions([]);
       fetchStats();
@@ -240,6 +243,50 @@ const AdminDashboard = () => {
     }
   };
 
+
+  const handleBulkDelete = async () => {
+    if (selectedForDelete.length === 0) return;
+    if (!window.confirm(`Are you sure you want to delete ${selectedForDelete.length} questions?`)) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${BASE_URL}/questions/bulk-delete`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ ids: selectedForDelete })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to delete questions');
+      
+      setSelectedForDelete([]);
+      toast.success('Questions deleted successfully!');
+      fetchQuestions();
+      fetchStats();
+    } catch (err) {
+      toast.error(err.message || 'Failed to delete questions');
+      console.error(err);
+    }
+  };
+
+  const handleGenerateRandomMock = async () => {
+    try {
+      setCreateTestStatus({ loading: true, error: null, success: null });
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${BASE_URL}/questions/random-neet-mock`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch random questions');
+      setSelectedQuestions(data);
+      setNewTest(prev => ({ ...prev, type: 'Full NEET Mock', duration: 180 }));
+      setCreateTestStatus({ loading: false, error: null, success: 'Random questions loaded successfully!' });
+      toast.success('Random questions loaded successfully!');
+    } catch (err) {
+      setCreateTestStatus({ loading: false, error: err.message, success: null });
+    }
+  };
 
   const handleCreateQuestion = async (e) => {
     e.preventDefault();
@@ -252,13 +299,15 @@ const AdminDashboard = () => {
         correctAnswerIndex: newQuestion.correctAnswerIndex,
         subject: newQuestion.subject,
         chapter: newQuestion.chapter,
-        difficulty: newQuestion.difficulty,
         explanation: newQuestion.explanation,
         imageUrl: newQuestion.imageUrl
       };
 
-      const res = await fetch(`${BASE_URL}/questions`, {
-        method: 'POST',
+      const url = editQuestionId ? `${BASE_URL}/questions/${editQuestionId}` : `${BASE_URL}/questions`;
+      const method = editQuestionId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -267,13 +316,21 @@ const AdminDashboard = () => {
       });
       
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to create question');
+      if (!res.ok) throw new Error(data.error || 'Failed to save question');
       
-      setCreateQuestionStatus({ loading: false, error: null, success: 'Question created successfully!' });
-      setNewQuestion({ text: '', option1: '', option2: '', option3: '', option4: '', correctAnswerIndex: 0, subject: 'Physics', chapter: '', difficulty: 'medium', explanation: '', imageUrl: '' });
+      setCreateQuestionStatus({ loading: false, error: null, success: `Question ${editQuestionId ? 'updated' : 'created'} successfully!` });
+      toast.success(`Question ${editQuestionId ? 'updated' : 'created'} successfully!`);
+      
+      setNewQuestion({ text: '', option1: '', option2: '', option3: '', option4: '', correctAnswerIndex: 0, subject: 'Physics', chapter: '', explanation: '', imageUrl: '' });
+      if (editQuestionId) {
+        setEditQuestionId(null);
+        setActiveTab('manage_questions');
+        fetchQuestions();
+      }
       fetchStats();
     } catch (err) {
       setCreateQuestionStatus({ loading: false, error: err.message, success: null });
+      toast.error(err.message);
     }
   };
 
@@ -313,9 +370,9 @@ const AdminDashboard = () => {
           <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
             <h2 className="text-2xl font-bold mb-6 text-slate-800 dark:text-white">Bulk Upload Questions</h2>
             <div className="mb-4 text-sm text-slate-600 dark:text-slate-400">
-              <p>Supported formats: .csv, .xlsx</p>
-              <p>Required columns: questionText, option1, option2, option3, option4, correctAnswer, subject</p>
-              <p>correctAnswer format: 0 for option1, 1 for option2, 2 for option3, 3 for option4</p>
+              <p><strong>Supported formats:</strong> .csv, .xlsx</p>
+              <p><strong>Columns:</strong> questionType, questionText, statement1, statement2, statement3, statement4, assertion, reason, leftColumn, rightColumn, imageReference, option1, option2, option3, option4, correctAnswer, subject</p>
+              <p><strong>questionType:</strong> MCQ, STATEMENT, ASSERTION_REASON, MATCH, IMAGE_BASED, SEQUENCE, TRUE_FALSE, MULTI_CORRECT</p>
             </div>
             <form onSubmit={handleFileUpload} className="space-y-4">
               <div className="flex items-center justify-center w-full">
@@ -450,7 +507,14 @@ const AdminDashboard = () => {
           <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Manage Questions</h2>
-              <span className="text-sm font-medium text-slate-500">Total: {stats.totalQuestions}</span>
+              <div className="flex gap-4 items-center">
+                {selectedForDelete.length > 0 && (
+                  <button onClick={handleBulkDelete} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium shadow-md shadow-red-600/20">
+                    Delete Selected ({selectedForDelete.length})
+                  </button>
+                )}
+                <span className="text-sm font-medium text-slate-500">Total: {stats.totalQuestions}</span>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -465,12 +529,6 @@ const AdminDashboard = () => {
                 <option value="Botany">Botany</option>
                 <option value="Zoology">Zoology</option>
               </select>
-              <select value={qDifficulty} onChange={e => setQDifficulty(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
-                <option value="">All Difficulties</option>
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
-              </select>
               <select value={qUsageStatus} onChange={e => setQUsageStatus(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                 <option value="">All Statuses</option>
                 <option value="fresh">Fresh Questions</option>
@@ -483,6 +541,15 @@ const AdminDashboard = () => {
               <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                 <thead className="bg-slate-50 dark:bg-slate-900/50">
                   <tr>
+                    <th className="px-6 py-3 text-left">
+                      <input type="checkbox" className="rounded border-slate-300 w-4 h-4 text-indigo-600"
+                        onChange={e => {
+                          if (e.target.checked) setSelectedForDelete(questions.map(q => q._id));
+                          else setSelectedForDelete([]);
+                        }}
+                        checked={questions.length > 0 && selectedForDelete.length === questions.length}
+                      />
+                    </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Question</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Details</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
@@ -491,13 +558,21 @@ const AdminDashboard = () => {
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
                   {questions.map(q => (
                     <tr key={q._id}>
+                      <td className="px-6 py-4">
+                        <input type="checkbox" className="rounded border-slate-300 w-4 h-4 text-indigo-600"
+                          checked={selectedForDelete.includes(q._id)}
+                          onChange={e => {
+                            if (e.target.checked) setSelectedForDelete([...selectedForDelete, q._id]);
+                            else setSelectedForDelete(selectedForDelete.filter(id => id !== q._id));
+                          }}
+                        />
+                      </td>
                       <td className="px-6 py-4 text-sm text-slate-900 dark:text-white max-w-md">
                         <div className="line-clamp-2">{q.text}</div>
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
                         <div className="flex flex-wrap gap-1 mt-1">
                           <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 rounded text-xs">{q.subject}</span>
-                          <span className="px-2 py-0.5 bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 rounded text-xs">{q.difficulty}</span>
                           {q.usageCount === 0 ? (
                             <span className="px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs font-semibold">🟢 Fresh</span>
                           ) : q.usageCount > 2 ? (
@@ -509,7 +584,22 @@ const AdminDashboard = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-3">
                         <button onClick={() => setPreviewQuestion(q)} className="text-blue-600 hover:text-blue-900 dark:text-blue-400" title="Preview"><EyeIcon className="w-5 h-5"/></button>
-                        <button onClick={() => alert('Edit question coming soon!')} className="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400" title="Edit"><PencilSquareIcon className="w-5 h-5"/></button>
+                        <button onClick={() => {
+                          setEditQuestionId(q._id);
+                          setNewQuestion({
+                            text: q.text || '',
+                            option1: q.options && q.options[0] ? q.options[0] : '',
+                            option2: q.options && q.options[1] ? q.options[1] : '',
+                            option3: q.options && q.options[2] ? q.options[2] : '',
+                            option4: q.options && q.options[3] ? q.options[3] : '',
+                            correctAnswerIndex: q.correctAnswerIndex !== undefined ? q.correctAnswerIndex : 0,
+                            subject: q.subject || 'Physics',
+                            chapter: q.chapter || '',
+                            explanation: q.explanation || '',
+                            imageUrl: q.imageUrl || ''
+                          });
+                          setActiveTab('create_question');
+                        }} className="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400" title="Edit"><PencilSquareIcon className="w-5 h-5"/></button>
                         <button onClick={() => deleteQuestion(q._id)} className="text-red-600 hover:text-red-900 dark:text-red-400" title="Delete"><TrashIcon className="w-5 h-5"/></button>
                       </td>
                     </tr>
@@ -557,8 +647,12 @@ const AdminDashboard = () => {
               </div>
               <div className="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
                 <div>
-                  <label className="block text-sm font-medium text-slate-500 mb-1">Calculated Duration</label>
-                  <p className="text-xl font-bold text-slate-800 dark:text-white">{newTest.type === 'Full NEET Mock' ? '180' : newTest.duration} mins</p>
+                  <label className="block text-sm font-medium text-slate-500 mb-1">Duration (mins)</label>
+                  {newTest.type === 'Full NEET Mock' ? (
+                    <p className="text-xl font-bold text-slate-800 dark:text-white">180 mins</p>
+                  ) : (
+                    <input type="number" min="1" max="500" value={newTest.duration} onChange={e => setNewTest({...newTest, duration: parseInt(e.target.value) || 1})} className="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white" />
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-500 mb-1">Calculated Total Marks</label>
@@ -569,11 +663,16 @@ const AdminDashboard = () => {
               <div className="mt-8 border-t border-slate-200 dark:border-slate-700 pt-8">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-bold text-slate-800 dark:text-white">Select Questions</h3>
-                  <div className="flex space-x-4 text-sm font-medium text-slate-600 dark:text-slate-300">
+                  <div className="flex gap-4 items-center">
+                    <button type="button" onClick={handleGenerateRandomMock} className="px-4 py-1.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm font-bold shadow-md shadow-purple-600/20">
+                      ✨ Select Random Questions
+                    </button>
+                    <div className="flex space-x-4 text-sm font-medium text-slate-600 dark:text-slate-300">
                     <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full">Physics: {selectedQuestions.filter(q => q.subject === 'Physics').length} / 45</span>
                     <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full">Chemistry: {selectedQuestions.filter(q => q.subject === 'Chemistry').length} / 45</span>
                     <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full">Biology: {selectedQuestions.filter(q => q.subject === 'Botany' || q.subject === 'Zoology').length} / 90</span>
-                    <span className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full font-bold">Total: {selectedQuestions.length}</span>
+                      <span className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full font-bold">Total: {selectedQuestions.length}</span>
+                    </div>
                   </div>
                 </div>
 
@@ -588,12 +687,6 @@ const AdminDashboard = () => {
                     <option value="Chemistry">Chemistry</option>
                     <option value="Botany">Botany</option>
                     <option value="Zoology">Zoology</option>
-                  </select>
-                  <select value={qDifficulty} onChange={e => setQDifficulty(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
-                    <option value="">All Difficulties</option>
-                    <option value="easy">Easy</option>
-                    <option value="medium">Medium</option>
-                    <option value="hard">Hard</option>
                   </select>
                   <select value={qUsageStatus} onChange={e => setQUsageStatus(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                     <option value="">All Statuses</option>
@@ -625,7 +718,6 @@ const AdminDashboard = () => {
                           <div className="flex gap-2 mt-2 text-xs items-center flex-wrap">
                             <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded">{q.subject}</span>
                             {q.chapter && <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded truncate max-w-[150px]">{q.chapter}</span>}
-                            <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded uppercase">{q.difficulty}</span>
                             {isUsed ? (
                                 <span className={`px-2 py-1 rounded font-semibold ${q.usageCount > 2 ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
                                   {q.usageCount > 2 ? `🔴 Frequent (${q.usageCount}x)` : `🟡 Used ${q.usageCount}x`}
@@ -694,8 +786,21 @@ const AdminDashboard = () => {
 
       case 'create_question':
         return (
-          <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-            <h2 className="text-2xl font-bold mb-6 text-slate-800 dark:text-white">Create Manual Question</h2>
+          <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 relative">
+            {editQuestionId && (
+              <button 
+                type="button" 
+                onClick={() => {
+                  setEditQuestionId(null);
+                  setNewQuestion({ text: '', option1: '', option2: '', option3: '', option4: '', correctAnswerIndex: 0, subject: 'Physics', chapter: '', explanation: '', imageUrl: '' });
+                  setActiveTab('manage_questions');
+                }}
+                className="absolute top-8 right-8 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center gap-1"
+              >
+                <XMarkIcon className="w-5 h-5" /> Cancel Edit
+              </button>
+            )}
+            <h2 className="text-2xl font-bold mb-6 text-slate-800 dark:text-white">{editQuestionId ? 'Edit Question' : 'Create Manual Question'}</h2>
             <form onSubmit={handleCreateQuestion} className="space-y-4 max-w-2xl">
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Question Text</label>
@@ -710,7 +815,7 @@ const AdminDashboard = () => {
                   </div>
                 ))}
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Subject</label>
                   <select value={newQuestion.subject} onChange={e => setNewQuestion({...newQuestion, subject: e.target.value})} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
@@ -720,16 +825,6 @@ const AdminDashboard = () => {
                     <option value="Zoology">Zoology</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Difficulty</label>
-                  <select value={newQuestion.difficulty} onChange={e => setNewQuestion({...newQuestion, difficulty: e.target.value})} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
-                    <option value="easy">Easy</option>
-                    <option value="medium">Medium</option>
-                    <option value="hard">Hard</option>
-                  </select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Chapter</label>
                   <input type="text" value={newQuestion.chapter} onChange={e => setNewQuestion({...newQuestion, chapter: e.target.value})} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white" placeholder="e.g. Thermodynamics" />
@@ -831,7 +926,6 @@ const AdminDashboard = () => {
                 <div className="flex gap-2 mb-4 text-xs font-semibold">
                   <span className="px-2 py-1 bg-indigo-100 text-indigo-800 rounded">{previewQuestion.subject}</span>
                   {previewQuestion.chapter && <span className="px-2 py-1 bg-slate-100 text-slate-800 rounded">{previewQuestion.chapter}</span>}
-                  <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded uppercase">{previewQuestion.difficulty}</span>
                 </div>
                 <p className="text-lg font-medium text-slate-900 dark:text-white mb-6 leading-relaxed">{previewQuestion.text}</p>
                 {previewQuestion.imageUrl && <img src={previewQuestion.imageUrl} alt="Question Graphic" className="mb-6 rounded-lg max-h-64 object-contain" />}

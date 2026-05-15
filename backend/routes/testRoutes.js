@@ -72,8 +72,11 @@ router.get('/my-results', protect, async (req, res) => {
 router.get('/result/:resultId', protect, async (req, res) => {
   try {
     const result = await Result.findById(req.params.resultId)
-      .populate('testId')
-      .populate('selectedAnswers.questionId');
+      .populate({
+        path: 'testId',
+        populate: { path: 'questions', select: 'correctAnswerIndex correctAnswer' }
+      })
+      .populate('selectedAnswers.questionId', 'correctAnswerIndex correctAnswer');
     if (!result) return res.status(404).json({ error: 'Result not found' });
     if (result.userId.toString() !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Unauthorized' });
@@ -190,14 +193,28 @@ router.post('/:id/submit', async (req, res) => {
       const subject = q.subject;
       if (!subjectWiseMarks[subject]) subjectWiseMarks[subject] = 0;
 
-      if (answers[i] === undefined || answers[i] === null) {
+      if (answers[i] === undefined || answers[i] === null || answers[i] === '') {
         unattempted++;
-      } else if (answers[i] === q.correctAnswerIndex) {
-        correct++;
-        subjectWiseMarks[subject] += 4;
       } else {
-        incorrect++;
-        subjectWiseMarks[subject] -= 1;
+        // Evaluate
+        let isCorrect = false;
+        
+        // Handle newer string-based correctAnswer
+        if (q.correctAnswer !== undefined && q.correctAnswer !== null) {
+          isCorrect = String(answers[i]).trim().toLowerCase() === String(q.correctAnswer).trim().toLowerCase();
+        } 
+        // Fallback to older correctAnswerIndex
+        else if (q.correctAnswerIndex !== undefined && q.correctAnswerIndex !== null) {
+          isCorrect = String(answers[i]).trim() === String(q.correctAnswerIndex).trim();
+        }
+
+        if (isCorrect) {
+          correct++;
+          subjectWiseMarks[subject] += 4;
+        } else {
+          incorrect++;
+          subjectWiseMarks[subject] -= 1;
+        }
       }
     });
 

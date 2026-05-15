@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation, useSearchParams } from 'react-rout
 import html2pdf from 'html2pdf.js';
 import { BASE_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 
 export default function Result() {
   const { id } = useParams();
@@ -63,13 +64,19 @@ export default function Result() {
         margin: [0.5, 0.5, 0.5, 0.5],
         filename: `GK_NEET_RESULT_${test.title.replace(/\s+/g, '_')}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
+        html2canvas: { 
+          scale: 2, 
+          useCORS: true, 
+          logging: false,
+          ignoreElements: (node) => node.nodeName === 'STYLE' || node.nodeName === 'LINK'
+        },
         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
       };
       await html2pdf().set(opt).from(element).save();
+      toast.success('PDF Downloaded successfully!');
     } catch (err) {
       console.error('PDF Generation Failed:', err);
-      alert('Failed to generate PDF. Please try again.');
+      toast.error('Failed to generate PDF. Please try again.');
     }
   };
 
@@ -89,12 +96,50 @@ export default function Result() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
+      {/* Hidden container specifically for PDF to avoid OKLCH color crashes with html2canvas */}
+      <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+        <div ref={reportRef} style={{ width: '800px', padding: '40px', backgroundColor: '#ffffff', color: '#333333', fontFamily: 'sans-serif' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', borderBottom: '2px solid #e0e0e0', paddingBottom: '10px', marginBottom: '20px' }}>GK NEET MOCK - {test.title}</h1>
+          <p style={{ margin: '0 0 10px 0' }}><strong>Student:</strong> {currentUser?.name} ({currentUser?.email})</p>
+          <p style={{ margin: '0 0 20px 0' }}><strong>Score:</strong> {data.totalScore} / {data.maxScore}</p>
+          <h2 style={{ fontSize: '18px', marginTop: '30px', marginBottom: '15px' }}>Answer Key</h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+            {test.questions.map((q, idx) => {
+              const studentAnswer = result.selectedAnswers?.find(sa => {
+                const saId = typeof sa.questionId === 'object' ? sa.questionId._id : sa.questionId;
+                const qId = typeof q === 'object' ? q._id : q;
+                return saId === qId;
+              });
+              const isCorrect = studentAnswer?.isCorrect;
+              const isUnattempted = studentAnswer?.selectedOption === null || studentAnswer?.selectedOption === undefined || studentAnswer?.selectedOption === -1;
+              let correctOptLetter = ['A','B','C','D'][q.correctAnswerIndex];
+              if (!correctOptLetter && q.correctAnswer) correctOptLetter = String(q.correctAnswer).trim();
+              const studentOptLetter = isUnattempted ? '-' : ['A','B','C','D'][studentAnswer?.selectedOption];
+              
+              let bgColor = '#f8f9fa';
+              let borderColor = '#e2e8f0';
+              let textColor = '#333333';
+              
+              if (isCorrect) { bgColor = '#ecfdf5'; borderColor = '#a7f3d0'; textColor = '#065f46'; } 
+              else if (!isUnattempted) { bgColor = '#fef2f2'; borderColor = '#fecaca'; textColor = '#991b1b'; }
+              
+              return (
+                <div key={q._id} style={{ width: '140px', padding: '8px', border: `1px solid ${borderColor}`, borderRadius: '6px', backgroundColor: bgColor, color: textColor, display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
+                  <strong>Q{idx + 1}.</strong>
+                  <span>Ans: {correctOptLetter} {!isUnattempted && !isCorrect && <span style={{textDecoration: 'line-through', opacity: 0.6, marginLeft: '4px'}}>{studentOptLetter}</span>}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-4 text-slate-900 dark:text-white">Performance Analysis</h1>
         <p className="text-slate-500 text-lg">Detailed review of your mock test attempt.</p>
       </div>
 
-      <div ref={reportRef} className="bg-white p-8 rounded-3xl mb-8 border border-slate-200 shadow-sm relative overflow-hidden" id="pdf-content">
+      <div className="bg-white p-8 rounded-3xl mb-8 border border-slate-200 shadow-sm relative overflow-hidden" id="pdf-content">
         {/* PDF Header - Visible mostly in PDF or explicitly styled */}
         <div className="border-b-2 border-indigo-100 pb-6 mb-8">
           <div className="flex justify-between items-start">
@@ -155,10 +200,9 @@ export default function Result() {
 
         {/* Answer Key Section (For PDF Download) */}
         <div className="mt-12 pt-8 border-t border-slate-200">
-          <h2 className="text-xl font-bold text-slate-800 mb-6">Question Review</h2>
-          <div className="space-y-6">
+          <h2 className="text-xl font-bold text-slate-800 mb-6">Answer Key</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {test.questions.map((q, idx) => {
-              // Extract question id from populated selectedAnswers or from plain ID
               const studentAnswer = result.selectedAnswers?.find(sa => {
                 const saId = typeof sa.questionId === 'object' ? sa.questionId._id : sa.questionId;
                 const qId = typeof q === 'object' ? q._id : q;
@@ -167,54 +211,29 @@ export default function Result() {
               
               const isCorrect = studentAnswer?.isCorrect;
               const isUnattempted = studentAnswer?.selectedOption === null || studentAnswer?.selectedOption === undefined || studentAnswer?.selectedOption === -1;
+              let correctOptLetter = ['A','B','C','D'][q.correctAnswerIndex];
+              if (!correctOptLetter && q.correctAnswer) {
+                correctOptLetter = String(q.correctAnswer).trim();
+              }
+              const studentOptLetter = isUnattempted ? '-' : ['A','B','C','D'][studentAnswer?.selectedOption];
+              
+              let bgClass = "bg-slate-50 border-slate-200";
+              if (isCorrect) bgClass = "bg-emerald-50 border-emerald-200 text-emerald-800";
+              else if (!isUnattempted) bgClass = "bg-red-50 border-red-200 text-red-800";
               
               return (
-              <div key={q._id} className={`p-5 rounded-xl border ${isCorrect ? 'bg-emerald-50 border-emerald-200' : isUnattempted ? 'bg-slate-50 border-slate-200' : 'bg-red-50 border-red-200'}`}>
-                <div className="flex items-start justify-between mb-3">
-                  <p className="font-semibold text-slate-800 flex-1">
-                    <span className="text-slate-500 mr-2">Q{idx + 1}.</span> 
-                    {q.text}
-                  </p>
-                  <div className="ml-4 flex-shrink-0">
-                    {isCorrect && <span className="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded">✅ Correct</span>}
-                    {!isCorrect && !isUnattempted && <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-bold rounded">❌ Wrong</span>}
-                    {isUnattempted && <span className="px-2 py-1 bg-slate-200 text-slate-700 text-xs font-bold rounded">⚪ Skipped</span>}
+                <div key={q._id} className={`p-3 rounded-xl border flex items-center justify-between shadow-sm ${bgClass}`}>
+                  <span className="font-bold text-slate-700">Q{idx + 1}.</span>
+                  <div className="text-sm font-semibold">
+                    <span className="text-slate-500 mr-1">Ans:</span>
+                    {correctOptLetter}
+                    {!isUnattempted && !isCorrect && (
+                      <span className="ml-2 text-xs line-through text-slate-400">{studentOptLetter}</span>
+                    )}
                   </div>
                 </div>
-                
-                {q.imageUrl && <img src={q.imageUrl} alt="Question" className="max-h-48 mb-4 rounded border border-slate-300" />}
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
-                  {q.options.map((opt, i) => {
-                    const isStudentChoice = studentAnswer?.selectedOption === i;
-                    const isActualCorrect = i === q.correctAnswerIndex;
-                    
-                    let bgClass = "bg-white border-slate-200";
-                    if (isActualCorrect) bgClass = "bg-emerald-100 border-emerald-300 font-medium text-emerald-900";
-                    else if (isStudentChoice && !isActualCorrect) bgClass = "bg-red-100 border-red-300 font-medium text-red-900";
-
-                    return (
-                      <div key={i} className={`p-3 border rounded-lg text-sm flex items-center ${bgClass}`}>
-                        <span className="w-6 h-6 flex items-center justify-center bg-white border border-slate-300 rounded-full mr-3 text-xs font-bold">{['A','B','C','D'][i]}</span>
-                        <span className="flex-1">{opt}</span>
-                        {isStudentChoice && <span className="text-xs font-bold uppercase ml-2 bg-slate-800 text-white px-2 py-0.5 rounded">Your Answer</span>}
-                      </div>
-                    );
-                  })}
-                </div>
-                
-                <div className="text-sm bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                  <p className="text-slate-800">
-                    <strong>Correct Answer:</strong> {q.options[q.correctAnswerIndex]}
-                  </p>
-                  {q.explanation && (
-                    <p className="mt-2 text-slate-600 pt-2 border-t border-slate-100">
-                      <strong className="text-indigo-600">Explanation:</strong> {q.explanation}
-                    </p>
-                  )}
-                </div>
-              </div>
-            )})}
+              );
+            })}
           </div>
         </div>
       </div>

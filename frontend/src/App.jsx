@@ -21,10 +21,12 @@ import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
 
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
     <HelmetProvider>
+      <Toaster position="top-center" reverseOrder={false} />
       <AuthProvider>
         <Router>
           <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-50 font-sans transition-colors duration-200 pb-16 md:pb-0">

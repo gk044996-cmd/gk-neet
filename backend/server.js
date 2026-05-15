@@ -18,7 +18,7 @@ app.use(mongoSanitize());
 app.use(xss());
 
 const limiter = rateLimit({
-  max: 100,
+  max: 5000, // Increased for development/testing
   windowMs: 60 * 60 * 1000,
   message: 'Too many requests from this IP, please try again in an hour!'
 });

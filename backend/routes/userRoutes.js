@@ -104,8 +104,8 @@ router.get('/leaderboard', async (req, res) => {
       };
     });
 
-    // Filter out users with 0 tests? Maybe keep them but they rank lower. Let's filter out 0 tests.
-    leaderboard = leaderboard.filter(l => l.totalTests > 0);
+    // Include all users in the leaderboard
+    // leaderboard = leaderboard.filter(l => l.totalTests > 0);
 
     // Rank primarily by highestScore, then accuracy, then totalTests
     leaderboard.sort((a, b) => {

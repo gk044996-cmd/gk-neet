@@ -32,18 +32,12 @@ router.post('/upload-questions', protect, admin, upload.single('file'), async (r
       return res.status(400).json({ error: 'Unsupported file format. Please upload CSV or Excel files.' });
     }
 
-    const requiredColumns = ['questionText', 'option1', 'option2', 'option3', 'option4', 'correctAnswer', 'subject'];
-    const missingColumns = requiredColumns.filter(col => !Object.keys(jsonArray[0] || {}).includes(col));
-    
-    if (missingColumns.length > 0) {
-      return res.status(400).json({ error: `Missing required columns: ${missingColumns.join(', ')}` });
-    }
-
     const validQuestions = [];
     const errors = [];
     const previewData = [];
     
     const allowedSubjects = ['Physics', 'Chemistry', 'Botany', 'Zoology'];
+    const allowedTypes = ['MCQ', 'STATEMENT', 'ASSERTION_REASON', 'MATCH', 'IMAGE_BASED', 'SEQUENCE', 'TRUE_FALSE', 'MULTI_CORRECT'];
 
     for (let i = 0; i < jsonArray.length; i++) {
       const item = jsonArray[i];
@@ -51,59 +45,104 @@ router.post('/upload-questions', protect, admin, upload.single('file'), async (r
       
       let rowErrors = [];
 
-      if (!item.questionText || !item.option1 || !item.option2 || !item.option3 || !item.option4 || item.correctAnswer === undefined || !item.subject) {
-        rowErrors.push(`Missing required fields.`);
+      // Capitalize mappedSubject safely
+      let rawSubject = item.subject ? String(item.subject).trim() : '';
+      if (!rawSubject) {
+        rowErrors.push('Missing required field: subject.');
       }
 
-      const correctAnsNum = parseInt(item.correctAnswer);
-      if (isNaN(correctAnsNum) || correctAnsNum < 0 || correctAnsNum > 3) {
-        rowErrors.push(`Invalid correctAnswer index. Must be 0, 1, 2, or 3.`);
-      }
-
-      // Auto subject mapping for Biology
-      let mappedSubject = item.subject.trim();
+      let mappedSubject = rawSubject;
       if (mappedSubject.toLowerCase() === 'biology') {
         const chapterLower = (item.chapter || '').toLowerCase();
-        // Simple heuristic: if chapter has 'plant', 'botany', 'photosynthesis', etc.
         if (chapterLower.includes('plant') || chapterLower.includes('photosynthesis') || chapterLower.includes('morphology')) {
           mappedSubject = 'Botany';
         } else if (chapterLower.includes('animal') || chapterLower.includes('human') || chapterLower.includes('reproduction')) {
           mappedSubject = 'Zoology';
         } else {
-          // Default split or ask user, let's default to Zoology if unknown
           mappedSubject = 'Zoology';
         }
       }
       
-      // Capitalize first letter properly
-      mappedSubject = mappedSubject.charAt(0).toUpperCase() + mappedSubject.slice(1).toLowerCase();
+      if (mappedSubject) {
+        mappedSubject = mappedSubject.charAt(0).toUpperCase() + mappedSubject.slice(1).toLowerCase();
+        if (!allowedSubjects.includes(mappedSubject)) {
+          rowErrors.push(`Invalid subject: ${mappedSubject}.`);
+        }
+      }
 
-      if (!allowedSubjects.includes(mappedSubject) && rowErrors.length === 0) {
-        rowErrors.push(`Invalid subject: ${mappedSubject}. Allowed: Physics, Chemistry, Botany, Zoology.`);
+      let qType = item.questionType ? String(item.questionType).trim().toUpperCase() : 'MCQ';
+      if (!allowedTypes.includes(qType)) {
+        rowErrors.push(`Invalid questionType: ${qType}.`);
+      }
+
+      // Validation logic per question type
+      if (qType === 'MCQ' || qType === 'SEQUENCE' || qType === 'MULTI_CORRECT') {
+        if (!item.questionText) rowErrors.push('Missing questionText.');
+        if (!item.option1 || !item.option2 || !item.option3 || !item.option4) rowErrors.push('Missing options (1-4).');
+        if (!item.correctAnswer) rowErrors.push('Missing correctAnswer.');
+      } else if (qType === 'STATEMENT') {
+        if (!item.questionText) rowErrors.push('Missing questionText.');
+        if (!item.statement1 || !item.statement2) rowErrors.push('Missing statement1 and statement2.');
+        if (!item.option1 || !item.option2 || !item.option3 || !item.option4) rowErrors.push('Missing options (1-4).');
+        if (!item.correctAnswer) rowErrors.push('Missing correctAnswer.');
+      } else if (qType === 'ASSERTION_REASON') {
+        if (!item.assertion || !item.reason) rowErrors.push('Missing assertion or reason.');
+        if (!item.option1 || !item.option2 || !item.option3 || !item.option4) rowErrors.push('Missing options (1-4).');
+        if (!item.correctAnswer) rowErrors.push('Missing correctAnswer.');
+      } else if (qType === 'MATCH') {
+        if (!item.leftColumn || !item.rightColumn) rowErrors.push('Missing leftColumn or rightColumn (comma separated).');
+        if (!item.option1 || !item.option2 || !item.option3 || !item.option4) rowErrors.push('Missing options (1-4).');
+        if (!item.correctAnswer) rowErrors.push('Missing correctAnswer.');
+      } else if (qType === 'IMAGE_BASED') {
+        if (!item.imageReference) rowErrors.push('Missing imageReference.');
+        if (!item.questionText) rowErrors.push('Missing questionText.');
+        if (!item.option1 || !item.option2 || !item.option3 || !item.option4) rowErrors.push('Missing options (1-4).');
+        if (!item.correctAnswer) rowErrors.push('Missing correctAnswer.');
+      } else if (qType === 'TRUE_FALSE') {
+        if (!item.questionText) rowErrors.push('Missing questionText.');
+        if (!item.correctAnswer) rowErrors.push('Missing correctAnswer.');
       }
 
       if (req.body.preview !== 'true') {
-        const existingQuestion = await Question.findOne({ text: item.questionText });
-        if (existingQuestion) {
-          rowErrors.push(`Duplicate question found in database.`);
+        if (item.questionText && qType !== 'ASSERTION_REASON') {
+          const existingQuestion = await Question.findOne({ text: item.questionText });
+          if (existingQuestion) {
+            rowErrors.push(`Duplicate question found in database.`);
+          }
         }
       }
 
       if (rowErrors.length > 0) {
         errors.push(`Row ${rowNum}: ${rowErrors.join(' ')}`);
-        previewData.push({ rowNum, question: item.questionText, subject: mappedSubject, status: 'Error', reason: rowErrors.join(' ') });
+        previewData.push({ rowNum, question: item.questionText || item.assertion || 'N/A', subject: mappedSubject, status: 'Error', reason: rowErrors.join(' ') });
       } else {
         const qObj = {
-          text: item.questionText,
-          options: [item.option1, item.option2, item.option3, item.option4],
-          correctAnswerIndex: correctAnsNum,
+          questionType: qType,
+          text: item.questionText || '',
+          options: [item.option1, item.option2, item.option3, item.option4].filter(Boolean),
+          correctAnswer: item.correctAnswer ? String(item.correctAnswer).trim() : undefined,
           subject: mappedSubject,
           chapter: item.chapter || '',
           difficulty: item.difficulty || 'medium',
-          explanation: item.explanation || ''
+          explanation: item.explanation || '',
+          statement1: item.statement1 || '',
+          statement2: item.statement2 || '',
+          statement3: item.statement3 || '',
+          statement4: item.statement4 || '',
+          assertion: item.assertion || '',
+          reason: item.reason || '',
+          leftColumn: item.leftColumn ? item.leftColumn.split('|').map(s=>s.trim()) : [],
+          rightColumn: item.rightColumn ? item.rightColumn.split('|').map(s=>s.trim()) : [],
+          imageReference: item.imageReference || ''
         };
+        // For backwards compatibility
+        const correctAnsNum = parseInt(item.correctAnswer);
+        if (!isNaN(correctAnsNum) && correctAnsNum >= 0 && correctAnsNum <= 3) {
+          qObj.correctAnswerIndex = correctAnsNum;
+        }
+
         validQuestions.push(qObj);
-        previewData.push({ rowNum, question: item.questionText, subject: mappedSubject, status: 'Valid', data: qObj });
+        previewData.push({ rowNum, question: item.questionText || item.assertion, subject: mappedSubject, status: 'Valid', data: qObj });
       }
     }
 
@@ -111,15 +150,11 @@ router.post('/upload-questions', protect, admin, upload.single('file'), async (r
       return res.json({ previewData, hasErrors: errors.length > 0, errors });
     }
 
-    if (errors.length > 0) {
-      return res.status(400).json({ error: 'Validation failed', details: errors });
-    }
-
     if (validQuestions.length > 0) {
       await Question.insertMany(validQuestions);
     }
 
-    res.json({ message: `${validQuestions.length} questions imported successfully.` });
+    res.json({ message: `${validQuestions.length} questions imported successfully.`, failedCount: errors.length, errors });
   } catch (err) {
     next(err);
   }
