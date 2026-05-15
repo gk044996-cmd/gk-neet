@@ -18,6 +18,15 @@ export default function MockTest() {
   const [started, setStarted] = useState(false);
   const [test, setTest] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+
+  const timeLeftRef = useRef(timeLeft);
+  const answersRef = useRef(answers);
+  
+  useEffect(() => {
+    timeLeftRef.current = timeLeft;
+    answersRef.current = answers;
+  }, [timeLeft, answers]);
 
   useEffect(() => {
     const fetchTest = async () => {
@@ -58,8 +67,13 @@ export default function MockTest() {
       if (document.hidden) {
         setWarnings(w => {
           const newW = w + 1;
-          alert(`Warning ${newW}/3: Tab switching is not allowed during the exam.`);
-          if (newW >= 3) handleSubmit(true);
+          setTimeout(() => {
+            alert(`Warning ${newW}/3: Tab switching is not allowed during the exam.`);
+            if (newW >= 3) {
+              const submitBtn = document.getElementById('submit-exam-btn');
+              if (submitBtn) submitBtn.click();
+            }
+          }, 50);
           return newW;
         });
       }
@@ -85,7 +99,10 @@ export default function MockTest() {
       setTimeLeft(prev => {
         if (prev <= 1) {
           clearInterval(timer);
-          handleSubmit(false);
+          setTimeout(() => {
+            const submitBtn = document.getElementById('submit-exam-btn');
+            if (submitBtn) submitBtn.click();
+          }, 0);
           return 0;
         }
         return prev - 1;
@@ -95,8 +112,19 @@ export default function MockTest() {
   }, [started]);
 
   const requestFullscreen = () => {
-    const elem = document.documentElement;
-    if (elem.requestFullscreen) elem.requestFullscreen();
+    try {
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        const promise = elem.requestFullscreen();
+        if (promise) promise.catch(err => console.warn(err));
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      }
+    } catch (e) {
+      console.warn("Fullscreen API failed", e);
+    }
     setIsFullscreen(true);
   };
 
@@ -116,7 +144,7 @@ export default function MockTest() {
     if (!forced && !window.confirm('Are you sure you want to submit the test?')) return;
     
     // Convert answers to array mapped to questions
-    const finalAnswers = test.questions.map((q, i) => answers[i] !== undefined ? answers[i] : -1);
+    const finalAnswers = test.questions.map((q, i) => answersRef.current[i] !== undefined ? answersRef.current[i] : -1);
 
     try {
       const token = localStorage.getItem('token');
@@ -126,12 +154,17 @@ export default function MockTest() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ answers: finalAnswers, timeTaken: (test.duration * 60) - timeLeft })
+        body: JSON.stringify({ answers: finalAnswers, timeTaken: (test.duration * 60) - timeLeftRef.current })
       });
       const data = await res.json();
       
-      if (document.fullscreenElement) {
-        await document.exitFullscreen().catch(console.error);
+      try {
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+          if (document.exitFullscreen) await document.exitFullscreen();
+          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        }
+      } catch (e) {
+        console.warn(e);
       }
       
       navigate(`/results/${data.detailedResult._id}`, { state: { result: data.detailedResult, test: test } });
@@ -139,7 +172,7 @@ export default function MockTest() {
       console.error(err);
       alert('Failed to submit test. Please try again.');
     }
-  }, [answers, test, timeLeft, id, navigate]);
+  }, [test, id, navigate]);
 
   if (loading) return <div className="flex justify-center items-center h-screen">Loading Test...</div>;
   if (!test) return <div className="flex justify-center items-center h-screen">Test not found</div>;
@@ -165,7 +198,6 @@ export default function MockTest() {
   }
 
   const currentQ = test.questions[currentQIndex];
-  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
 
   if (!currentQ) {
     return (
@@ -283,7 +315,7 @@ export default function MockTest() {
         <div className="flex w-full md:w-auto gap-2">
           <button onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="flex-1 md:flex-none px-2 md:px-6 py-2 md:py-2.5 bg-white border border-slate-300 rounded font-semibold text-[11px] md:text-sm disabled:opacity-50 hover:bg-slate-50 text-center shadow-sm">Previous</button>
           <button onClick={() => setCurrentQIndex(Math.min(test.questions.length-1, currentQIndex+1))} className="flex-1 md:flex-none px-2 md:px-8 py-2 md:py-2.5 bg-green-600 text-white rounded font-semibold text-[11px] md:text-sm hover:bg-green-700 shadow-md whitespace-nowrap text-center">Save & Next</button>
-          <button onClick={() => handleSubmit(false)} className="flex-1 md:flex-none px-3 md:px-6 py-2 md:py-2.5 bg-[#1e40af] text-white rounded font-bold text-[11px] md:text-sm hover:bg-blue-800 shadow-md text-center">Submit</button>
+          <button id="submit-exam-btn" onClick={() => handleSubmit(false)} className="flex-1 md:flex-none px-3 md:px-6 py-2 md:py-2.5 bg-[#1e40af] text-white rounded font-bold text-[11px] md:text-sm hover:bg-blue-800 shadow-md text-center">Submit</button>
         </div>
       </footer>
     </div>
