@@ -221,7 +221,7 @@ export default function MockTest() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-slate-50 dark:bg-slate-900 select-none animate-fade-in">
+    <div className="fixed inset-0 z-[100] flex flex-col bg-slate-50 dark:bg-slate-900 select-none animate-fade-in">
       <SEO title="Mock Test Active" />
       
       {/* Overlay for mobile palette */}
@@ -332,16 +332,18 @@ export default function MockTest() {
         </div>
       </div>
 
-      {/* Modern Footer Actions */}
-      <footer className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 p-3 md:p-4 flex flex-wrap md:flex-nowrap justify-between items-center gap-3 z-20">
-        <div className="flex w-full md:w-auto gap-2">
-          <button onClick={() => { setMarkedForReview({ ...markedForReview, [currentQIndex]: true }); setCurrentQIndex(Math.min(test.questions.length-1, currentQIndex+1)); }} className="flex-1 md:flex-none px-3 py-2.5 bg-violet-100 text-violet-700 hover:bg-violet-200 dark:bg-violet-900/30 dark:text-violet-300 rounded-xl font-bold text-xs md:text-sm whitespace-nowrap text-center transition-colors">Mark for Review</button>
-          <button onClick={() => { const newA = {...answers}; delete newA[currentQIndex]; setAnswers(newA); }} className="flex-1 md:flex-none px-3 py-2.5 bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 rounded-xl font-bold text-xs md:text-sm whitespace-nowrap text-center transition-colors">Clear</button>
-        </div>
-        <div className="flex w-full md:w-auto gap-2">
-          <button onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="flex-1 md:flex-none px-4 py-2.5 bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 disabled:opacity-50 rounded-xl font-bold text-xs md:text-sm text-center transition-colors">Previous</button>
-          <button onClick={() => setCurrentQIndex(Math.min(test.questions.length-1, currentQIndex+1))} className="flex-1 md:flex-none px-4 md:px-8 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs md:text-sm shadow-md whitespace-nowrap text-center transition-colors">Save & Next</button>
-          <button id="submit-exam-btn" onClick={() => handleSubmit(false)} className="flex-1 md:flex-none px-4 md:px-8 py-2.5 premium-gradient text-white rounded-xl font-bold text-xs md:text-sm shadow-lg shadow-blue-500/20 text-center hover:opacity-90 transition-opacity">Submit</button>
+      {/* Modern Footer Actions - Mobile Grid */}
+      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 p-2 md:p-4 z-20 shrink-0">
+        <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-2 md:gap-3">
+          <div className="grid grid-cols-2 w-full md:w-auto md:flex gap-2">
+            <button onClick={() => { setMarkedForReview({ ...markedForReview, [currentQIndex]: true }); setCurrentQIndex(Math.min(test.questions.length-1, currentQIndex+1)); }} className="px-2 py-2.5 bg-violet-100 text-violet-700 hover:bg-violet-200 dark:bg-violet-900/40 dark:text-violet-300 rounded-lg font-bold text-xs md:text-sm text-center transition-colors flex items-center justify-center">Mark for Review</button>
+            <button onClick={() => { const newA = {...answers}; delete newA[currentQIndex]; setAnswers(newA); }} className="px-2 py-2.5 bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 rounded-lg font-bold text-xs md:text-sm text-center transition-colors flex items-center justify-center">Clear</button>
+          </div>
+          <div className="grid grid-cols-3 w-full md:w-auto md:flex gap-2">
+            <button onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="px-1 py-2.5 bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 disabled:opacity-50 rounded-lg font-bold text-xs md:text-sm text-center transition-colors flex items-center justify-center">Previous</button>
+            <button onClick={() => setCurrentQIndex(Math.min(test.questions.length-1, currentQIndex+1))} className="px-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-bold text-[11px] sm:text-xs md:text-sm shadow-sm text-center transition-colors flex items-center justify-center">Save & Next</button>
+            <button id="submit-exam-btn" onClick={() => handleSubmit(false)} className="px-1 py-2.5 premium-gradient text-white rounded-lg font-bold text-xs md:text-sm shadow-sm text-center hover:opacity-90 transition-opacity flex items-center justify-center">Submit</button>
+          </div>
         </div>
       </footer>
     </div>

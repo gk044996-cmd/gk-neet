@@ -40,7 +40,7 @@ export default function Navbar() {
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-slate-600 dark:text-slate-300 hover:text-primary focus:outline-none"
+              className="text-slate-900 dark:text-white hover:text-primary focus:outline-none p-1 rounded-md"
             >
               {isMobileMenuOpen ? (
                 <XMarkIcon className="h-7 w-7" />
