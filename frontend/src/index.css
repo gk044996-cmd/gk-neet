@@ -1,23 +1,97 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #0ea5e9;
-  --color-secondary: #0f172a;
-  --color-accent: #22d3ee;
-  --color-dark: #1e293b;
-  --color-darker: #0f172a;
+  --color-primary: #3b82f6; /* Modern Blue */
+  --color-secondary: #1e293b;
+  --color-accent: #8b5cf6; /* Vibrant Violet */
+  --color-dark: #0f172a;
+  --color-darker: #020617;
+  --color-success: #10b981;
+  --color-danger: #ef4444;
+  --font-sans: 'Inter', system-ui, sans-serif;
 }
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900;
+    @apply bg-slate-50 text-slate-900 antialiased selection:bg-blue-500/30 selection:text-blue-700 transition-colors duration-300;
+    scroll-behavior: smooth;
   }
 }
 
 .glass-panel {
-  @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-xl;
+  @apply bg-white/80 backdrop-blur-xl border border-white/50 shadow-2xl shadow-blue-900/5;
 }
 
 .dark .glass-panel {
-  @apply bg-slate-900/70 border-slate-700/50 shadow-slate-900/50;
+  @apply bg-slate-900/80 border-slate-700/50 shadow-black/50;
+}
+
+.glass-card {
+  @apply bg-white/60 backdrop-blur-lg border border-white/40 shadow-lg shadow-indigo-900/5 hover:shadow-indigo-900/10 transition-all duration-300;
+}
+
+.dark .glass-card {
+  @apply bg-slate-800/60 border-slate-700/40 shadow-black/40 hover:shadow-black/60;
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600;
+}
+
+.dark .gradient-text {
+  @apply from-blue-400 to-violet-400;
+}
+
+.premium-gradient {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-slide-up {
+  animation: slideInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Custom scrollbar for webkit */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-slate-100;
+}
+.dark ::-webkit-scrollbar-track {
+  @apply bg-slate-900;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full;
+}
+.dark ::-webkit-scrollbar-thumb {
+  @apply bg-slate-700;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-600;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
