@@ -27,34 +27,33 @@ export default function Login() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="bg-gradient-to-br from-blue-50/90 via-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 shadow-[0_8px_30px_rgb(0,0,0,0.08)] max-w-md w-full p-8 sm:p-10 rounded-[2rem] relative overflow-hidden">
-        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-32 h-32 rounded-full bg-blue-500/10 blur-2xl pointer-events-none"></div>
+      <div className="bg-slate-100 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 shadow-2xl max-w-md w-full p-8 sm:p-10 rounded-[2rem] relative z-10">
         <div className="relative z-10">
           <div>
             <h2 className="mt-2 text-center text-3xl sm:text-4xl font-black text-black dark:text-white tracking-tight">Welcome Back</h2>
-            <p className="mt-3 text-center text-sm sm:text-base font-bold text-slate-700 dark:text-slate-300">Sign in to continue your preparation</p>
+            <p className="mt-3 text-center text-base font-black text-black dark:text-white">Sign in to continue your preparation</p>
           </div>
-          {error && <div className="mt-6 bg-red-100 border-l-4 border-red-500 text-red-800 p-4 rounded-xl font-bold text-sm shadow-sm" role="alert">{error}</div>}
-          <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+          {error && <div className="mt-6 bg-red-100 border-l-4 border-red-500 text-red-900 p-4 rounded-xl font-black text-sm shadow-sm" role="alert">{error}</div>}
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-5">
               <div>
-                <label className="block text-sm font-extrabold text-black dark:text-white mb-1.5 ml-1">Email Address</label>
-                <input type="email" required className="block w-full px-4 py-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-800 text-black dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm font-bold placeholder-slate-400" placeholder="you@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                <label className="block text-sm font-black text-black dark:text-white mb-2 ml-1">Email Address</label>
+                <input type="email" required className="block w-full px-4 py-4 rounded-xl border-2 border-black dark:border-white bg-white dark:bg-slate-900 text-black dark:text-white focus:ring-4 focus:ring-black/20 dark:focus:ring-white/20 outline-none transition-all shadow-sm font-black placeholder-slate-500" placeholder="you@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
               <div>
-                <label className="block text-sm font-extrabold text-black dark:text-white mb-1.5 ml-1">Password</label>
-                <input type="password" required className="block w-full px-4 py-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-800 text-black dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm font-bold placeholder-slate-400" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <label className="block text-sm font-black text-black dark:text-white mb-2 ml-1">Password</label>
+                <input type="password" required className="block w-full px-4 py-4 rounded-xl border-2 border-black dark:border-white bg-white dark:bg-slate-900 text-black dark:text-white focus:ring-4 focus:ring-black/20 dark:focus:ring-white/20 outline-none transition-all shadow-sm font-black placeholder-slate-500" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
             </div>
 
             <div className="pt-4">
-              <button type="submit" className="group relative w-full flex justify-center py-3.5 px-4 text-base font-black rounded-xl text-white bg-black hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 shadow-xl shadow-black/20 transition-all transform hover:-translate-y-0.5">
+              <button type="submit" className="group relative w-full flex justify-center py-4 px-4 text-lg font-black rounded-xl text-white bg-black hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-200 focus:outline-none focus:ring-4 focus:ring-black/30 shadow-xl transition-all">
                 Sign In to Account
               </button>
             </div>
             
-            <div className="text-center mt-6 text-sm font-bold text-slate-700 dark:text-slate-300">
-              Don't have an account? <Link to="/register" className="ml-1 font-black text-primary hover:text-primary/80 underline decoration-2 underline-offset-2">Sign up now</Link>
+            <div className="text-center mt-6 text-base font-black text-black dark:text-white">
+              Don't have an account? <Link to="/register" className="ml-1 font-black text-blue-700 dark:text-blue-400 hover:underline decoration-2 underline-offset-4">Sign up now</Link>
             </div>
           </form>
         </div>
