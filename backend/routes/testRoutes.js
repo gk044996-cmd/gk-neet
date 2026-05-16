@@ -3,6 +3,7 @@ const router = express.Router();
 const Test = require('../models/Test');
 const Question = require('../models/Question');
 const Result = require('../models/Result');
+const Notification = require('../models/Notification');
 const { protect, admin } = require('../middleware/auth');
 
 
@@ -181,8 +182,14 @@ router.post('/:id/submit', async (req, res) => {
     const user = await User.findById(decoded.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    const { answers, timeTaken } = req.body;
+    const { answers, timeTaken, submissionType = 'manual' } = req.body;
     const test = await Test.findById(req.params.id).populate('questions');
+    
+    // Prevent duplicate submissions
+    const existingResult = await Result.findOne({ userId: user._id, testId: test._id });
+    if (existingResult) {
+      return res.status(400).json({ error: 'You have already submitted this test.', result: user.history.find(h => h.testId.toString() === test._id.toString()), detailedResult: existingResult });
+    }
     
     let correct = 0;
     let incorrect = 0;
@@ -193,19 +200,27 @@ router.post('/:id/submit', async (req, res) => {
       const subject = q.subject;
       if (!subjectWiseMarks[subject]) subjectWiseMarks[subject] = 0;
 
-      if (answers[i] === undefined || answers[i] === null || answers[i] === '') {
+      if (answers[i] === undefined || answers[i] === null || answers[i] === '' || answers[i] === -1) {
         unattempted++;
       } else {
         // Evaluate
         let isCorrect = false;
+        const selectedOptionIndex = Number(answers[i]);
+        const selectedText = q.options[selectedOptionIndex];
         
-        // Handle newer string-based correctAnswer
-        if (q.correctAnswer !== undefined && q.correctAnswer !== null) {
-          isCorrect = String(answers[i]).trim().toLowerCase() === String(q.correctAnswer).trim().toLowerCase();
+        if (q.correctAnswer !== undefined && q.correctAnswer !== null && q.correctAnswer !== '') {
+          const correctAnswerStr = String(q.correctAnswer).trim().toLowerCase();
+          const selectedTextStr = selectedText ? String(selectedText).trim().toLowerCase() : '';
+          const selectedIndexStr = String(selectedOptionIndex);
+          
+          if (selectedTextStr === correctAnswerStr || selectedIndexStr === correctAnswerStr) {
+            isCorrect = true;
+          }
         } 
-        // Fallback to older correctAnswerIndex
         else if (q.correctAnswerIndex !== undefined && q.correctAnswerIndex !== null) {
-          isCorrect = String(answers[i]).trim() === String(q.correctAnswerIndex).trim();
+          if (selectedOptionIndex === Number(q.correctAnswerIndex)) {
+            isCorrect = true;
+          }
         }
 
         if (isCorrect) {
@@ -263,9 +278,22 @@ router.post('/:id/submit', async (req, res) => {
       unattemptedCount: unattempted,
       accuracy,
       selectedAnswers: answersArr,
-      subjectWiseMarks
+      subjectWiseMarks,
+      completed: true,
+      timeTaken,
+      percentage: accuracy,
+      submittedAt: new Date(),
+      submissionType
     });
     await result.save();
+
+    // Create Notification
+    await Notification.create({
+      userId: user._id,
+      title: 'Test Completed',
+      message: `You successfully completed ${test.title} with a score of ${score}/${test.totalMarks}.`,
+      type: 'exam'
+    });
 
     // Get the newly created history entry to send back
     const newEntry = user.history[user.history.length - 1];

@@ -169,7 +169,7 @@ router.get('/stats', protect, admin, async (req, res, next) => {
     const totalUsers = await User.countDocuments();
     const totalAttempts = await Result.countDocuments();
     
-    const results = await Result.find({}, 'score');
+    const results = await Result.find({ completed: true }, 'score');
     const averageScore = results.length > 0 ? Math.round(results.reduce((acc, r) => acc + r.score, 0) / results.length) : 0;
 
     res.json({ totalQuestions, totalTests, publishedTests, totalUsers, totalAttempts, averageScore });
@@ -182,7 +182,7 @@ router.get('/stats', protect, admin, async (req, res, next) => {
 router.get('/users', protect, admin, async (req, res, next) => {
   try {
     const users = await User.find().select('-password');
-    const results = await Result.find();
+    const results = await Result.find({ completed: true });
 
     const usersWithStats = users.map(user => {
       const userResults = results.filter(r => r.userId.toString() === user._id.toString());
@@ -190,8 +190,8 @@ router.get('/users', protect, admin, async (req, res, next) => {
       const highestScore = totalTests > 0 ? Math.max(...userResults.map(r => r.score || 0)) : 0;
       const averageScore = totalTests > 0 ? Math.round(userResults.reduce((acc, r) => acc + (r.score || 0), 0) / totalTests) : 0;
       const totalCorrect = userResults.reduce((acc, r) => acc + (r.correctCount || 0), 0);
-      const totalQuestions = userResults.reduce((acc, r) => acc + ((r.correctCount || 0) + (r.wrongCount || 0) + (r.unattemptedCount || 0)), 0);
-      const accuracy = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+      const totalAttempted = userResults.reduce((acc, r) => acc + ((r.correctCount || 0) + (r.wrongCount || 0)), 0);
+      const accuracy = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
 
       return {
         ...user.toObject(),
@@ -244,7 +244,7 @@ router.get('/users/:id/history', protect, admin, async (req, res, next) => {
 // Get all test results across all users
 router.get('/results', protect, admin, async (req, res, next) => {
   try {
-    const results = await Result.find().populate('userId', 'name email').populate('testId', 'title').sort({ attemptedAt: -1 });
+    const results = await Result.find({ completed: true }).populate('userId', 'name email').populate('testId', 'title').sort({ attemptedAt: -1 });
     res.json(results);
   } catch (err) {
     next(err);

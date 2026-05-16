@@ -26,6 +26,8 @@ export default function Navbar() {
                 <Link to="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link>
                 <Link to="/results" className="hover:text-primary transition-colors">My Results</Link>
                 <Link to="/leaderboard" className="hover:text-primary transition-colors">Leaderboard</Link>
+                <Link to="/profile" className="hover:text-primary transition-colors">Profile</Link>
+                <Link to="/notifications" className="hover:text-primary transition-colors">Alerts</Link>
                 <button onClick={logout} className="px-4 py-2 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">Logout</button>
               </>
             ) : (

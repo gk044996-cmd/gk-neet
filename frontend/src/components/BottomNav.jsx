@@ -10,7 +10,6 @@ export default function BottomNav() {
 
   const links = [
     { name: 'Home', path: '/dashboard', icon: Home },
-    { name: 'PYQ', path: '/pyq', icon: BookOpen },
     { name: 'Profile', path: '/profile', icon: User },
     { name: 'Alerts', path: '/notifications', icon: Bell },
   ];

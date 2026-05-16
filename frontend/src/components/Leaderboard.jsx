@@ -62,9 +62,11 @@ export default function Leaderboard() {
               <div className="text-3xl font-black mb-1">{top3[1].highestScore}</div>
               <div className="text-sm font-semibold uppercase tracking-widest opacity-80">Score</div>
             </div>
-            <div className="mt-4 flex justify-around text-sm font-bold">
-              <span>{Math.round(top3[1].accuracy)}% Acc</span>
-              <span>{top3[1].totalTests} Tests</span>
+            <div className="mt-4 flex flex-wrap justify-around text-xs font-bold gap-2">
+              <span className="text-emerald-700 bg-emerald-100 px-2 py-1 rounded">✅ {top3[1].correctAnswers}</span>
+              <span className="text-rose-700 bg-rose-100 px-2 py-1 rounded">❌ {top3[1].wrongAnswers}</span>
+              <span className="text-blue-700 bg-blue-100 px-2 py-1 rounded">⏱ {Math.round(top3[1].timeTaken / 60)}m</span>
+              <span className="text-purple-700 bg-purple-100 px-2 py-1 rounded">🎯 {Math.round(top3[1].accuracy)}%</span>
             </div>
           </div>
         )}
@@ -80,9 +82,11 @@ export default function Leaderboard() {
               <div className="text-5xl font-black mb-1">{top3[0].highestScore}</div>
               <div className="text-sm font-bold uppercase tracking-widest opacity-80">Highest Score</div>
             </div>
-            <div className="mt-6 flex justify-around text-sm font-black">
-              <span>{Math.round(top3[0].accuracy)}% Acc</span>
-              <span>{top3[0].totalTests} Tests</span>
+            <div className="mt-6 flex flex-wrap justify-around text-sm font-black gap-2">
+              <span className="text-emerald-800 bg-emerald-100 px-3 py-1 rounded">✅ {top3[0].correctAnswers} Correct</span>
+              <span className="text-rose-800 bg-rose-100 px-3 py-1 rounded">❌ {top3[0].wrongAnswers} Wrong</span>
+              <span className="text-blue-800 bg-blue-100 px-3 py-1 rounded">⏱ {Math.round(top3[0].timeTaken / 60)} mins</span>
+              <span className="text-purple-800 bg-purple-100 px-3 py-1 rounded">🎯 {Math.round(top3[0].accuracy)}% Acc</span>
             </div>
           </div>
         )}
@@ -97,9 +101,11 @@ export default function Leaderboard() {
               <div className="text-3xl font-black mb-1">{top3[2].highestScore}</div>
               <div className="text-sm font-semibold uppercase tracking-widest opacity-80">Score</div>
             </div>
-            <div className="mt-4 flex justify-around text-sm font-bold">
-              <span>{Math.round(top3[2].accuracy)}% Acc</span>
-              <span>{top3[2].totalTests} Tests</span>
+            <div className="mt-4 flex flex-wrap justify-around text-xs font-bold gap-2">
+              <span className="text-emerald-700 bg-emerald-100 px-2 py-1 rounded">✅ {top3[2].correctAnswers}</span>
+              <span className="text-rose-700 bg-rose-100 px-2 py-1 rounded">❌ {top3[2].wrongAnswers}</span>
+              <span className="text-blue-700 bg-blue-100 px-2 py-1 rounded">⏱ {Math.round(top3[2].timeTaken / 60)}m</span>
+              <span className="text-purple-700 bg-purple-100 px-2 py-1 rounded">🎯 {Math.round(top3[2].accuracy)}%</span>
             </div>
           </div>
         )}
@@ -113,9 +119,11 @@ export default function Leaderboard() {
               <tr className="bg-slate-50 dark:bg-slate-800/50">
                 <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Rank</th>
                 <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Student</th>
-                <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Highest Score</th>
+                <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Score</th>
                 <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Accuracy</th>
-                <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Tests Taken</th>
+                <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Correct</th>
+                <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Wrong</th>
+                <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Time</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
@@ -135,8 +143,14 @@ export default function Leaderboard() {
                   <td className="px-6 py-5 font-semibold text-emerald-600">
                     {Math.round(user.accuracy)}%
                   </td>
-                  <td className="px-6 py-5 font-medium text-slate-500">
-                    {user.totalTests}
+                  <td className="px-6 py-5 font-medium text-emerald-500">
+                    {user.correctAnswers}
+                  </td>
+                  <td className="px-6 py-5 font-medium text-rose-500">
+                    {user.wrongAnswers}
+                  </td>
+                  <td className="px-6 py-5 font-medium text-blue-500">
+                    {Math.round(user.timeTaken / 60)}m
                   </td>
                 </tr>
               ))}

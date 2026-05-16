@@ -84,7 +84,7 @@ router.get('/me', async (req, res) => {
 router.get('/leaderboard', async (req, res) => {
   try {
     const users = await User.find({ role: 'student' }).select('name email');
-    const results = await Result.find();
+    const results = await Result.find({ completed: true });
 
     let leaderboard = users.map(user => {
       const userResults = results.filter(r => r.userId.toString() === user._id.toString());
@@ -92,25 +92,32 @@ router.get('/leaderboard', async (req, res) => {
       const highestScore = totalTests > 0 ? Math.max(...userResults.map(r => r.score || 0)) : 0;
       
       const totalCorrect = userResults.reduce((acc, r) => acc + (r.correctCount || 0), 0);
-      const totalQuestions = userResults.reduce((acc, r) => acc + ((r.correctCount || 0) + (r.wrongCount || 0) + (r.unattemptedCount || 0)), 0);
-      const accuracy = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+      const totalAttempted = userResults.reduce((acc, r) => acc + ((r.correctCount || 0) + (r.wrongCount || 0)), 0);
+      const accuracy = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
+      const timeTaken = userResults.reduce((acc, r) => acc + (r.timeTaken || 0), 0);
+      const correctAnswers = totalCorrect;
+      const wrongAnswers = userResults.reduce((acc, r) => acc + (r.wrongCount || 0), 0);
 
       return {
         _id: user._id,
         name: user.name,
         totalTests,
         highestScore,
-        accuracy
+        accuracy,
+        timeTaken,
+        correctAnswers,
+        wrongAnswers
       };
     });
 
-    // Include all users in the leaderboard
-    // leaderboard = leaderboard.filter(l => l.totalTests > 0);
+    // Exclude users who haven't completed any tests
+    leaderboard = leaderboard.filter(l => l.totalTests > 0);
 
-    // Rank primarily by highestScore, then accuracy, then totalTests
+    // Rank primarily by highestScore, then accuracy, then lowest timeTaken
     leaderboard.sort((a, b) => {
       if (b.highestScore !== a.highestScore) return b.highestScore - a.highestScore;
       if (b.accuracy !== a.accuracy) return b.accuracy - a.accuracy;
+      if (a.timeTaken !== b.timeTaken) return a.timeTaken - b.timeTaken;
       return b.totalTests - a.totalTests;
     });
 

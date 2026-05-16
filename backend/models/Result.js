@@ -14,7 +14,17 @@ const resultSchema = new mongoose.Schema({
     isCorrect: Boolean
   }],
   subjectWiseMarks: { type: Object, default: {} },
-  attemptedAt: { type: Date, default: Date.now }
+  attemptedAt: { type: Date, default: Date.now },
+  submittedAt: { type: Date },
+  completed: { type: Boolean, default: false },
+  percentage: { type: Number, default: 0 },
+  timeTaken: { type: Number, default: 0 },
+  submissionType: { type: String, enum: ['manual', 'auto'], default: 'manual' }
 }, { timestamps: true });
+
+// Add Indexes for fast queries
+resultSchema.index({ userId: 1 });
+resultSchema.index({ testId: 1 });
+resultSchema.index({ score: -1, accuracy: -1, timeTaken: 1 }); // Leaderboard index
 
 module.exports = mongoose.model('Result', resultSchema);

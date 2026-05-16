@@ -114,12 +114,30 @@ export default function Result() {
                   <p style={{ margin: '0 0 10px 0', fontWeight: 'bold' }}>Q{idx + 1}. {q.text}</p>
                   {q.imageUrl && <img src={q.imageUrl} alt="Question" style={{ maxWidth: '100%', maxHeight: '200px', marginBottom: '10px' }} />}
                   <div style={{ paddingLeft: '15px', marginBottom: '10px' }}>
-                    {q.options?.map((opt, oIdx) => (
+                    {q.options?.map((opt, oIdx) => {
+                      const isUnattemptedHere = result.selectedAnswers?.find(sa => sa.questionId === q._id || sa.questionId?._id === q._id)?.selectedOption === -1;
+                      return (
                       <p key={oIdx} style={{ margin: '5px 0', color: oIdx === q.correctAnswerIndex ? '#059669' : '#333333', fontWeight: oIdx === q.correctAnswerIndex ? 'bold' : 'normal', fontSize: '14px' }}>
                         {['A','B','C','D'][oIdx]}. {opt} {oIdx === q.correctAnswerIndex ? '✓' : ''}
                       </p>
-                    ))}
+                    )})}
                   </div>
+                  {(() => {
+                    const studentAnswer = result.selectedAnswers?.find(sa => {
+                      const saId = typeof sa.questionId === 'object' ? sa.questionId._id : sa.questionId;
+                      const qId = typeof q === 'object' ? q._id : q;
+                      return saId === qId;
+                    });
+                    const isUnattempted = studentAnswer?.selectedOption === null || studentAnswer?.selectedOption === undefined || studentAnswer?.selectedOption === -1;
+                    if (isUnattempted) {
+                      return (
+                        <div style={{ marginTop: '10px', padding: '8px', backgroundColor: '#f1f5f9', borderRadius: '6px', color: '#64748b', fontSize: '14px', fontWeight: 'bold' }}>
+                          ⚪ Status: Not Attempted
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                   {q.explanation && (
                     <div style={{ padding: '10px', backgroundColor: '#eff6ff', borderLeft: '4px solid #3b82f6', marginTop: '10px' }}>
                       <p style={{ margin: 0, fontSize: '13px', color: '#1e3a8a' }}><strong>Explanation:</strong> {q.explanation}</p>
@@ -165,15 +183,22 @@ export default function Result() {
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-4 text-slate-900 dark:text-white">Performance Analysis</h1>
         <p className="text-slate-500 text-lg">Detailed review of your mock test attempt.</p>
+        
+        {result?.submissionType === 'auto' && (
+          <div className="mt-6 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200 p-4 rounded-xl inline-flex items-center gap-3">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            <span className="font-bold">Test auto submitted because exam time ended.</span>
+          </div>
+        )}
       </div>
 
-      <div className="bg-white p-8 rounded-3xl mb-8 border border-slate-200 shadow-sm relative overflow-hidden" id="pdf-content">
+      <div className="bg-white p-8 rounded-3xl mb-8 border border-slate-200 shadow-sm relative overflow-visible h-auto min-h-min z-10 break-words" id="pdf-content">
         {/* PDF Header - Visible mostly in PDF or explicitly styled */}
         <div className="border-b-2 border-indigo-100 pb-6 mb-8">
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-1">GK NEET MOCK</h1>
-              <h2 className="text-xl font-bold text-slate-800">{test.title}</h2>
+              <h2 className="text-xl font-bold text-slate-800 dark:text-white">{test.title}</h2>
             </div>
             <div className="text-right">
               <p className="text-sm font-semibold text-slate-600">{currentUser?.name}</p>
@@ -214,11 +239,11 @@ export default function Result() {
         {/* Subject-wise Performance */}
         {result.subjectWiseMarks && Object.keys(result.subjectWiseMarks).length > 0 && (
           <div className="mt-8 pt-8 border-t border-slate-200">
-            <h2 className="text-xl font-bold text-slate-800 mb-6">Subject Performance</h2>
+            <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6">Subject Performance</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {Object.entries(result.subjectWiseMarks).map(([subject, marks]) => (
                 <div key={subject} className="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center">
-                  <div className="text-2xl font-bold text-slate-800 mb-1">{marks}</div>
+                  <div className="text-2xl font-bold text-slate-800 dark:text-white mb-1">{marks}</div>
                   <div className="text-sm text-slate-500 uppercase tracking-wider font-semibold">{subject}</div>
                 </div>
               ))}
@@ -228,7 +253,7 @@ export default function Result() {
 
         {/* Answer Key Section (For PDF Download) */}
         <div className="mt-12 pt-8 border-t border-slate-200">
-          <h2 className="text-xl font-bold text-slate-800 mb-6">Answer Key</h2>
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6">Answer Key</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {test.questions.map((q, idx) => {
               const studentAnswer = result.selectedAnswers?.find(sa => {
@@ -251,12 +276,15 @@ export default function Result() {
               
               return (
                 <div key={q._id} className={`p-3 rounded-xl border flex items-center justify-between shadow-sm ${bgClass}`}>
-                  <span className="font-bold text-slate-700">Q{idx + 1}.</span>
+                  <span className="font-bold text-slate-700 dark:text-slate-200">Q{idx + 1}.</span>
                   <div className="text-sm font-semibold">
                     <span className="text-slate-500 mr-1">Ans:</span>
                     {correctOptLetter}
                     {!isUnattempted && !isCorrect && (
                       <span className="ml-2 text-xs line-through text-slate-400">{studentOptLetter}</span>
+                    )}
+                    {isUnattempted && (
+                      <div className="mt-1 text-[10px] uppercase font-bold text-slate-400">⚪ Not Attempted</div>
                     )}
                   </div>
                 </div>

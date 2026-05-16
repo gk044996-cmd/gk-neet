@@ -19,6 +19,7 @@ export default function MockTest() {
   const [test, setTest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+  const warningsShownRef = useRef({ 10: false, 5: false, 1: false });
 
   const timeLeftRef = useRef(timeLeft);
   const answersRef = useRef(answers);
@@ -48,6 +49,10 @@ export default function MockTest() {
         
         setTest(data);
         if (data.duration) setTimeLeft(data.duration * 60);
+        const savedAnswers = localStorage.getItem(`test_answers_${id}`);
+        if (savedAnswers) {
+          try { setAnswers(JSON.parse(savedAnswers)); } catch(e){}
+        }
       } catch (err) {
         console.error(err);
         alert('Could not load the test.');
@@ -58,6 +63,13 @@ export default function MockTest() {
     };
     fetchTest();
   }, [id, navigate]);
+
+  // Auto-save answers
+  useEffect(() => {
+    if (started) {
+      localStorage.setItem(`test_answers_${id}`, JSON.stringify(answers));
+    }
+  }, [answers, started, id]);
 
   // Security & Anti-cheat measures
   useEffect(() => {
@@ -85,10 +97,18 @@ export default function MockTest() {
     document.addEventListener('contextmenu', preventCopy);
     document.addEventListener('copy', preventCopy);
 
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = 'Your test is still running. Leaving may auto submit your exam.';
+      return 'Your test is still running. Leaving may auto submit your exam.';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       document.removeEventListener('contextmenu', preventCopy);
       document.removeEventListener('copy', preventCopy);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [started]);
 
@@ -97,11 +117,26 @@ export default function MockTest() {
     if (!started) return;
     const timer = setInterval(() => {
       setTimeLeft(prev => {
+        if (prev === 601 && !warningsShownRef.current[10]) {
+          warningsShownRef.current[10] = true;
+          setTimeout(() => alert('Only 10 minutes remaining!'), 0);
+        }
+        if (prev === 301 && !warningsShownRef.current[5]) {
+          warningsShownRef.current[5] = true;
+          setTimeout(() => alert('Only 5 minutes remaining!'), 0);
+        }
+        if (prev === 61 && !warningsShownRef.current[1]) {
+          warningsShownRef.current[1] = true;
+          setTimeout(() => alert('Final 1 minute remaining! Your test will auto submit.'), 0);
+        }
         if (prev <= 1) {
           clearInterval(timer);
           setTimeout(() => {
             const submitBtn = document.getElementById('submit-exam-btn');
-            if (submitBtn) submitBtn.click();
+            if (submitBtn) {
+              submitBtn.dataset.type = 'auto';
+              submitBtn.click();
+            }
           }, 0);
           return 0;
         }
@@ -140,9 +175,13 @@ export default function MockTest() {
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const handleSubmit = useCallback(async (forced = false) => {
+  const handleSubmit = useCallback(async (forced = false, submissionType = 'manual') => {
     if (!forced && !window.confirm('Are you sure you want to submit the test?')) return;
     
+    if (timeLeftRef.current <= 0) {
+      submissionType = 'auto';
+    }
+
     // Convert answers to array mapped to questions
     const finalAnswers = test.questions.map((q, i) => answersRef.current[i] !== undefined ? answersRef.current[i] : -1);
 
@@ -154,7 +193,7 @@ export default function MockTest() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ answers: finalAnswers, timeTaken: (test.duration * 60) - timeLeftRef.current })
+        body: JSON.stringify({ answers: finalAnswers, timeTaken: (test.duration * 60) - timeLeftRef.current, submissionType })
       });
       const data = await res.json();
       
@@ -165,6 +204,11 @@ export default function MockTest() {
         }
       } catch (e) {
         console.warn(e);
+      }
+      
+      localStorage.removeItem(`test_answers_${id}`);
+      if (submissionType === 'auto') {
+        alert("Test auto submitted because exam time ended.");
       }
       
       navigate(`/results/${data.detailedResult._id}`, { state: { result: data.detailedResult, test: test } });
@@ -242,7 +286,7 @@ export default function MockTest() {
             NEET MOCK
           </div>
           <div className="flex items-center gap-3 md:hidden">
-            <div className={`text-xl font-mono font-bold bg-black/20 px-3 py-1 rounded-lg backdrop-blur-md ${timeLeft < 600 ? 'text-red-300 animate-pulse' : ''}`}>
+            <div className={`text-xl font-mono font-bold bg-black/20 px-3 py-1 rounded-lg backdrop-blur-md ${timeLeft < 60 ? 'text-red-300 animate-pulse bg-red-900/40' : (timeLeft < 600 ? 'text-yellow-300' : '')}`}>
               {formatTime(timeLeft)}
             </div>
             <button 
@@ -263,9 +307,9 @@ export default function MockTest() {
         </div>
         
         <div className="hidden md:flex items-center gap-6">
-          <div className="flex items-center gap-3 bg-black/20 px-4 py-2 rounded-xl backdrop-blur-md border border-white/10">
+          <div className={`flex items-center gap-3 bg-black/20 px-4 py-2 rounded-xl backdrop-blur-md border ${timeLeft < 60 ? 'border-red-500/50 bg-red-900/30' : 'border-white/10'}`}>
             <div className="text-xs uppercase tracking-wider font-semibold opacity-80">Time Left</div>
-            <div className={`text-2xl font-mono font-bold ${timeLeft < 600 ? 'text-red-300 animate-pulse' : ''}`}>
+            <div className={`text-2xl font-mono font-bold transition-colors ${timeLeft < 60 ? 'text-red-300 animate-pulse' : (timeLeft < 600 ? 'text-yellow-300' : '')}`}>
               {formatTime(timeLeft)}
             </div>
           </div>
@@ -275,8 +319,8 @@ export default function MockTest() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative bg-slate-50 dark:bg-slate-900">
         {/* Question Area */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 hide-scrollbar relative">
-          <div key={currentQIndex} className="glass-card rounded-2xl p-5 md:p-8 min-h-full h-fit flex flex-col max-w-4xl mx-auto animate-fade-in border border-slate-200/60 dark:border-slate-700/60">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 hide-scrollbar relative z-10">
+          <div key={currentQIndex} className="glass-card rounded-2xl p-6 md:p-10 min-h-min h-auto flex flex-col max-w-4xl mx-auto animate-fade-in border border-slate-200/60 dark:border-slate-700/60 relative z-20 overflow-visible break-words">
             <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-lg md:text-2xl font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-3">
                 <span className="bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300 w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center text-sm md:text-base">Q{currentQIndex + 1}</span>
@@ -286,16 +330,16 @@ export default function MockTest() {
                 <span className="text-xs md:text-sm font-bold text-rose-500 bg-rose-50 dark:bg-rose-900/30 px-3 py-1.5 rounded-md border border-rose-100 dark:border-rose-800">-1</span>
               </div>
             </div>
-            <p className="text-base md:text-lg mb-8 font-black leading-relaxed text-black dark:text-white selection:bg-blue-200">{currentQ.text}</p>
-            <div className="space-y-3 md:space-y-4 flex-grow">
+            <p className="text-base md:text-lg mb-8 font-black leading-relaxed text-slate-900 dark:text-slate-100 selection:bg-blue-200" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>{currentQ.text}</p>
+            <div className="space-y-4 md:space-y-5 flex-grow h-auto min-h-min overflow-visible relative z-30">
               {currentQ.options.map((opt, i) => (
-                <label key={i} className={`flex items-start p-4 md:p-5 border-2 rounded-xl cursor-pointer transition-all duration-200 group ${answers[currentQIndex] === i ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md shadow-blue-500/10 scale-[1.01]' : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
-                  <div className="relative flex items-center justify-center mt-0.5">
-                    <input type="radio" name={`question-${currentQIndex}`} className="peer sr-only" checked={answers[currentQIndex] === i} onChange={() => setAnswers({ ...answers, [currentQIndex]: i })} />
-                    <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 peer-checked:border-blue-500 peer-checked:bg-blue-500 transition-colors"></div>
-                    <div className="absolute inset-0 rounded-full scale-0 peer-checked:scale-50 bg-white transition-transform"></div>
+                <label key={i} className={`flex items-start p-5 md:p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 group h-auto min-h-min z-40 relative ${answers[currentQIndex] === i ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md shadow-blue-500/10 scale-[1.01]' : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                  <div className="relative flex items-center justify-center mt-0.5 shrink-0">
+                    <input type="radio" name={`question-${currentQIndex}`} className="peer sr-only" checked={answers[currentQIndex] === i} disabled={timeLeft <= 0} onChange={() => setAnswers({ ...answers, [currentQIndex]: i })} />
+                    <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 peer-checked:border-blue-500 peer-checked:bg-blue-500 transition-colors peer-disabled:opacity-50"></div>
+                    <div className="absolute inset-0 rounded-full scale-0 peer-checked:scale-50 bg-white transition-transform peer-disabled:opacity-50"></div>
                   </div>
-                  <span className={`ml-4 text-sm md:text-base break-words font-black ${answers[currentQIndex] === i ? 'text-blue-700 dark:text-blue-300' : 'text-black dark:text-white group-hover:text-black dark:group-hover:text-white'}`}>{opt}</span>
+                  <span className={`ml-4 text-sm md:text-base font-black ${answers[currentQIndex] === i ? 'text-blue-800 dark:text-blue-300' : 'text-slate-900 dark:text-slate-100 group-hover:text-slate-900 dark:group-hover:text-white'}`} style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>{opt}</span>
                 </label>
               ))}
             </div>
@@ -342,7 +386,7 @@ export default function MockTest() {
           <div className="grid grid-cols-3 w-full md:w-auto md:flex gap-2">
             <button onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="px-1 py-2.5 bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 disabled:opacity-50 rounded-lg font-bold text-xs md:text-sm text-center transition-colors flex items-center justify-center">Previous</button>
             <button onClick={() => setCurrentQIndex(Math.min(test.questions.length-1, currentQIndex+1))} className="px-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-bold text-[11px] sm:text-xs md:text-sm shadow-sm text-center transition-colors flex items-center justify-center">Save & Next</button>
-            <button id="submit-exam-btn" onClick={() => handleSubmit(false)} className="px-1 py-2.5 premium-gradient text-white rounded-lg font-bold text-xs md:text-sm shadow-sm text-center hover:opacity-90 transition-opacity flex items-center justify-center">Submit</button>
+            <button id="submit-exam-btn" onClick={(e) => handleSubmit(e.currentTarget.dataset.type === 'auto', e.currentTarget.dataset.type === 'auto' ? 'auto' : 'manual')} className="px-1 py-2.5 premium-gradient text-white rounded-lg font-bold text-xs md:text-sm shadow-sm text-center hover:opacity-90 transition-opacity flex items-center justify-center disabled:opacity-50" disabled={timeLeft <= 0}>Submit</button>
           </div>
         </div>
       </footer>

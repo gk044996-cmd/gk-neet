@@ -30,4 +30,9 @@ const questionSchema = new mongoose.Schema({
   }]
 }, { timestamps: true });
 
+// Add Indexes for fast querying
+questionSchema.index({ subject: 1 });
+questionSchema.index({ chapter: 1 });
+questionSchema.index({ questionType: 1 });
+
 module.exports = mongoose.model('Question', questionSchema);
