@@ -68,8 +68,8 @@ export default function Home() {
             ].map((feature, i) => (
               <div key={i} className="glass-card p-8 rounded-3xl group">
                 <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mb-6 text-3xl font-bold group-hover:scale-110 transition-transform shadow-inner">{feature.icon}</div>
-                <h3 className="text-2xl font-bold mb-3 text-slate-800 dark:text-slate-100">{feature.title}</h3>
-                <p className="text-slate-600 dark:text-slate-400 font-medium leading-relaxed">{feature.desc}</p>
+                <h3 className="text-2xl font-black mb-3 text-black dark:text-white">{feature.title}</h3>
+                <p className="text-slate-900 dark:text-slate-300 font-bold leading-relaxed">{feature.desc}</p>
               </div>
             ))}
           </div>
