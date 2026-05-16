@@ -58,25 +58,25 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-12">
-        <div className="glass-panel p-6 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-xl shadow-indigo-500/30 transform hover:-translate-y-1 transition-transform">
+        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 rounded-2xl text-white shadow-xl shadow-indigo-500/30 transform hover:-translate-y-1 transition-transform">
           <h3 className="text-indigo-100 mb-1 font-semibold uppercase tracking-wider text-sm">My Rank</h3>
           <p className="text-4xl font-black">{myRank ? `#${myRank}` : 'N/A'}</p>
         </div>
-        <div className="glass-panel p-6 rounded-2xl">
-          <h3 className="text-slate-500 mb-1">Total Tests Taken</h3>
-          <p className="text-3xl font-bold">{totalTests}</p>
+        <div className="bg-purple-50 dark:bg-purple-900/30 p-6 rounded-2xl border border-purple-200 dark:border-purple-800 shadow-md">
+          <h3 className="text-purple-800 dark:text-purple-300 mb-1 font-bold">Total Tests Taken</h3>
+          <p className="text-3xl font-black text-black dark:text-white">{totalTests}</p>
         </div>
-        <div className="glass-panel p-6 rounded-2xl">
-          <h3 className="text-slate-500 mb-1">Highest Score</h3>
-          <p className="text-3xl font-bold text-indigo-600">{highestScore}</p>
+        <div className="bg-purple-50 dark:bg-purple-900/30 p-6 rounded-2xl border border-purple-200 dark:border-purple-800 shadow-md">
+          <h3 className="text-purple-800 dark:text-purple-300 mb-1 font-bold">Highest Score</h3>
+          <p className="text-3xl font-black text-black dark:text-white">{highestScore}</p>
         </div>
-        <div className="glass-panel p-6 rounded-2xl">
-          <h3 className="text-slate-500 mb-1">Average Score</h3>
-          <p className="text-3xl font-bold text-primary">{averageScore}</p>
+        <div className="bg-purple-50 dark:bg-purple-900/30 p-6 rounded-2xl border border-purple-200 dark:border-purple-800 shadow-md">
+          <h3 className="text-purple-800 dark:text-purple-300 mb-1 font-bold">Average Score</h3>
+          <p className="text-3xl font-black text-black dark:text-white">{averageScore}</p>
         </div>
-        <div className="glass-panel p-6 rounded-2xl">
-          <h3 className="text-slate-500 mb-1">Overall Accuracy</h3>
-          <p className="text-3xl font-bold text-green-500">{accuracy}%</p>
+        <div className="bg-purple-50 dark:bg-purple-900/30 p-6 rounded-2xl border border-purple-200 dark:border-purple-800 shadow-md">
+          <h3 className="text-purple-800 dark:text-purple-300 mb-1 font-bold">Overall Accuracy</h3>
+          <p className="text-3xl font-black text-black dark:text-white">{accuracy}%</p>
         </div>
       </div>
 
@@ -86,8 +86,8 @@ export default function Dashboard() {
           const attempt = myResults.find(r => r.testId && r.testId._id === test._id);
           
           return (
-            <div key={test._id} className="glass-panel p-6 rounded-2xl flex flex-col border border-slate-200 dark:border-slate-800">
-              <h3 className="text-xl font-bold mb-2">{test.title}</h3>
+            <div key={test._id} className="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-2xl flex flex-col border border-purple-200 dark:border-purple-800 shadow-md hover:shadow-lg transition-shadow">
+              <h3 className="text-xl font-black text-black dark:text-white mb-2">{test.title}</h3>
               <div className="flex justify-between text-sm text-slate-500 mb-4">
                 <span>{test.totalQuestions || test.questions?.length || 0} Questions</span>
                 <span>{test.duration} Mins</span>

@@ -286,7 +286,7 @@ export default function MockTest() {
                 <span className="text-xs md:text-sm font-bold text-rose-500 bg-rose-50 dark:bg-rose-900/30 px-3 py-1.5 rounded-md border border-rose-100 dark:border-rose-800">-1</span>
               </div>
             </div>
-            <p className="text-base md:text-lg mb-8 font-medium leading-relaxed text-slate-800 dark:text-slate-200 selection:bg-blue-200">{currentQ.text}</p>
+            <p className="text-base md:text-lg mb-8 font-black leading-relaxed text-black dark:text-white selection:bg-blue-200">{currentQ.text}</p>
             <div className="space-y-3 md:space-y-4 flex-grow">
               {currentQ.options.map((opt, i) => (
                 <label key={i} className={`flex items-start p-4 md:p-5 border-2 rounded-xl cursor-pointer transition-all duration-200 group ${answers[currentQIndex] === i ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md shadow-blue-500/10 scale-[1.01]' : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
@@ -295,7 +295,7 @@ export default function MockTest() {
                     <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 peer-checked:border-blue-500 peer-checked:bg-blue-500 transition-colors"></div>
                     <div className="absolute inset-0 rounded-full scale-0 peer-checked:scale-50 bg-white transition-transform"></div>
                   </div>
-                  <span className={`ml-4 text-sm md:text-base break-words font-medium ${answers[currentQIndex] === i ? 'text-blue-700 dark:text-blue-300' : 'text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white'}`}>{opt}</span>
+                  <span className={`ml-4 text-sm md:text-base break-words font-black ${answers[currentQIndex] === i ? 'text-blue-700 dark:text-blue-300' : 'text-black dark:text-white group-hover:text-black dark:group-hover:text-white'}`}>{opt}</span>
                 </label>
               ))}
             </div>
