@@ -66,10 +66,10 @@ export default function Home() {
               { title: 'In-Depth Analytics', desc: 'Subject-wise performance, time tracking, and accuracy graphs.', icon: '📈' },
               { title: 'Detailed Solutions', desc: 'Comprehensive explanations for every question after submission.', icon: '💡' }
             ].map((feature, i) => (
-              <div key={i} className="glass-card p-8 rounded-3xl group">
-                <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mb-6 text-3xl font-bold group-hover:scale-110 transition-transform shadow-inner">{feature.icon}</div>
+              <div key={i} className="bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 shadow-xl p-8 rounded-3xl group transition-all duration-300 hover:shadow-2xl">
+                <div className="w-14 h-14 bg-blue-200 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded-2xl flex items-center justify-center mb-6 text-3xl font-bold group-hover:scale-110 transition-transform shadow-sm">{feature.icon}</div>
                 <h3 className="text-2xl font-black mb-3 text-black dark:text-white">{feature.title}</h3>
-                <p className="text-slate-900 dark:text-slate-300 font-bold leading-relaxed">{feature.desc}</p>
+                <p className="text-slate-900 dark:text-slate-200 font-bold leading-relaxed">{feature.desc}</p>
               </div>
             ))}
           </div>
