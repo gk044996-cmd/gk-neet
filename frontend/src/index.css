@@ -1,45 +1,82 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #3b82f6; /* Modern Blue */
-  --color-secondary: #1e293b;
-  --color-accent: #8b5cf6; /* Vibrant Violet */
-  --color-dark: #0f172a;
-  --color-darker: #020617;
-  --color-success: #10b981;
+  --color-primary: #093c5d;
+  --color-secondary: #3b7597;
+  --color-accent: #6fd1d7;
+  --color-highlight: #5df8d8;
+  --color-dark: #093c5d;
+  --color-darker: #052236;
+  --color-success: #5df8d8;
   --color-danger: #ef4444;
+  --color-slate-50: #f2f7fb;
+  --color-slate-100: #e1eef6;
+  --color-slate-200: #c3dded;
+  --color-slate-300: #96c3dd;
+  --color-slate-400: #6fd1d7; /* Using accent here for decorative elements */
+  --color-slate-500: #3b7597; /* Safe for text */
+  --color-slate-600: #2c6080;
+  --color-slate-700: #234d66;
+  --color-slate-800: #093c5d;
+  --color-slate-900: #052236;
+  
+  /* Map other colors to our palette for perfect consistency */
+  --color-blue-500: #3b7597;
+  --color-blue-600: #2c6080;
+  --color-blue-900: #052236;
+  
+  --color-indigo-400: #6fd1d7;
+  --color-indigo-500: #3b7597;
+  --color-indigo-600: #2c6080;
+  --color-indigo-900: #052236;
+  
+  --color-emerald-400: #5df8d8;
+  --color-emerald-500: #2ebd9f; /* A slightly darker mint for contrast if needed */
+  --color-emerald-600: #238f78;
+  
+  --color-violet-400: #6fd1d7;
+  --color-violet-500: #3b7597;
+  --color-violet-600: #2c6080;
+  
   --font-sans: 'Inter', system-ui, sans-serif;
 }
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 antialiased selection:bg-blue-500/30 selection:text-blue-700 transition-colors duration-300;
+    @apply bg-slate-50 text-[#093c5d] antialiased selection:bg-[#5df8d8]/30 selection:text-[#093c5d] transition-colors duration-300 font-medium;
     scroll-behavior: smooth;
+  }
+  
+  .dark {
+    /* Override primary/text colors in dark mode for perfect visibility */
+    --color-primary: #6fd1d7;
+    --color-secondary: #5df8d8;
+    color: #e1eef6; /* slate-100 */
   }
 }
 
 .glass-panel {
-  @apply bg-white border border-slate-200 shadow-2xl shadow-blue-900/5;
+  @apply bg-white border border-[#3b7597]/20 shadow-2xl shadow-[#093c5d]/5;
 }
 
 .dark .glass-panel {
-  @apply bg-slate-900 border-slate-700 shadow-black/50;
+  @apply bg-[#052236] border-[#093c5d] shadow-black/50;
 }
 
 .glass-card {
-  @apply bg-white border border-slate-200 shadow-md shadow-indigo-900/5 hover:shadow-indigo-900/10 transition-all duration-300;
+  @apply bg-white border border-[#3b7597]/20 shadow-md shadow-[#093c5d]/5 hover:shadow-[#093c5d]/10 transition-all duration-300;
 }
 
 .dark .glass-card {
-  @apply bg-slate-800 border-slate-700 shadow-black/40 hover:shadow-black/60;
+  @apply bg-[#093c5d] border-[#3b7597]/30 shadow-black/40 hover:shadow-black/60;
 }
 
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)];
 }
 
 .dark .gradient-text {
-  @apply from-blue-400 to-violet-400;
+  @apply from-[var(--color-accent)] to-[var(--color-highlight)];
 }
 
 .premium-gradient {

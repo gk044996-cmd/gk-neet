@@ -102,7 +102,35 @@ export default function Result() {
           <h1 style={{ fontSize: '24px', fontWeight: 'bold', borderBottom: '2px solid #e0e0e0', paddingBottom: '10px', marginBottom: '20px' }}>GK NEET MOCK - {test.title}</h1>
           <p style={{ margin: '0 0 10px 0' }}><strong>Student:</strong> {currentUser?.name} ({currentUser?.email})</p>
           <p style={{ margin: '0 0 20px 0' }}><strong>Score:</strong> {data.totalScore} / {data.maxScore}</p>
-          <h2 style={{ fontSize: '18px', marginTop: '30px', marginBottom: '15px' }}>Answer Key</h2>
+          {/* Detailed Questions Section */}
+          <h2 style={{ fontSize: '18px', marginTop: '30px', marginBottom: '15px' }}>Questions with Correct Answers</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {test.questions.map((q, idx) => {
+              let correctOptLetter = ['A','B','C','D'][q.correctAnswerIndex];
+              if (!correctOptLetter && q.correctAnswer) correctOptLetter = String(q.correctAnswer).trim();
+
+              return (
+                <div key={`det-${q._id}`} style={{ padding: '15px', border: '1px solid #e2e8f0', borderRadius: '8px', backgroundColor: '#f8fafc', pageBreakInside: 'avoid' }}>
+                  <p style={{ margin: '0 0 10px 0', fontWeight: 'bold' }}>Q{idx + 1}. {q.text}</p>
+                  {q.imageUrl && <img src={q.imageUrl} alt="Question" style={{ maxWidth: '100%', maxHeight: '200px', marginBottom: '10px' }} />}
+                  <div style={{ paddingLeft: '15px', marginBottom: '10px' }}>
+                    {q.options?.map((opt, oIdx) => (
+                      <p key={oIdx} style={{ margin: '5px 0', color: oIdx === q.correctAnswerIndex ? '#059669' : '#333333', fontWeight: oIdx === q.correctAnswerIndex ? 'bold' : 'normal', fontSize: '14px' }}>
+                        {['A','B','C','D'][oIdx]}. {opt} {oIdx === q.correctAnswerIndex ? '✓' : ''}
+                      </p>
+                    ))}
+                  </div>
+                  {q.explanation && (
+                    <div style={{ padding: '10px', backgroundColor: '#eff6ff', borderLeft: '4px solid #3b82f6', marginTop: '10px' }}>
+                      <p style={{ margin: 0, fontSize: '13px', color: '#1e3a8a' }}><strong>Explanation:</strong> {q.explanation}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <h2 style={{ fontSize: '18px', marginTop: '40px', marginBottom: '15px' }}>Quick Answer Key</h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
             {test.questions.map((q, idx) => {
               const studentAnswer = result.selectedAnswers?.find(sa => {

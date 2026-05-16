@@ -4,16 +4,20 @@ import { motion } from 'framer-motion';
 import { 
   ChartBarIcon, DocumentPlusIcon, ArrowUpTrayIcon, 
   QueueListIcon, AcademicCapIcon, TrashIcon, 
-  PencilSquareIcon, CheckCircleIcon, EyeIcon, MagnifyingGlassIcon, FunnelIcon, XMarkIcon 
+  PencilSquareIcon, CheckCircleIcon, EyeIcon, MagnifyingGlassIcon, FunnelIcon, XMarkIcon,
+  Bars3Icon
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import AdminUsers from '../../components/admin/AdminUsers';
 import AdminResults from '../../components/admin/AdminResults';
 import Leaderboard from '../../components/Leaderboard';
 import { BASE_URL } from '../../config';
+import { useAuth } from '../../context/AuthContext';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('admin_home');
   const [stats, setStats] = useState({ totalQuestions: 0, totalTests: 0, publishedTests: 0 });
   const [tests, setTests] = useState([]);
@@ -861,45 +865,93 @@ const AdminDashboard = () => {
     }
   };
 
-  return (
-    <div className="flex min-h-[calc(100vh-4rem)] bg-slate-50 dark:bg-slate-900">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 hidden md:block">
-        <div className="p-6">
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Admin Panel
-          </h2>
-        </div>
-        <nav className="mt-6 px-4 space-y-2">
-          {[
-            { id: 'admin_home', icon: ChartBarIcon, label: 'Admin Home' },
-            { id: 'upload', icon: ArrowUpTrayIcon, label: 'Bulk Upload' },
-            { id: 'create_test', icon: DocumentPlusIcon, label: 'Create Test' },
-            { id: 'create_question', icon: PencilSquareIcon, label: 'Create Question' },
-            { id: 'manage_questions', icon: QueueListIcon, label: 'Manage Questions' },
-            { id: 'manage_tests', icon: QueueListIcon, label: 'Manage Tests' },
-            { id: 'users', icon: AcademicCapIcon, label: 'Users' },
-            { id: 'test_results', icon: CheckCircleIcon, label: 'Test Results' },
-            { id: 'leaderboard', icon: ChartBarIcon, label: 'Leaderboard' }
-          ].map(item => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors ${
-                activeTab === item.id 
-                  ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400' 
-                  : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800/50'
-              }`}
-            >
-              <item.icon className="w-5 h-5 mr-3" />
-              {item.label}
-            </button>
-          ))}
-        </nav>
-      </aside>
+  const adminLinks = [
+    { id: 'admin_home', icon: ChartBarIcon, label: 'Admin Home' },
+    { id: 'upload', icon: ArrowUpTrayIcon, label: 'Bulk Upload' },
+    { id: 'create_test', icon: DocumentPlusIcon, label: 'Create Test' },
+    { id: 'create_question', icon: PencilSquareIcon, label: 'Create Question' },
+    { id: 'manage_questions', icon: QueueListIcon, label: 'Manage Questions' },
+    { id: 'manage_tests', icon: QueueListIcon, label: 'Manage Tests' },
+    { id: 'users', icon: AcademicCapIcon, label: 'Users' },
+    { id: 'test_results', icon: CheckCircleIcon, label: 'Test Results' },
+    { id: 'leaderboard', icon: ChartBarIcon, label: 'Leaderboard' }
+  ];
 
-      {/* Main Content */}
-      <main className="flex-1 p-8">
+  return (
+    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 w-full">
+      {/* Admin Header */}
+      <header className="flex justify-between items-center h-16 px-4 md:px-6 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50">
+        <div className="text-xl font-bold text-primary flex items-center gap-2">
+          <span className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">GK NEET MOCK</span>
+          <span className="text-sm font-semibold text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full hidden sm:inline-block">Admin</span>
+        </div>
+        <div className="hidden md:flex items-center gap-4">
+          <button onClick={logout} className="px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-sm font-medium text-slate-800 dark:text-white">Logout</button>
+        </div>
+        <div className="md:hidden">
+          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-slate-600 dark:text-slate-300">
+            {isMobileMenuOpen ? <XMarkIcon className="w-6 h-6" /> : <Bars3Icon className="w-6 h-6" />}
+          </button>
+        </div>
+      </header>
+
+      {/* Mobile Admin Dropdown */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-lg absolute top-16 left-0 right-0 z-40">
+          <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-4rem)] custom-scrollbar">
+            {adminLinks.map(item => (
+              <button
+                key={item.id}
+                onClick={() => { setActiveTab(item.id); setIsMobileMenuOpen(false); }}
+                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors ${
+                  activeTab === item.id 
+                    ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400' 
+                    : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800/50'
+                }`}
+              >
+                <item.icon className="w-5 h-5 mr-3" />
+                {item.label}
+              </button>
+            ))}
+            <div className="h-px bg-slate-200 dark:bg-slate-700 my-2" />
+            <button onClick={logout} className="w-full flex items-center px-4 py-3 text-sm font-medium rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-3">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+              </svg>
+              Logout
+            </button>
+          </nav>
+        </div>
+      )}
+
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Sidebar */}
+        <aside className="w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 hidden md:flex flex-col h-[calc(100vh-4rem)] overflow-y-auto">
+          <div className="p-6">
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+              Admin Panel
+            </h2>
+          </div>
+          <nav className="px-4 space-y-2 flex-1 pb-6">
+            {adminLinks.map(item => (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors ${
+                  activeTab === item.id 
+                    ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400' 
+                    : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800/50'
+                }`}
+              >
+                <item.icon className="w-5 h-5 mr-3" />
+                {item.label}
+              </button>
+            ))}
+          </nav>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto h-[calc(100vh-4rem)]">
         <div className="max-w-7xl mx-auto">
           <motion.div
             key={activeTab}
@@ -962,6 +1014,7 @@ const AdminDashboard = () => {
           </div>
         )}
       </main>
+    </div>
     </div>
   );
 };

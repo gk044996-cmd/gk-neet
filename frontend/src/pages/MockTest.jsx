@@ -276,7 +276,7 @@ export default function MockTest() {
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative bg-slate-50 dark:bg-slate-900">
         {/* Question Area */}
         <div className="flex-1 overflow-y-auto p-4 md:p-8 hide-scrollbar relative">
-          <div key={currentQIndex} className="glass-card rounded-2xl p-5 md:p-8 h-full flex flex-col max-w-4xl mx-auto animate-fade-in border border-slate-200/60 dark:border-slate-700/60">
+          <div key={currentQIndex} className="glass-card rounded-2xl p-5 md:p-8 min-h-full h-fit flex flex-col max-w-4xl mx-auto animate-fade-in border border-slate-200/60 dark:border-slate-700/60">
             <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-lg md:text-2xl font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-3">
                 <span className="bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300 w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center text-sm md:text-base">Q{currentQIndex + 1}</span>
