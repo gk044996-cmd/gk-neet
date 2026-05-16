@@ -319,27 +319,27 @@ export default function MockTest() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative bg-slate-50 dark:bg-slate-900">
         {/* Question Area */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 hide-scrollbar relative z-10">
-          <div key={currentQIndex} className="glass-card rounded-2xl p-6 md:p-10 min-h-min h-auto flex flex-col max-w-4xl mx-auto animate-fade-in border border-slate-200/60 dark:border-slate-700/60 relative z-20 overflow-visible break-words">
+        <div className="flex-1 overflow-y-auto p-3 md:p-8 hide-scrollbar relative z-10 bg-slate-50 dark:bg-slate-900">
+          <div key={currentQIndex} className="bg-[#BFE9FF] shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-3xl p-5 md:p-10 min-h-min h-auto flex flex-col max-w-4xl mx-auto animate-fade-in border-2 border-[#87CEEB] relative z-20 overflow-visible break-words">
             <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-200 dark:border-slate-700">
-              <h2 className="text-lg md:text-2xl font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-3">
-                <span className="bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300 w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center text-sm md:text-base">Q{currentQIndex + 1}</span>
+              <h2 className="text-lg md:text-2xl font-extrabold text-[#0F172A] flex items-center gap-3">
+                <span className="bg-[#0B2447] text-white w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-sm md:text-base shadow-md">Q{currentQIndex + 1}</span>
               </h2>
               <div className="flex items-center gap-2">
-                <span className="text-xs md:text-sm font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1.5 rounded-md border border-emerald-100 dark:border-emerald-800">+4</span>
-                <span className="text-xs md:text-sm font-bold text-rose-500 bg-rose-50 dark:bg-rose-900/30 px-3 py-1.5 rounded-md border border-rose-100 dark:border-rose-800">-1</span>
+                <span className="text-xs md:text-sm font-bold text-emerald-800 bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-200 shadow-sm">+4</span>
+                <span className="text-xs md:text-sm font-bold text-rose-800 bg-rose-100 px-3 py-1.5 rounded-lg border border-rose-200 shadow-sm">-1</span>
               </div>
             </div>
-            <p className="text-base md:text-lg mb-8 font-black leading-relaxed text-slate-900 dark:text-slate-100 selection:bg-blue-200" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>{currentQ.text}</p>
+            <p className="text-lg md:text-xl mb-8 font-black leading-relaxed text-[#0F172A] selection:bg-[#87CEEB]/50" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>{currentQ.text}</p>
             <div className="space-y-4 md:space-y-5 flex-grow h-auto min-h-min overflow-visible relative z-30">
               {currentQ.options.map((opt, i) => (
-                <label key={i} className={`flex items-start p-5 md:p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 group h-auto min-h-min z-40 relative ${answers[currentQIndex] === i ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md shadow-blue-500/10 scale-[1.01]' : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                <label key={i} className={`flex items-start p-5 md:p-6 border-2 rounded-2xl cursor-pointer transition-all duration-300 group h-auto min-h-min z-40 relative ${answers[currentQIndex] === i ? 'border-[#2563EB] bg-[#A7D8FF] shadow-[0_0_15px_rgba(37,99,235,0.3)] scale-[1.02]' : 'border-[#87CEEB] bg-[#F0F9FF] hover:border-[#2563EB]/50 hover:bg-[#E0F4FF] hover:shadow-md'}`}>
                   <div className="relative flex items-center justify-center mt-0.5 shrink-0">
                     <input type="radio" name={`question-${currentQIndex}`} className="peer sr-only" checked={answers[currentQIndex] === i} disabled={timeLeft <= 0} onChange={() => setAnswers({ ...answers, [currentQIndex]: i })} />
-                    <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 peer-checked:border-blue-500 peer-checked:bg-blue-500 transition-colors peer-disabled:opacity-50"></div>
-                    <div className="absolute inset-0 rounded-full scale-0 peer-checked:scale-50 bg-white transition-transform peer-disabled:opacity-50"></div>
+                    <div className={`w-6 h-6 rounded-full border-2 transition-colors ${answers[currentQIndex] === i ? 'border-[#2563EB] bg-[#2563EB]' : 'border-[#87CEEB] bg-white group-hover:border-[#2563EB]/50'} peer-disabled:opacity-50`}></div>
+                    <div className="absolute inset-0 rounded-full scale-0 peer-checked:scale-[0.4] bg-white transition-transform peer-disabled:opacity-50"></div>
                   </div>
-                  <span className={`ml-4 text-sm md:text-base font-black ${answers[currentQIndex] === i ? 'text-blue-800 dark:text-blue-300' : 'text-slate-900 dark:text-slate-100 group-hover:text-slate-900 dark:group-hover:text-white'}`} style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>{opt}</span>
+                  <span className={`ml-4 text-base md:text-lg font-extrabold ${answers[currentQIndex] === i ? 'text-[#0B2447]' : 'text-[#1E293B] group-hover:text-[#0F172A]'}`} style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>{opt}</span>
                 </label>
               ))}
             </div>
@@ -376,17 +376,17 @@ export default function MockTest() {
         </div>
       </div>
 
-      {/* Modern Footer Actions - Mobile Grid */}
-      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 p-2 md:p-4 z-20 shrink-0">
-        <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-2 md:gap-3">
-          <div className="grid grid-cols-2 w-full md:w-auto md:flex gap-2">
-            <button onClick={() => { setMarkedForReview({ ...markedForReview, [currentQIndex]: true }); setCurrentQIndex(Math.min(test.questions.length-1, currentQIndex+1)); }} className="px-2 py-2.5 bg-violet-100 text-violet-700 hover:bg-violet-200 dark:bg-violet-900/40 dark:text-violet-300 rounded-lg font-bold text-xs md:text-sm text-center transition-colors flex items-center justify-center">Mark for Review</button>
-            <button onClick={() => { const newA = {...answers}; delete newA[currentQIndex]; setAnswers(newA); }} className="px-2 py-2.5 bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 rounded-lg font-bold text-xs md:text-sm text-center transition-colors flex items-center justify-center">Clear</button>
+      {/* Modern Footer Actions - Premium Mobile Bottom Nav */}
+      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-3 py-4 md:p-5 z-20 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.08)] rounded-t-[24px] relative">
+        <div className="flex flex-col justify-between items-stretch gap-3 min-h-[110px] md:min-h-0 md:flex-row md:items-center max-w-5xl mx-auto">
+          <div className="grid grid-cols-2 w-full md:w-auto md:flex gap-3">
+            <button onClick={() => { setMarkedForReview({ ...markedForReview, [currentQIndex]: true }); setCurrentQIndex(Math.min(test.questions.length-1, currentQIndex+1)); }} className="px-2 py-3.5 bg-violet-100 text-violet-800 hover:bg-violet-200 dark:bg-violet-900/40 dark:text-violet-300 rounded-2xl font-bold text-sm text-center transition-transform active:scale-95 shadow-sm border border-violet-200">Mark for Review</button>
+            <button onClick={() => { const newA = {...answers}; delete newA[currentQIndex]; setAnswers(newA); }} className="px-2 py-3.5 bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 rounded-2xl font-bold text-sm text-center transition-transform active:scale-95 shadow-sm border border-slate-200">Clear</button>
           </div>
-          <div className="grid grid-cols-3 w-full md:w-auto md:flex gap-2">
-            <button onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="px-1 py-2.5 bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 disabled:opacity-50 rounded-lg font-bold text-xs md:text-sm text-center transition-colors flex items-center justify-center">Previous</button>
-            <button onClick={() => setCurrentQIndex(Math.min(test.questions.length-1, currentQIndex+1))} className="px-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-bold text-[11px] sm:text-xs md:text-sm shadow-sm text-center transition-colors flex items-center justify-center">Save & Next</button>
-            <button id="submit-exam-btn" onClick={(e) => handleSubmit(e.currentTarget.dataset.type === 'auto', e.currentTarget.dataset.type === 'auto' ? 'auto' : 'manual')} className="px-1 py-2.5 premium-gradient text-white rounded-lg font-bold text-xs md:text-sm shadow-sm text-center hover:opacity-90 transition-opacity flex items-center justify-center disabled:opacity-50" disabled={timeLeft <= 0}>Submit</button>
+          <div className="grid grid-cols-3 w-full md:w-auto md:flex gap-3">
+            <button onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="px-1 py-3.5 bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 disabled:opacity-50 rounded-2xl font-bold text-sm text-center transition-transform active:scale-95 shadow-sm border border-slate-200">Previous</button>
+            <button onClick={() => setCurrentQIndex(Math.min(test.questions.length-1, currentQIndex+1))} className="px-1 py-3.5 bg-[#2563EB] hover:bg-blue-700 text-white rounded-2xl font-bold text-sm shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] text-center transition-transform active:scale-95">Save & Next</button>
+            <button id="submit-exam-btn" onClick={(e) => handleSubmit(e.currentTarget.dataset.type === 'auto', e.currentTarget.dataset.type === 'auto' ? 'auto' : 'manual')} className="px-1 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl font-extrabold text-sm shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] text-center hover:opacity-90 transition-all disabled:opacity-50 active:scale-95" disabled={timeLeft <= 0}>Submit</button>
           </div>
         </div>
       </footer>

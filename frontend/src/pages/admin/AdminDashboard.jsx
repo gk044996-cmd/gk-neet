@@ -342,60 +342,71 @@ const AdminDashboard = () => {
     switch (activeTab) {
       case 'admin_home':
         return (
-          <div>
-            <h2 className="text-2xl font-bold mb-6 text-slate-800 dark:text-white">Admin Home</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-              <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-                <h3 className="text-sm font-semibold text-slate-500 uppercase">Total Users</h3>
-                <p className="text-4xl font-bold text-indigo-600 mt-2">{stats.totalUsers}</p>
-              </div>
-              <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-                <h3 className="text-sm font-semibold text-slate-500 uppercase">Total Tests</h3>
-                <p className="text-4xl font-bold text-emerald-600 mt-2">{stats.totalTests}</p>
-              </div>
-              <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-                <h3 className="text-sm font-semibold text-slate-500 uppercase">Total Questions</h3>
-                <p className="text-4xl font-bold text-blue-600 mt-2">{stats.totalQuestions}</p>
-              </div>
-              <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-                <h3 className="text-sm font-semibold text-slate-500 uppercase">Total Attempts</h3>
-                <p className="text-4xl font-bold text-purple-600 mt-2">{stats.totalAttempts}</p>
-              </div>
-              <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-                <h3 className="text-sm font-semibold text-slate-500 uppercase">Avg Score</h3>
-                <p className="text-4xl font-bold text-orange-600 mt-2">{stats.averageScore}</p>
-              </div>
+          <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{duration:0.4}}>
+            <h2 className="text-2xl font-black mb-6 text-slate-800 dark:text-white tracking-tight">Admin Home</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
+              {[
+                { label: 'Total Users', value: stats.totalUsers, icon: AcademicCapIcon, color: 'from-blue-500 to-cyan-400', shadow: 'shadow-blue-500/20' },
+                { label: 'Total Tests', value: stats.totalTests, icon: DocumentPlusIcon, color: 'from-emerald-500 to-teal-400', shadow: 'shadow-emerald-500/20' },
+                { label: 'Total Questions', value: stats.totalQuestions, icon: QueueListIcon, color: 'from-indigo-500 to-blue-500', shadow: 'shadow-indigo-500/20' },
+                { label: 'Total Attempts', value: stats.totalAttempts, icon: ChartBarIcon, color: 'from-purple-500 to-pink-500', shadow: 'shadow-purple-500/20' },
+                { label: 'Avg Score', value: stats.averageScore, icon: CheckCircleIcon, color: 'from-orange-500 to-amber-400', shadow: 'shadow-orange-500/20' }
+              ].map((stat, i) => (
+                <motion.div 
+                  key={i} 
+                  whileHover={{ scale: 1.02, y: -4 }}
+                  className={`relative overflow-hidden bg-white dark:bg-slate-800/80 backdrop-blur-xl p-6 rounded-3xl shadow-lg border border-slate-200 dark:border-slate-700/50 ${stat.shadow}`}
+                >
+                  <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${stat.color} opacity-10 rounded-full blur-2xl -mr-10 -mt-10`} />
+                  <div className="flex items-center justify-between relative z-10">
+                    <div>
+                      <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{stat.label}</h3>
+                      <p className="text-3xl sm:text-4xl font-black text-slate-800 dark:text-white">{stat.value}</p>
+                    </div>
+                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${stat.color} flex items-center justify-center text-white shadow-lg`}>
+                      <stat.icon className="w-6 h-6 stroke-[2.5]" />
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-          </div>
+          </motion.div>
         );
       
       case 'upload':
         return (
-          <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-            <h2 className="text-2xl font-bold mb-6 text-slate-800 dark:text-white">Bulk Upload Questions</h2>
-            <div className="mb-4 text-sm text-slate-600 dark:text-slate-400">
-              <p><strong>Supported formats:</strong> .csv, .xlsx</p>
-              <p><strong>Columns:</strong> questionType, questionText, statement1, statement2, statement3, statement4, assertion, reason, leftColumn, rightColumn, imageReference, option1, option2, option3, option4, correctAnswer, subject</p>
-              <p><strong>questionType:</strong> MCQ, STATEMENT, ASSERTION_REASON, MATCH, IMAGE_BASED, SEQUENCE, TRUE_FALSE, MULTI_CORRECT</p>
+          <div className="bg-white dark:bg-slate-800/80 backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-slate-700/50">
+            <h2 className="text-2xl sm:text-3xl font-black mb-6 text-slate-800 dark:text-white tracking-tight">Bulk Upload Questions</h2>
+            <div className="mb-6 p-4 sm:p-5 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-600 dark:text-slate-400">
+              <p className="mb-2"><strong className="text-indigo-500 dark:text-indigo-400">Supported formats:</strong> .csv, .xlsx</p>
+              <p className="mb-2"><strong className="text-cyan-500 dark:text-cyan-400">Columns:</strong> questionType, questionText, statement1, statement2, statement3, statement4, assertion, reason, leftColumn, rightColumn, imageReference, option1, option2, option3, option4, correctAnswer, subject</p>
+              <p><strong className="text-purple-500 dark:text-purple-400">questionType:</strong> MCQ, STATEMENT, ASSERTION_REASON, MATCH, IMAGE_BASED, SEQUENCE, TRUE_FALSE, MULTI_CORRECT</p>
             </div>
-            <form onSubmit={handleFileUpload} className="space-y-4">
-              <div className="flex items-center justify-center w-full">
-                <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-700 hover:bg-slate-100 border-slate-300 dark:border-slate-600">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <ArrowUpTrayIcon className="w-10 h-10 mb-3 text-slate-400" />
-                    <p className="mb-2 text-sm text-slate-500 dark:text-slate-400"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">CSV or Excel (MAX. 10MB)</p>
+            <form onSubmit={handleFileUpload} className="space-y-6">
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-indigo-500 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
+                <label className="relative flex flex-col items-center justify-center w-full h-48 sm:h-64 border-2 border-dashed rounded-2xl cursor-pointer bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-slate-300 dark:border-slate-600 transition-all">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
+                    <motion.div animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
+                      <ArrowUpTrayIcon className="w-12 h-12 mb-4 text-indigo-500 dark:text-indigo-400" />
+                    </motion.div>
+                    <p className="mb-2 text-sm sm:text-base font-medium text-slate-600 dark:text-slate-300"><span className="font-bold text-indigo-600 dark:text-indigo-400">Click to upload</span> or drag and drop</p>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">CSV or Excel (MAX. 10MB)</p>
                   </div>
                   <input type="file" className="hidden" accept=".csv, .xlsx, .xls" onChange={(e) => setUploadFile(e.target.files[0])} />
                 </label>
               </div>
-              {uploadFile && <p className="text-sm text-slate-600 dark:text-slate-300">Selected file: {uploadFile.name}</p>}
+              {uploadFile && (
+                <div className="p-4 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800/50 rounded-xl flex items-center justify-between">
+                  <span className="text-sm font-bold text-indigo-700 dark:text-indigo-300 truncate">{uploadFile.name}</span>
+                </div>
+              )}
               <button 
                 type="submit" 
                 disabled={uploadStatus.loading || !uploadFile}
-                className="w-full px-4 py-2 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                className="w-full px-4 py-4 text-lg font-bold text-white bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-xl hover:from-indigo-600 hover:to-cyan-600 focus:ring-4 focus:ring-cyan-500/30 shadow-lg shadow-cyan-500/20 transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
-                {uploadStatus.loading ? 'Parsing...' : 'Preview Upload'}
+                {uploadStatus.loading ? 'Parsing File...' : 'Preview Upload'}
               </button>
             </form>
             
@@ -405,29 +416,29 @@ const AdminDashboard = () => {
             {previewData && (
               <div className="mt-8 border-t border-slate-200 dark:border-slate-700 pt-8">
                 <h3 className="text-xl font-bold mb-4 text-slate-800 dark:text-white">Upload Preview</h3>
-                <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-xl mb-4">
-                  <table className="min-w-full text-left text-sm divide-y divide-slate-200 dark:divide-slate-700">
+                <div className="overflow-x-auto custom-scrollbar border border-slate-200 dark:border-slate-700 rounded-xl mb-4">
+                  <table className="min-w-[600px] w-full text-left text-sm divide-y divide-slate-200 dark:divide-slate-700">
                     <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-400">
                       <tr>
-                        <th className="px-4 py-3 font-semibold">Row</th>
-                        <th className="px-4 py-3 font-semibold">Question</th>
-                        <th className="px-4 py-3 font-semibold">Subject</th>
-                        <th className="px-4 py-3 font-semibold">Status</th>
+                        <th className="px-4 py-3 font-bold uppercase text-xs">Row</th>
+                        <th className="px-4 py-3 font-bold uppercase text-xs">Question</th>
+                        <th className="px-4 py-3 font-bold uppercase text-xs">Subject</th>
+                        <th className="px-4 py-3 font-bold uppercase text-xs">Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50 bg-white dark:bg-slate-800">
                       {previewData.slice(0, 50).map((row, idx) => (
-                        <tr key={idx} className={row.status === 'Error' ? 'bg-red-50 dark:bg-red-900/10' : ''}>
-                          <td className="px-4 py-3 text-slate-500">{row.rowNum}</td>
+                        <tr key={idx} className={`hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${row.status === 'Error' ? 'bg-red-50/50 dark:bg-red-900/10' : ''}`}>
+                          <td className="px-4 py-3 text-slate-500 font-semibold">{row.rowNum}</td>
                           <td className="px-4 py-3 font-medium text-slate-800 dark:text-slate-200 truncate max-w-[200px]" title={row.question}>{row.question}</td>
                           <td className="px-4 py-3">
-                            <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs">{row.subject}</span>
+                            <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded font-semibold text-xs">{row.subject}</span>
                           </td>
                           <td className="px-4 py-3">
                             {row.status === 'Error' ? (
-                              <span className="text-red-600 font-semibold" title={row.reason}>❌ {row.reason}</span>
+                              <span className="text-red-500 font-bold" title={row.reason}>❌ {row.reason}</span>
                             ) : (
-                              <span className="text-emerald-600 font-semibold">✅ Valid</span>
+                              <span className="text-emerald-500 font-bold">✅ Valid</span>
                             )}
                           </td>
                         </tr>
@@ -435,7 +446,7 @@ const AdminDashboard = () => {
                     </tbody>
                   </table>
                   {previewData.length > 50 && (
-                    <div className="p-3 text-center text-slate-500 text-sm bg-slate-50 dark:bg-slate-900/50">Showing first 50 rows of {previewData.length}</div>
+                    <div className="p-3 text-center text-slate-500 font-semibold text-sm bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700">Showing first 50 rows of {previewData.length}</div>
                   )}
                 </div>
 
@@ -473,67 +484,74 @@ const AdminDashboard = () => {
 
       case 'manage_tests':
         return (
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-              <thead className="bg-slate-50 dark:bg-slate-900/50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Title</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Duration</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                {tests.map(test => (
-                  <tr key={test._id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-white">{test.title}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">{test.duration} mins</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${test.published ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                        {test.published ? 'Published' : 'Draft'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-3">
-                      <button onClick={() => toggleTestPublish(test._id, test.published)} className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">
-                        {test.published ? 'Unpublish' : 'Publish'}
-                      </button>
-                      <button onClick={() => deleteTest(test._id)} className="text-red-600 hover:text-red-900 dark:text-red-400">Delete</button>
-                    </td>
+          <div className="bg-white dark:bg-slate-800/80 backdrop-blur-xl rounded-[2rem] shadow-xl border border-slate-200 dark:border-slate-700/50 overflow-hidden flex flex-col">
+            <div className="p-6 sm:p-8 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+              <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Manage Tests</h2>
+            </div>
+            <div className="overflow-x-auto custom-scrollbar w-full">
+              <table className="min-w-[800px] w-full divide-y divide-slate-200 dark:divide-slate-700">
+                <thead className="bg-slate-50 dark:bg-slate-900/50">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">Title</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">Duration</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800/50">
+                  {tests.map(test => (
+                    <tr key={test._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 dark:text-white">{test.title}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-500 dark:text-slate-400">{test.duration} mins</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${test.published ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}>
+                          {test.published ? 'Published' : 'Draft'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold flex space-x-4">
+                        <button onClick={() => toggleTestPublish(test._id, test.published)} className={`${test.published ? 'text-amber-500 hover:text-amber-600' : 'text-indigo-500 hover:text-indigo-600'} transition-colors`}>
+                          {test.published ? 'Unpublish' : 'Publish'}
+                        </button>
+                        <button onClick={() => deleteTest(test._id)} className="text-red-500 hover:text-red-600 transition-colors flex items-center gap-1">
+                          <TrashIcon className="w-4 h-4"/> Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         );
 
       case 'manage_questions':
         return (
-          <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Manage Questions</h2>
-              <div className="flex gap-4 items-center">
+          <div className="bg-white dark:bg-slate-800/80 backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-slate-700/50 flex flex-col">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white tracking-tight">Manage Questions</h2>
+              <div className="flex gap-4 items-center w-full sm:w-auto justify-between sm:justify-end">
                 {selectedForDelete.length > 0 && (
-                  <button onClick={handleBulkDelete} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium shadow-md shadow-red-600/20">
+                  <button onClick={handleBulkDelete} className="px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 text-sm font-bold shadow-lg shadow-red-500/20 transform hover:-translate-y-0.5 transition-all w-full sm:w-auto">
                     Delete Selected ({selectedForDelete.length})
                   </button>
                 )}
-                <span className="text-sm font-medium text-slate-500">Total: {stats.totalQuestions}</span>
+                <span className="text-sm font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">Total: {stats.totalQuestions}</span>
               </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <div className="col-span-2 relative">
-                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-3 text-slate-400" />
-                <input type="text" placeholder="Search questions or chapters..." value={qSearch} onChange={e => setQSearch(e.target.value)} className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white" />
+              <div className="col-span-2 relative group">
+                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-3 text-slate-400 group-focus-within:text-cyan-500 transition-colors" />
+                <input type="text" placeholder="Search questions or chapters..." value={qSearch} onChange={e => setQSearch(e.target.value)} className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all font-medium shadow-sm" />
               </div>
-              <select value={qSubject} onChange={e => setQSubject(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+              <select value={qSubject} onChange={e => setQSubject(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all font-medium shadow-sm cursor-pointer">
                 <option value="">All Subjects</option>
                 <option value="Physics">Physics</option>
                 <option value="Chemistry">Chemistry</option>
                 <option value="Botany">Botany</option>
                 <option value="Zoology">Zoology</option>
               </select>
-              <select value={qUsageStatus} onChange={e => setQUsageStatus(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+              <select value={qUsageStatus} onChange={e => setQUsageStatus(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all font-medium shadow-sm cursor-pointer">
                 <option value="">All Statuses</option>
                 <option value="fresh">Fresh Questions</option>
                 <option value="used">Used Questions</option>
@@ -541,12 +559,12 @@ const AdminDashboard = () => {
               </select>
             </div>
 
-            <div className="overflow-hidden border border-slate-200 dark:border-slate-700 rounded-xl">
-              <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+            <div className="overflow-x-auto custom-scrollbar border border-slate-200 dark:border-slate-700 rounded-xl w-full">
+              <table className="min-w-[1000px] w-full divide-y divide-slate-200 dark:divide-slate-700">
                 <thead className="bg-slate-50 dark:bg-slate-900/50">
                   <tr>
-                    <th className="px-6 py-3 text-left">
-                      <input type="checkbox" className="rounded border-slate-300 w-4 h-4 text-indigo-600"
+                    <th className="px-6 py-4 text-left w-12">
+                      <input type="checkbox" className="rounded border-slate-300 w-4 h-4 text-cyan-500 focus:ring-cyan-500/50 cursor-pointer"
                         onChange={e => {
                           if (e.target.checked) setSelectedForDelete(questions.map(q => q._id));
                           else setSelectedForDelete([]);
@@ -554,16 +572,16 @@ const AdminDashboard = () => {
                         checked={questions.length > 0 && selectedForDelete.length === questions.length}
                       />
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Question</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Details</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">Question</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">Details</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800/50">
                   {questions.map(q => (
-                    <tr key={q._id}>
+                    <tr key={q._id} className={`hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${selectedForDelete.includes(q._id) ? 'bg-cyan-50 dark:bg-cyan-900/10' : ''}`}>
                       <td className="px-6 py-4">
-                        <input type="checkbox" className="rounded border-slate-300 w-4 h-4 text-indigo-600"
+                        <input type="checkbox" className="rounded border-slate-300 w-4 h-4 text-cyan-500 focus:ring-cyan-500/50 cursor-pointer"
                           checked={selectedForDelete.includes(q._id)}
                           onChange={e => {
                             if (e.target.checked) setSelectedForDelete([...selectedForDelete, q._id]);
@@ -571,23 +589,23 @@ const AdminDashboard = () => {
                           }}
                         />
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-900 dark:text-white max-w-md">
+                      <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white max-w-[400px]">
                         <div className="line-clamp-2">{q.text}</div>
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 rounded text-xs">{q.subject}</span>
+                        <div className="flex flex-wrap gap-2 mt-1">
+                          <span className="px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 dark:border-indigo-800/50 dark:bg-indigo-900/30 dark:text-indigo-300 rounded-md font-bold text-xs">{q.subject}</span>
                           {q.usageCount === 0 ? (
-                            <span className="px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs font-semibold">🟢 Fresh</span>
+                            <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 dark:border-emerald-800/50 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-md text-xs font-bold">🟢 Fresh</span>
                           ) : q.usageCount > 2 ? (
-                            <span className="px-2 py-0.5 bg-red-100 text-red-800 rounded text-xs font-semibold">🔴 Frequent ({q.usageCount}x)</span>
+                            <span className="px-2.5 py-1 bg-red-50 text-red-700 border border-red-200 dark:border-red-800/50 dark:bg-red-900/30 dark:text-red-400 rounded-md text-xs font-bold">🔴 Frequent ({q.usageCount}x)</span>
                           ) : (
-                            <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs font-semibold">🟡 Used {q.usageCount}x</span>
+                            <span className="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 dark:border-amber-800/50 dark:bg-amber-900/30 dark:text-amber-400 rounded-md text-xs font-bold">🟡 Used {q.usageCount}x</span>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-3">
-                        <button onClick={() => setPreviewQuestion(q)} className="text-blue-600 hover:text-blue-900 dark:text-blue-400" title="Preview"><EyeIcon className="w-5 h-5"/></button>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold flex space-x-3">
+                        <button onClick={() => setPreviewQuestion(q)} className="p-2 text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 dark:text-cyan-400 rounded-lg transition-colors" title="Preview"><EyeIcon className="w-5 h-5"/></button>
                         <button onClick={() => {
                           setEditQuestionId(q._id);
                           setNewQuestion({
@@ -603,14 +621,14 @@ const AdminDashboard = () => {
                             imageUrl: q.imageUrl || ''
                           });
                           setActiveTab('create_question');
-                        }} className="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400" title="Edit"><PencilSquareIcon className="w-5 h-5"/></button>
-                        <button onClick={() => deleteQuestion(q._id)} className="text-red-600 hover:text-red-900 dark:text-red-400" title="Delete"><TrashIcon className="w-5 h-5"/></button>
+                        }} className="p-2 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 dark:text-indigo-400 rounded-lg transition-colors" title="Edit"><PencilSquareIcon className="w-5 h-5"/></button>
+                        <button onClick={() => deleteQuestion(q._id)} className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 dark:text-red-400 rounded-lg transition-colors" title="Delete"><TrashIcon className="w-5 h-5"/></button>
                       </td>
                     </tr>
                   ))}
                   {questions.length === 0 && (
                     <tr>
-                      <td colSpan="3" className="px-6 py-8 text-center text-slate-500">No questions found</td>
+                      <td colSpan="4" className="px-6 py-12 text-center text-slate-500 font-bold text-lg">No questions found matching your criteria.</td>
                     </tr>
                   )}
                 </tbody>
@@ -618,121 +636,124 @@ const AdminDashboard = () => {
             </div>
 
             <div className="flex justify-between items-center mt-6">
-              <button type="button" disabled={qPage === 1} onClick={() => setQPage(p => p - 1)} className="px-4 py-2 border border-slate-300 rounded-lg disabled:opacity-50 text-sm font-medium bg-white dark:bg-slate-800">Previous</button>
-              <span className="text-sm text-slate-600 dark:text-slate-400">Page {qPage} of {qTotalPages}</span>
-              <button type="button" disabled={qPage === qTotalPages} onClick={() => setQPage(p => p + 1)} className="px-4 py-2 border border-slate-300 rounded-lg disabled:opacity-50 text-sm font-medium bg-white dark:bg-slate-800">Next</button>
+              <button type="button" disabled={qPage === 1} onClick={() => setQPage(p => p - 1)} className="px-6 py-2.5 border-2 border-slate-300 dark:border-slate-600 rounded-xl disabled:opacity-50 text-sm font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 shadow-sm">Previous</button>
+              <span className="text-sm font-bold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-xl">Page {qPage} of {qTotalPages}</span>
+              <button type="button" disabled={qPage === qTotalPages} onClick={() => setQPage(p => p + 1)} className="px-6 py-2.5 border-2 border-slate-300 dark:border-slate-600 rounded-xl disabled:opacity-50 text-sm font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 shadow-sm">Next</button>
             </div>
           </div>
         );
 
       case 'create_test':
         return (
-          <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-            <h2 className="text-2xl font-bold mb-6 text-slate-800 dark:text-white">Create Manual Test</h2>
-            <form onSubmit={handleCreateTest} className="space-y-4 max-w-2xl">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Test Type</label>
-                <select value={newTest.type} onChange={e => setNewTest({...newTest, type: e.target.value})} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
-                  <option value="Full NEET Mock">Full NEET Mock</option>
-                  <option value="Physics Test">Physics Test</option>
-                  <option value="Chemistry Test">Chemistry Test</option>
-                  <option value="Biology Test">Biology Test</option>
-                  <option value="Chapter Test">Chapter Test</option>
-                  <option value="Custom Test">Custom Test</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Title</label>
-                <input required type="text" value={newTest.title} onChange={e => setNewTest({...newTest, title: e.target.value})} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white" placeholder="e.g. NEET Full Mock Test 2" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
-                <textarea required value={newTest.description} onChange={e => setNewTest({...newTest, description: e.target.value})} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white" rows="3" placeholder="Test description..." />
-              </div>
-              <div className="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+          <div className="bg-white dark:bg-slate-800/80 backdrop-blur-xl p-4 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-slate-700/50 w-full overflow-hidden">
+            <h2 className="text-2xl sm:text-3xl font-black mb-6 text-slate-800 dark:text-white tracking-tight px-2 sm:px-0">Create Manual Test</h2>
+            <form onSubmit={handleCreateTest} className="space-y-5 max-w-full lg:max-w-3xl px-2 sm:px-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-medium text-slate-500 mb-1">Duration (mins)</label>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wide">Test Type</label>
+                  <select value={newTest.type} onChange={e => setNewTest({...newTest, type: e.target.value})} className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all font-medium shadow-sm cursor-pointer">
+                    <option value="Full NEET Mock">Full NEET Mock</option>
+                    <option value="Physics Test">Physics Test</option>
+                    <option value="Chemistry Test">Chemistry Test</option>
+                    <option value="Biology Test">Biology Test</option>
+                    <option value="Chapter Test">Chapter Test</option>
+                    <option value="Custom Test">Custom Test</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wide">Title</label>
+                  <input required type="text" value={newTest.title} onChange={e => setNewTest({...newTest, title: e.target.value})} className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all font-medium shadow-sm" placeholder="e.g. NEET Full Mock Test 2" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wide">Description</label>
+                <textarea required value={newTest.description} onChange={e => setNewTest({...newTest, description: e.target.value})} className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all font-medium shadow-sm" rows="3" placeholder="Test description..." />
+              </div>
+              <div className="grid grid-cols-2 gap-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
+                <div>
+                  <label className="block text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wide mb-2">Duration (mins)</label>
                   {newTest.type === 'Full NEET Mock' ? (
-                    <p className="text-xl font-bold text-slate-800 dark:text-white">180 mins</p>
+                    <p className="text-2xl sm:text-3xl font-black text-indigo-600 dark:text-indigo-400">180</p>
                   ) : (
-                    <input type="number" min="1" max="500" value={newTest.duration} onChange={e => setNewTest({...newTest, duration: parseInt(e.target.value) || 1})} className="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white" />
+                    <input type="number" min="1" max="500" value={newTest.duration} onChange={e => setNewTest({...newTest, duration: parseInt(e.target.value) || 1})} className="w-full px-4 py-2.5 rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 outline-none font-black text-lg" />
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-500 mb-1">Calculated Total Marks</label>
-                  <p className="text-xl font-bold text-slate-800 dark:text-white">{selectedQuestions.length * 4}</p>
+                  <label className="block text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wide mb-2">Total Marks</label>
+                  <p className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400">{selectedQuestions.length * 4}</p>
                 </div>
               </div>
               
               <div className="mt-8 border-t border-slate-200 dark:border-slate-700 pt-8">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-white">Select Questions</h3>
-                  <div className="flex gap-4 items-center">
-                    <button type="button" onClick={handleGenerateRandomMock} className="px-4 py-1.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm font-bold shadow-md shadow-purple-600/20">
-                      ✨ Select Random Questions
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                  <h3 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white tracking-tight">Select Questions</h3>
+                  <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto items-stretch sm:items-center">
+                    <button type="button" onClick={handleGenerateRandomMock} className="w-full sm:w-auto px-5 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-xl hover:from-purple-600 hover:to-indigo-600 text-sm font-black shadow-lg shadow-purple-500/30 transform hover:-translate-y-0.5 transition-all">
+                      ✨ Auto-Select NEET Mock
                     </button>
-                    <div className="flex space-x-4 text-sm font-medium text-slate-600 dark:text-slate-300">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full">Physics: {selectedQuestions.filter(q => q.subject === 'Physics').length} / 45</span>
-                    <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full">Chemistry: {selectedQuestions.filter(q => q.subject === 'Chemistry').length} / 45</span>
-                    <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full">Biology: {selectedQuestions.filter(q => q.subject === 'Botany' || q.subject === 'Zoology').length} / 90</span>
-                      <span className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full font-bold">Total: {selectedQuestions.length}</span>
-                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                  <div className="col-span-2 relative">
-                    <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-3 text-slate-400" />
-                    <input type="text" placeholder="Search questions or chapters..." value={qSearch} onChange={e => setQSearch(e.target.value)} className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white" />
+                <div className="flex flex-wrap gap-2 mb-6">
+                  <span className="px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-300 rounded-lg text-sm font-bold">Physics: {selectedQuestions.filter(q => q.subject === 'Physics').length}/45</span>
+                  <span className="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 rounded-lg text-sm font-bold">Chemistry: {selectedQuestions.filter(q => q.subject === 'Chemistry').length}/45</span>
+                  <span className="px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-700 dark:text-purple-300 rounded-lg text-sm font-bold">Biology: {selectedQuestions.filter(q => q.subject === 'Botany' || q.subject === 'Zoology').length}/90</span>
+                  <span className="px-3 py-1.5 bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 rounded-lg text-sm font-black">Total: {selectedQuestions.length}</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  <div className="col-span-1 sm:col-span-2 relative group">
+                    <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-3.5 text-slate-400 group-focus-within:text-cyan-500 transition-colors" />
+                    <input type="text" placeholder="Search questions..." value={qSearch} onChange={e => setQSearch(e.target.value)} className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 outline-none font-medium shadow-sm" />
                   </div>
-                  <select value={qSubject} onChange={e => setQSubject(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+                  <select value={qSubject} onChange={e => setQSubject(e.target.value)} className="w-full px-4 py-3 rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 outline-none font-medium shadow-sm cursor-pointer">
                     <option value="">All Subjects</option>
                     <option value="Physics">Physics</option>
                     <option value="Chemistry">Chemistry</option>
                     <option value="Botany">Botany</option>
                     <option value="Zoology">Zoology</option>
                   </select>
-                  <select value={qUsageStatus} onChange={e => setQUsageStatus(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+                  <select value={qUsageStatus} onChange={e => setQUsageStatus(e.target.value)} className="w-full px-4 py-3 rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 outline-none font-medium shadow-sm cursor-pointer">
                     <option value="">All Statuses</option>
-                    <option value="fresh">Fresh Questions Only</option>
-                    <option value="used">Used Questions</option>
+                    <option value="fresh">Fresh Only</option>
+                    <option value="used">Used Only</option>
                   </select>
                 </div>
                 
                 <div className="flex justify-end mb-4">
-                  <label className="flex items-center space-x-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer">
-                    <input type="checkbox" checked={allowRepeated} onChange={(e) => setAllowRepeated(e.target.checked)} className="w-4 h-4 text-indigo-600 rounded border-slate-300" />
+                  <label className="flex items-center space-x-3 text-sm font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+                    <input type="checkbox" checked={allowRepeated} onChange={(e) => setAllowRepeated(e.target.checked)} className="w-5 h-5 text-cyan-500 rounded border-slate-300 focus:ring-cyan-500/50" />
                     <span>Allow selecting previously used questions</span>
                   </label>
                 </div>
 
-                <div className="space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                   {questions.map(q => {
                     const isSelected = selectedQuestions.some(sq => sq._id === q._id);
                     const isUsed = q.usageCount > 0;
                     const disabledCheckbox = !allowRepeated && isUsed;
                     return (
-                      <div key={q._id} className={`flex items-start p-4 rounded-xl border transition-colors ${isSelected ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'} ${disabledCheckbox ? 'opacity-60 bg-slate-50' : ''}`}>
+                      <div key={q._id} className={`flex items-start p-4 sm:p-5 rounded-2xl border-2 transition-all ${isSelected ? 'border-cyan-500 bg-cyan-50/50 dark:bg-cyan-900/10 shadow-sm' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600'} ${disabledCheckbox ? 'opacity-60 bg-slate-50 grayscale' : ''}`}>
                         <input type="checkbox" disabled={disabledCheckbox} checked={isSelected} onChange={(e) => {
                           if (e.target.checked) setSelectedQuestions([...selectedQuestions, q]);
                           else setSelectedQuestions(selectedQuestions.filter(sq => sq._id !== q._id));
-                        }} className="mt-1 w-5 h-5 text-indigo-600 rounded border-slate-300 cursor-pointer disabled:cursor-not-allowed" />
+                        }} className="mt-1 w-5 h-5 text-cyan-500 rounded border-slate-300 cursor-pointer disabled:cursor-not-allowed focus:ring-cyan-500/50" />
                         <div className="ml-4 flex-1">
-                          <p className="text-sm font-medium text-slate-900 dark:text-white line-clamp-2">{q.text}</p>
-                          <div className="flex gap-2 mt-2 text-xs items-center flex-wrap">
-                            <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded">{q.subject}</span>
-                            {q.chapter && <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded truncate max-w-[150px]">{q.chapter}</span>}
+                          <p className="text-sm sm:text-base font-bold text-slate-900 dark:text-white line-clamp-2 leading-tight">{q.text}</p>
+                          <div className="flex gap-2 mt-3 text-xs items-center flex-wrap">
+                            <span className="px-2.5 py-1 bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 rounded-md font-bold border border-slate-200 dark:border-slate-600">{q.subject}</span>
+                            {q.chapter && <span className="px-2.5 py-1 bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 rounded-md font-bold border border-slate-200 dark:border-slate-600 truncate max-w-[150px]">{q.chapter}</span>}
                             {isUsed ? (
-                                <span className={`px-2 py-1 rounded font-semibold ${q.usageCount > 2 ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                <span className={`px-2.5 py-1 rounded-md font-bold border ${q.usageCount > 2 ? 'bg-red-50 text-red-700 border-red-200 dark:border-red-800/50 dark:bg-red-900/30 dark:text-red-400' : 'bg-amber-50 text-amber-700 border-amber-200 dark:border-amber-800/50 dark:bg-amber-900/30 dark:text-amber-400'}`}>
                                   {q.usageCount > 2 ? `🔴 Frequent (${q.usageCount}x)` : `🟡 Used ${q.usageCount}x`}
                                 </span>
                             ) : (
-                                <span className="px-2 py-1 bg-green-100 text-green-800 rounded font-semibold">🟢 Fresh</span>
+                                <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 dark:border-emerald-800/50 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-md font-bold">🟢 Fresh</span>
                             )}
                           </div>
                         </div>
-                        <button type="button" onClick={() => setPreviewQuestion(q)} className="ml-4 p-2 text-slate-400 hover:text-indigo-600 transition-colors">
-                          <EyeIcon className="w-5 h-5" />
+                        <button type="button" onClick={() => setPreviewQuestion(q)} className="ml-2 p-2.5 text-slate-400 hover:text-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 rounded-xl transition-all">
+                          <EyeIcon className="w-6 h-6" />
                         </button>
                       </div>
                     );
@@ -740,10 +761,10 @@ const AdminDashboard = () => {
                 </div>
                 
                 {/* Pagination */}
-                <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                  <button type="button" disabled={qPage === 1} onClick={() => setQPage(p => p - 1)} className="px-4 py-2 border border-slate-300 rounded-lg disabled:opacity-50 text-sm font-medium bg-white dark:bg-slate-800">Previous</button>
-                  <span className="text-sm text-slate-600 dark:text-slate-400">Page {qPage} of {qTotalPages}</span>
-                  <button type="button" disabled={qPage === qTotalPages} onClick={() => setQPage(p => p + 1)} className="px-4 py-2 border border-slate-300 rounded-lg disabled:opacity-50 text-sm font-medium bg-white dark:bg-slate-800">Next</button>
+                <div className="flex justify-between items-center mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+                  <button type="button" disabled={qPage === 1} onClick={() => setQPage(p => p - 1)} className="px-5 py-2.5 border-2 border-slate-300 dark:border-slate-600 rounded-xl disabled:opacity-50 text-sm font-bold bg-white dark:bg-slate-800 hover:bg-slate-50 transition-colors">Previous</button>
+                  <span className="text-sm font-bold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-xl">Page {qPage} of {qTotalPages}</span>
+                  <button type="button" disabled={qPage === qTotalPages} onClick={() => setQPage(p => p + 1)} className="px-5 py-2.5 border-2 border-slate-300 dark:border-slate-600 rounded-xl disabled:opacity-50 text-sm font-bold bg-white dark:bg-slate-800 hover:bg-slate-50 transition-colors">Next</button>
                 </div>
               </div>
 
@@ -764,33 +785,34 @@ const AdminDashboard = () => {
                 return null;
               })()}
 
-              <div className="flex items-center gap-2 mt-6">
-                <input type="checkbox" id="published" checked={newTest.published} onChange={e => setNewTest({...newTest, published: e.target.checked})} className="w-4 h-4 text-indigo-600 rounded border-slate-300" />
-                <label htmlFor="published" className="text-sm font-medium text-slate-700 dark:text-slate-300">Publish immediately</label>
+              <div className="flex items-center gap-3 mt-6 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900/50">
+                <input type="checkbox" id="published" checked={newTest.published} onChange={e => setNewTest({...newTest, published: e.target.checked})} className="w-5 h-5 text-cyan-500 rounded border-slate-300 focus:ring-cyan-500/50 cursor-pointer" />
+                <label htmlFor="published" className="text-sm font-bold text-slate-700 dark:text-slate-300 cursor-pointer select-none">Publish immediately and make visible to students</label>
               </div>
 
               {newTest.type === 'Full NEET Mock' && (selectedQuestions.filter(q => q.subject === 'Physics').length !== 45 || selectedQuestions.filter(q => q.subject === 'Chemistry').length !== 45 || selectedQuestions.filter(q => q.subject === 'Botany' || q.subject === 'Zoology').length !== 90) && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-xl mt-4 text-sm text-red-800 font-medium">
-                  Full NEET Mock requires exactly 45 Physics, 45 Chemistry, and 90 Biology questions.
+                <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl mt-4 text-sm text-red-600 dark:text-red-400 font-bold flex gap-3">
+                  <span className="text-xl">⚠️</span>
+                  <span>Full NEET Mock requires exactly 45 Physics, 45 Chemistry, and 90 Biology questions. Please adjust your selection.</span>
                 </div>
               )}
 
               <button 
                 type="submit" 
                 disabled={createTestStatus.loading || (newTest.type === 'Full NEET Mock' && (selectedQuestions.filter(q => q.subject === 'Physics').length !== 45 || selectedQuestions.filter(q => q.subject === 'Chemistry').length !== 45 || selectedQuestions.filter(q => q.subject === 'Botany' || q.subject === 'Zoology').length !== 90))} 
-                className="w-full px-4 py-3 mt-4 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-bold shadow-lg shadow-indigo-600/30"
+                className="w-full px-4 py-4 mt-6 text-xl font-black text-white bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-xl hover:from-indigo-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/20 transform hover:-translate-y-0.5 transition-all disabled:transform-none"
               >
-                {createTestStatus.loading ? 'Creating...' : 'Create Test'}
+                {createTestStatus.loading ? 'Creating Test...' : 'Create Mock Test'}
               </button>
-              {createTestStatus.error && <div className="p-4 mt-4 bg-red-100 text-red-700 rounded-lg">{createTestStatus.error}</div>}
-              {createTestStatus.success && <div className="p-4 mt-4 bg-green-100 text-green-700 rounded-lg">{createTestStatus.success}</div>}
+              {createTestStatus.error && <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} className="p-4 mt-4 bg-red-500/10 border border-red-500/30 text-red-500 font-bold rounded-xl">{createTestStatus.error}</motion.div>}
+              {createTestStatus.success && <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} className="p-4 mt-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 font-bold rounded-xl">{createTestStatus.success}</motion.div>}
             </form>
           </div>
         );
 
       case 'create_question':
         return (
-          <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 relative">
+          <div className="bg-white dark:bg-slate-800/80 backdrop-blur-xl p-4 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-slate-700/50 relative overflow-hidden">
             {editQuestionId && (
               <button 
                 type="button" 
@@ -799,30 +821,32 @@ const AdminDashboard = () => {
                   setNewQuestion({ text: '', option1: '', option2: '', option3: '', option4: '', correctAnswerIndex: 0, subject: 'Physics', chapter: '', explanation: '', imageUrl: '' });
                   setActiveTab('manage_questions');
                 }}
-                className="absolute top-8 right-8 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center gap-1"
+                className="absolute top-4 sm:top-8 right-4 sm:right-8 text-slate-500 hover:text-red-500 dark:hover:text-red-400 flex items-center gap-1 font-bold bg-slate-100 dark:bg-slate-700/50 px-3 py-1.5 rounded-lg transition-colors"
               >
-                <XMarkIcon className="w-5 h-5" /> Cancel Edit
+                <XMarkIcon className="w-5 h-5 stroke-[2.5]" /> Cancel
               </button>
             )}
-            <h2 className="text-2xl font-bold mb-6 text-slate-800 dark:text-white">{editQuestionId ? 'Edit Question' : 'Create Manual Question'}</h2>
-            <form onSubmit={handleCreateQuestion} className="space-y-4 max-w-2xl">
+            <h2 className="text-2xl sm:text-3xl font-black mb-6 text-slate-800 dark:text-white tracking-tight mt-10 sm:mt-0">{editQuestionId ? 'Edit Question' : 'Create Question'}</h2>
+            <form onSubmit={handleCreateQuestion} className="space-y-6 max-w-full lg:max-w-3xl">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Question Text</label>
-                <textarea required value={newQuestion.text} onChange={e => setNewQuestion({...newQuestion, text: e.target.value})} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white" rows="3" placeholder="Enter question..." />
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wide">Question Text</label>
+                <textarea required value={newQuestion.text} onChange={e => setNewQuestion({...newQuestion, text: e.target.value})} className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all font-medium shadow-sm" rows="3" placeholder="Enter complete question text..." />
               </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Options & Correct Answer</label>
+              <div className="space-y-3">
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wide">Options & Correct Answer</label>
                 {[0, 1, 2, 3].map((idx) => (
-                  <div key={idx} className={`flex items-center p-3 rounded-lg border ${newQuestion.correctAnswerIndex === idx ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-slate-300 dark:border-slate-600'}`}>
-                    <input type="radio" name="correctAnswer" checked={newQuestion.correctAnswerIndex === idx} onChange={() => setNewQuestion({...newQuestion, correctAnswerIndex: idx})} className="w-5 h-5 text-green-600" />
-                    <input required type="text" value={newQuestion[`option${idx+1}`]} onChange={e => setNewQuestion({...newQuestion, [`option${idx+1}`]: e.target.value})} className="ml-4 flex-1 bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white" placeholder={`Option ${idx+1}`} />
-                  </div>
+                  <motion.div whileHover={{scale: 1.01}} key={idx} className={`flex items-center p-2 rounded-xl border-2 transition-all ${newQuestion.correctAnswerIndex === idx ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/10 shadow-sm' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'}`}>
+                    <div className="pl-3 flex items-center h-full">
+                      <input type="radio" name="correctAnswer" checked={newQuestion.correctAnswerIndex === idx} onChange={() => setNewQuestion({...newQuestion, correctAnswerIndex: idx})} className="w-5 h-5 text-emerald-500 focus:ring-emerald-500/50 cursor-pointer" />
+                    </div>
+                    <input required type="text" value={newQuestion[`option${idx+1}`]} onChange={e => setNewQuestion({...newQuestion, [`option${idx+1}`]: e.target.value})} className="ml-3 flex-1 bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white font-medium py-2.5 outline-none" placeholder={`Enter Option ${idx+1}`} />
+                  </motion.div>
                 ))}
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Subject</label>
-                  <select value={newQuestion.subject} onChange={e => setNewQuestion({...newQuestion, subject: e.target.value})} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wide">Subject</label>
+                  <select value={newQuestion.subject} onChange={e => setNewQuestion({...newQuestion, subject: e.target.value})} className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all font-medium shadow-sm cursor-pointer">
                     <option value="Physics">Physics</option>
                     <option value="Chemistry">Chemistry</option>
                     <option value="Botany">Botany</option>
@@ -830,24 +854,24 @@ const AdminDashboard = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Chapter</label>
-                  <input type="text" value={newQuestion.chapter} onChange={e => setNewQuestion({...newQuestion, chapter: e.target.value})} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white" placeholder="e.g. Thermodynamics" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Image URL (optional)</label>
-                  <input type="text" value={newQuestion.imageUrl} onChange={e => setNewQuestion({...newQuestion, imageUrl: e.target.value})} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white" placeholder="https://..." />
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wide">Chapter</label>
+                  <input type="text" value={newQuestion.chapter} onChange={e => setNewQuestion({...newQuestion, chapter: e.target.value})} className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all font-medium shadow-sm" placeholder="e.g. Thermodynamics" />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Explanation (optional)</label>
-                <textarea value={newQuestion.explanation} onChange={e => setNewQuestion({...newQuestion, explanation: e.target.value})} className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white" rows="3" placeholder="Explanation for correct answer..." />
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wide">Image URL (optional)</label>
+                <input type="text" value={newQuestion.imageUrl} onChange={e => setNewQuestion({...newQuestion, imageUrl: e.target.value})} className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all font-medium shadow-sm" placeholder="https://..." />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wide">Explanation (optional)</label>
+                <textarea value={newQuestion.explanation} onChange={e => setNewQuestion({...newQuestion, explanation: e.target.value})} className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all font-medium shadow-sm" rows="3" placeholder="Provide explanation for the correct answer..." />
               </div>
               
-              <button type="submit" disabled={createQuestionStatus.loading} className="w-full px-4 py-3 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50 font-semibold shadow-md">
-                {createQuestionStatus.loading ? 'Creating...' : 'Create Question'}
+              <button type="submit" disabled={createQuestionStatus.loading} className="w-full px-4 py-4 text-xl font-black text-white bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-xl hover:from-indigo-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/20 transform hover:-translate-y-0.5 transition-all disabled:transform-none mt-4">
+                {createQuestionStatus.loading ? 'Saving...' : (editQuestionId ? 'Update Question' : 'Create Question')}
               </button>
-              {createQuestionStatus.error && <div className="p-4 bg-red-100 text-red-700 rounded-lg">{createQuestionStatus.error}</div>}
-              {createQuestionStatus.success && <div className="p-4 bg-green-100 text-green-700 rounded-lg">{createQuestionStatus.success}</div>}
+              {createQuestionStatus.error && <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} className="p-4 bg-red-500/10 border border-red-500/30 text-red-500 font-bold rounded-xl">{createQuestionStatus.error}</motion.div>}
+              {createQuestionStatus.success && <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} className="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 font-bold rounded-xl">{createQuestionStatus.success}</motion.div>}
             </form>
           </div>
         );
@@ -924,26 +948,27 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      <div className="flex flex-1 overflow-hidden relative">
+      <div className="flex flex-1 overflow-hidden relative bg-slate-100 dark:bg-slate-900">
         {/* Sidebar */}
-        <aside className="w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 hidden md:flex flex-col h-[calc(100vh-4rem)] overflow-y-auto">
-          <div className="p-6">
-            <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+        <aside className="w-64 bg-slate-900 dark:bg-slate-950 border-r border-slate-800 hidden md:flex flex-col h-[calc(100vh-4rem)] overflow-y-auto z-10 shadow-[4px_0_24px_rgba(0,0,0,0.1)] relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 to-indigo-500/5 pointer-events-none" />
+          <div className="p-6 relative z-10">
+            <h2 className="text-xl font-black text-white tracking-widest uppercase text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">
               Admin Panel
             </h2>
           </div>
-          <nav className="px-4 space-y-2 flex-1 pb-6">
+          <nav className="px-3 space-y-1.5 flex-1 pb-6 relative z-10">
             {adminLinks.map(item => (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors ${
+                className={`w-full flex items-center px-4 py-3.5 text-sm font-bold rounded-xl transition-all duration-300 group ${
                   activeTab === item.id 
-                    ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400' 
-                    : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800/50'
+                    ? 'bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 text-cyan-400 border border-cyan-500/30 shadow-[inset_0_0_20px_rgba(6,182,212,0.15)]' 
+                    : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 border border-transparent'
                 }`}
               >
-                <item.icon className="w-5 h-5 mr-3" />
+                <item.icon className={`w-5 h-5 mr-3 transition-transform duration-300 group-hover:scale-110 ${activeTab === item.id ? 'stroke-[2.5] text-cyan-400' : 'stroke-2'}`} />
                 {item.label}
               </button>
             ))}
@@ -951,8 +976,9 @@ const AdminDashboard = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-4 md:p-8 overflow-y-auto h-[calc(100vh-4rem)]">
-        <div className="max-w-7xl mx-auto">
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto h-[calc(100vh-4rem)] relative">
+        <div className="absolute inset-0 pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-[0.05]" />
+        <div className="max-w-[1400px] mx-auto relative z-10">
           <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 20 }}

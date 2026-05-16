@@ -195,16 +195,18 @@ router.post('/:id/submit', async (req, res) => {
     let incorrect = 0;
     let unattempted = 0;
     let subjectWiseMarks = {};
-    
+    let answersArr = [];
+
     test.questions.forEach((q, i) => {
       const subject = q.subject;
       if (!subjectWiseMarks[subject]) subjectWiseMarks[subject] = 0;
+
+      let isCorrect = false;
 
       if (answers[i] === undefined || answers[i] === null || answers[i] === '' || answers[i] === -1) {
         unattempted++;
       } else {
         // Evaluate
-        let isCorrect = false;
         const selectedOptionIndex = Number(answers[i]);
         const selectedText = q.options[selectedOptionIndex];
         
@@ -231,6 +233,12 @@ router.post('/:id/submit', async (req, res) => {
           subjectWiseMarks[subject] -= 1;
         }
       }
+
+      answersArr.push({
+        questionId: q._id,
+        selectedOption: answers[i],
+        isCorrect
+      });
     });
 
     const score = (correct * 4) - (incorrect * 1);
@@ -263,12 +271,6 @@ router.post('/:id/submit', async (req, res) => {
     await user.save();
     
     // Create Result entry
-    const answersArr = test.questions.map((q, i) => ({
-      questionId: q._id,
-      selectedOption: answers[i],
-      isCorrect: answers[i] === q.correctAnswerIndex
-    }));
-
     const result = new Result({
       userId: user._id,
       testId: test._id,

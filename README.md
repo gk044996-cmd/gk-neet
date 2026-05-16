@@ -1,67 +1,82 @@
-# GK NEET MOCK - PRO PLATFORM
+# GK NEET MOCK - Deployment Guide
 
-A complete full-stack NEET Mock Test Platform with professional modern UI, an exact NTA CBT simulation logic, advanced internal analytics, and PWA support.
+This repository contains the source code for the GK NEET MOCK examination platform, split into a React-Vite `frontend` and an Express-MongoDB `backend`.
 
-## Tech Stack
-- **Frontend**: React + Vite + Tailwind CSS v4 + Framer Motion + Recharts + Vite PWA
-- **Backend**: Node.js + Express + Helmet + Rate Limit + XSS Protection
-- **Database**: MongoDB (Mongoose)
-- **Authentication**: Firebase Auth
+The application is currently configured and optimized for production deployment on platforms like Render, Vercel, or Heroku.
 
-## Features Implemented
-- **Exact NTA CBT Exam Simulation**: 
-  - Fullscreen enforcement
-  - Tab-switch detection & auto-submit after 3 warnings
-  - Anti-cheat (Right-click & text selection disabled)
-  - Color-coded question palette (Answered, Not Answered, Marked, Not Visited)
-- **Advanced Internal Analytics System**:
-  - NO external AI used. All recommendations generated using algorithmic MongoDB data logic.
-  - Generates insights on weak chapters, negative marking rates, and accuracy trends using Recharts.
-- **New Dashboard & Pages**:
-  - **PYQ**: Previous Year Questions search & attempt.
-  - **Chapter Tests**: Focused mini-mocks.
-  - **Profile**: Detailed statistics, history, and streak trackers.
-  - **Bookmarks**: Save difficult questions for revision.
-  - **Notifications**: Internal alert system.
-- **PWA Ready**: Can be installed on mobile devices.
-- **Security Enhancements**: Helmet, express-rate-limit, mongo-sanitize, xss-clean included in the backend.
+---
 
-## Project Structure
-- \`/frontend\`: React Vite project
-- \`/backend\`: Node.js Express server
+## 1. Environment Variables
 
-## Environment Variables
-### Backend
-Create a \`.env\` file in the \`backend\` directory:
-\`\`\`env
+### Backend (`/backend/.env`)
+Create a `.env` file in the `backend` folder containing the following:
+```
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/gk-neet
-JWT_SECRET=your_jwt_secret_key_here
-\`\`\`
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.ryqaah7.mongodb.net/gk-neet?retryWrites=true&w=majority
+JWT_SECRET=your_super_secret_jwt_key
+```
 
-### Frontend
-Update Firebase config in \`frontend/src/firebase.js\` with your Firebase project credentials.
+### Frontend (`/frontend/.env` - Optional)
+The frontend uses `https://gk-neet-backend.onrender.com/api` as a fallback base URL. 
+If you deploy your backend to a different URL, create a `.env` file in the `frontend` folder:
+```
+VITE_API_URL=https://your-new-backend-url.com/api
+```
 
-## Installation & Setup
+---
 
-1. **Backend**:
-   \`\`\`bash
-   cd backend
-   npm install
-   npm run dev
-   \`\`\`
+## 2. Deployment on Render (Recommended)
 
-2. **Frontend**:
-   \`\`\`bash
-   cd frontend
-   npm install
-   npm run dev
-   \`\`\`
+### Backend Deployment (Web Service)
+1. Go to your Render Dashboard and click **New+ > Web Service**.
+2. Connect your GitHub repository.
+3. Use the following settings for the backend:
+   - **Root Directory:** `backend`
+   - **Environment:** `Node`
+   - **Build Command:** `npm install`
+   - **Start Command:** `npm start`
+4. Go to the **Environment** tab and add the environment variables (`MONGO_URI`, `JWT_SECRET`).
+5. Click **Create Web Service**. 
+*(Note your newly generated backend URL, e.g., `https://gk-neet-backend.onrender.com`)*
 
-The frontend runs on \`http://localhost:3000\` and the backend runs on \`http://localhost:5000\`.
+### Frontend Deployment (Static Site or Vercel)
+**Option A: Vercel (Fastest for Frontend)**
+1. Go to Vercel and import your repository.
+2. Framework Preset: `Vite`
+3. Root Directory: `frontend`
+4. Build Command: `npm run build`
+5. Output Directory: `dist`
+6. Add Environment Variable: `VITE_API_URL` (Set it to your Render backend URL, e.g., `https://gk-neet-backend.onrender.com/api`)
+7. Click **Deploy**.
 
-## Features Delivered
-- Premium UI with dark mode, framer-motion animations, and glass panels.
-- Exam timer and question palette logic.
-- Database schemas for users, tests, and questions.
-- Detailed Post-Test Analytics.
+**Option B: Render (Static Site)**
+1. Create a **New Static Site** on Render.
+2. Root Directory: `frontend`
+3. Build Command: `npm install && npm run build`
+4. Publish Directory: `dist`
+5. Add the `VITE_API_URL` environment variable.
+6. Click **Create Static Site**.
+*(Note: If using Render for frontend routing, ensure you set rewrite rules to catch all paths `/*` to `/index.html` to support React Router).*
+
+---
+
+## 3. Server Configuration (Advanced)
+If you want to host both the frontend and backend on the **same server/instance**, you can configure the Express server to serve the frontend build:
+1. Run `npm run build` in the `frontend` directory.
+2. Copy the `frontend/dist` folder into the `backend` folder.
+3. Update `backend/server.js` to serve static files:
+```javascript
+const path = require('path');
+// Serve static frontend in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'dist')));
+  app.get('*', (req, res) => res.sendFile(path.resolve(__dirname, 'dist', 'index.html')));
+}
+```
+
+## 4. Final Security Checklist
+- [x] CORS is enabled in `backend/server.js`.
+- [x] Helmet and Rate Limiting are active.
+- [x] JWT Secret is strong and not exposed.
+- [x] MongoDB user strictly has access only to the `gk-neet` database.
+- [x] PWA generation succeeds via `vite-plugin-pwa`.

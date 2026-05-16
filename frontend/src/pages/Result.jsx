@@ -114,30 +114,65 @@ export default function Result() {
                   <p style={{ margin: '0 0 10px 0', fontWeight: 'bold' }}>Q{idx + 1}. {q.text}</p>
                   {q.imageUrl && <img src={q.imageUrl} alt="Question" style={{ maxWidth: '100%', maxHeight: '200px', marginBottom: '10px' }} />}
                   <div style={{ paddingLeft: '15px', marginBottom: '10px' }}>
-                    {q.options?.map((opt, oIdx) => {
-                      const isUnattemptedHere = result.selectedAnswers?.find(sa => sa.questionId === q._id || sa.questionId?._id === q._id)?.selectedOption === -1;
+                    {(() => {
+                      const studentAnswer = result.selectedAnswers?.find(sa => {
+                        const saId = typeof sa.questionId === 'object' ? sa.questionId._id : sa.questionId;
+                        const qId = typeof q === 'object' ? q._id : q;
+                        return saId === qId;
+                      });
+                      const isUnattempted = studentAnswer?.selectedOption === null || studentAnswer?.selectedOption === undefined || studentAnswer?.selectedOption === -1;
+                      const isCorrect = studentAnswer?.isCorrect;
+                      const selectedOption = studentAnswer?.selectedOption;
+                      
+                      let correctIndex = q.correctAnswerIndex;
+                      if (correctIndex === undefined || correctIndex === null) {
+                        const correctStr = String(q.correctAnswer).trim().toLowerCase();
+                        correctIndex = q.options.findIndex(o => String(o).trim().toLowerCase() === correctStr || String(q.options.indexOf(o)) === correctStr);
+                      }
+
                       return (
-                      <p key={oIdx} style={{ margin: '5px 0', color: oIdx === q.correctAnswerIndex ? '#059669' : '#333333', fontWeight: oIdx === q.correctAnswerIndex ? 'bold' : 'normal', fontSize: '14px' }}>
-                        {['A','B','C','D'][oIdx]}. {opt} {oIdx === q.correctAnswerIndex ? '✓' : ''}
-                      </p>
-                    )})}
-                  </div>
-                  {(() => {
-                    const studentAnswer = result.selectedAnswers?.find(sa => {
-                      const saId = typeof sa.questionId === 'object' ? sa.questionId._id : sa.questionId;
-                      const qId = typeof q === 'object' ? q._id : q;
-                      return saId === qId;
-                    });
-                    const isUnattempted = studentAnswer?.selectedOption === null || studentAnswer?.selectedOption === undefined || studentAnswer?.selectedOption === -1;
-                    if (isUnattempted) {
-                      return (
-                        <div style={{ marginTop: '10px', padding: '8px', backgroundColor: '#f1f5f9', borderRadius: '6px', color: '#64748b', fontSize: '14px', fontWeight: 'bold' }}>
-                          ⚪ Status: Not Attempted
-                        </div>
+                        <>
+                          {q.options?.map((opt, oIdx) => {
+                            const isThisCorrect = oIdx === correctIndex;
+                            const isThisSelected = oIdx === selectedOption;
+                            
+                            let optionBg = 'transparent';
+                            let optionColor = '#333333';
+                            let optionWeight = 'normal';
+                            
+                            if (isThisCorrect) {
+                              optionBg = '#d1fae5';
+                              optionColor = '#065f46';
+                              optionWeight = 'bold';
+                            } else if (isThisSelected && !isCorrect) {
+                              optionBg = '#fee2e2';
+                              optionColor = '#991b1b';
+                              optionWeight = 'bold';
+                            }
+
+                            return (
+                              <div key={oIdx} style={{ padding: '8px 12px', margin: '6px 0', borderRadius: '6px', backgroundColor: optionBg, color: optionColor, fontWeight: optionWeight, fontSize: '14px', border: isThisSelected ? `2px solid ${isCorrect ? '#10b981' : '#ef4444'}` : '2px solid transparent' }}>
+                                {['A','B','C','D'][oIdx]}. {opt} {isThisCorrect ? ' ✓' : ''} {isThisSelected && !isCorrect ? ' ✗' : ''}
+                              </div>
+                            )
+                          })}
+                          
+                          <div style={{ marginTop: '15px', padding: '12px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                            {isUnattempted ? (
+                              <p style={{ margin: 0, color: '#64748b', fontSize: '14px', fontWeight: 'bold' }}>⚪ Status: Not Attempted</p>
+                            ) : isCorrect ? (
+                              <p style={{ margin: 0, color: '#059669', fontSize: '14px', fontWeight: 'bold' }}>✅ Your Answer: Correct</p>
+                            ) : (
+                              <>
+                                <p style={{ margin: '0 0 8px 0', color: '#dc2626', fontSize: '14px', fontWeight: 'bold' }}>❌ Your Answer: Incorrect</p>
+                                <p style={{ margin: 0, color: '#059669', fontSize: '14px', fontWeight: 'bold' }}>💡 Correct Answer: {['A','B','C','D'][correctIndex]} - {q.options[correctIndex]}</p>
+                              </>
+                            )}
+                          </div>
+                        </>
                       );
-                    }
-                    return null;
-                  })()}
+                    })()}
+                  </div>
                   {q.explanation && (
                     <div style={{ padding: '10px', backgroundColor: '#eff6ff', borderLeft: '4px solid #3b82f6', marginTop: '10px' }}>
                       <p style={{ margin: 0, fontSize: '13px', color: '#1e3a8a' }}><strong>Explanation:</strong> {q.explanation}</p>
@@ -158,8 +193,12 @@ export default function Result() {
               });
               const isCorrect = studentAnswer?.isCorrect;
               const isUnattempted = studentAnswer?.selectedOption === null || studentAnswer?.selectedOption === undefined || studentAnswer?.selectedOption === -1;
-              let correctOptLetter = ['A','B','C','D'][q.correctAnswerIndex];
-              if (!correctOptLetter && q.correctAnswer) correctOptLetter = String(q.correctAnswer).trim();
+              let correctIndex = q.correctAnswerIndex;
+              if (correctIndex === undefined || correctIndex === null) {
+                const correctStr = String(q.correctAnswer).trim().toLowerCase();
+                correctIndex = q.options.findIndex(o => String(o).trim().toLowerCase() === correctStr || String(q.options.indexOf(o)) === correctStr);
+              }
+              const correctOptLetter = ['A','B','C','D'][correctIndex] || '-';
               const studentOptLetter = isUnattempted ? '-' : ['A','B','C','D'][studentAnswer?.selectedOption];
               
               let bgColor = '#f8f9fa';
@@ -170,9 +209,23 @@ export default function Result() {
               else if (!isUnattempted) { bgColor = '#fef2f2'; borderColor = '#fecaca'; textColor = '#991b1b'; }
               
               return (
-                <div key={q._id} style={{ width: '140px', padding: '8px', border: `1px solid ${borderColor}`, borderRadius: '6px', backgroundColor: bgColor, color: textColor, display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
-                  <strong>Q{idx + 1}.</strong>
-                  <span>Ans: {correctOptLetter} {!isUnattempted && !isCorrect && <span style={{textDecoration: 'line-through', opacity: 0.6, marginLeft: '4px'}}>{studentOptLetter}</span>}</span>
+                <div key={q._id} style={{ width: '150px', padding: '10px', border: `1px solid ${borderColor}`, borderRadius: '8px', backgroundColor: bgColor, color: textColor, fontSize: '13px', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontWeight: 'bold', borderBottom: `1px solid ${borderColor}`, paddingBottom: '4px' }}>
+                    <span>Q{idx + 1}</span>
+                    {isUnattempted ? <span style={{ color: '#64748b' }}>Not Attempted</span> : isCorrect ? <span style={{ color: '#059669' }}>Correct</span> : <span style={{ color: '#dc2626' }}>Wrong</span>}
+                  </div>
+                  {!isUnattempted && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                      <span style={{ opacity: 0.8 }}>Your Ans:</span>
+                      <strong style={{ color: isCorrect ? '#059669' : '#dc2626' }}>{studentOptLetter}</strong>
+                    </div>
+                  )}
+                  {(!isCorrect || isUnattempted) && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ opacity: 0.8 }}>Correct:</span>
+                      <strong style={{ color: '#059669' }}>{correctOptLetter}</strong>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -264,27 +317,42 @@ export default function Result() {
               
               const isCorrect = studentAnswer?.isCorrect;
               const isUnattempted = studentAnswer?.selectedOption === null || studentAnswer?.selectedOption === undefined || studentAnswer?.selectedOption === -1;
-              let correctOptLetter = ['A','B','C','D'][q.correctAnswerIndex];
-              if (!correctOptLetter && q.correctAnswer) {
-                correctOptLetter = String(q.correctAnswer).trim();
+              let correctIndex = q.correctAnswerIndex;
+              if (correctIndex === undefined || correctIndex === null) {
+                const correctStr = String(q.correctAnswer).trim().toLowerCase();
+                correctIndex = q.options.findIndex(o => String(o).trim().toLowerCase() === correctStr || String(q.options.indexOf(o)) === correctStr);
               }
+              const correctOptLetter = ['A','B','C','D'][correctIndex] || '-';
               const studentOptLetter = isUnattempted ? '-' : ['A','B','C','D'][studentAnswer?.selectedOption];
               
-              let bgClass = "bg-slate-50 border-slate-200";
-              if (isCorrect) bgClass = "bg-emerald-50 border-emerald-200 text-emerald-800";
-              else if (!isUnattempted) bgClass = "bg-red-50 border-red-200 text-red-800";
+              let bgClass = "bg-slate-50 border-slate-200 dark:bg-slate-800 dark:border-slate-700";
+              if (isCorrect) bgClass = "bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-300";
+              else if (!isUnattempted) bgClass = "bg-red-50 border-red-200 text-red-900 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300";
               
               return (
-                <div key={q._id} className={`p-3 rounded-xl border flex items-center justify-between shadow-sm ${bgClass}`}>
-                  <span className="font-bold text-slate-700 dark:text-slate-200">Q{idx + 1}.</span>
-                  <div className="text-sm font-semibold">
-                    <span className="text-slate-500 mr-1">Ans:</span>
-                    {correctOptLetter}
-                    {!isUnattempted && !isCorrect && (
-                      <span className="ml-2 text-xs line-through text-slate-400">{studentOptLetter}</span>
+                <div key={q._id} className={`p-4 rounded-xl border shadow-sm ${bgClass} flex flex-col transition-all hover:shadow-md`}>
+                  <div className="flex justify-between items-center mb-3 pb-2 border-b border-slate-200 dark:border-slate-700/50">
+                    <span className="font-extrabold text-slate-800 dark:text-slate-200 text-base">Q{idx + 1}.</span>
+                    {isUnattempted ? (
+                      <span className="text-[10px] uppercase font-bold text-slate-500 bg-slate-200 dark:bg-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-md">Not Attempted</span>
+                    ) : isCorrect ? (
+                      <span className="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-100 dark:bg-emerald-900/50 dark:text-emerald-400 px-2.5 py-1 rounded-md">Correct</span>
+                    ) : (
+                      <span className="text-[10px] uppercase font-bold text-red-700 bg-red-100 dark:bg-red-900/50 dark:text-red-400 px-2.5 py-1 rounded-md">Incorrect</span>
                     )}
-                    {isUnattempted && (
-                      <div className="mt-1 text-[10px] uppercase font-bold text-slate-400">⚪ Not Attempted</div>
+                  </div>
+                  <div className="text-sm font-semibold space-y-1.5">
+                    {!isUnattempted && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-500 dark:text-slate-400">Your Ans:</span>
+                        <span className={`text-base font-black px-2 py-0.5 rounded-md ${isCorrect ? 'text-emerald-700 bg-emerald-100/50 dark:text-emerald-400 dark:bg-emerald-900/30' : 'text-red-700 bg-red-100/50 dark:text-red-400 dark:bg-red-900/30'}`}>{studentOptLetter}</span>
+                      </div>
+                    )}
+                    {(!isCorrect || isUnattempted) && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-500 dark:text-slate-400">Correct:</span>
+                        <span className="text-base font-black px-2 py-0.5 rounded-md text-emerald-700 bg-emerald-100/50 dark:text-emerald-400 dark:bg-emerald-900/30">{correctOptLetter}</span>
+                      </div>
                     )}
                   </div>
                 </div>

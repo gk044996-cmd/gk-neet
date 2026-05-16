@@ -49,38 +49,67 @@ export default function Dashboard() {
   const averageScore = totalTests > 0 ? Math.round(myResults.reduce((acc, r) => acc + (r.score || 0), 0) / totalTests) : 0;
   
   const totalCorrect = myResults.reduce((acc, r) => acc + (r.correctCount || 0), 0);
-  const totalAttempted = myResults.reduce((acc, r) => acc + ((r.correctCount || 0) + (r.wrongCount || 0)), 0);
+  const totalWrong = myResults.reduce((acc, r) => acc + (r.wrongCount || 0), 0);
+  const totalUnattempted = myResults.reduce((acc, r) => acc + (r.unattemptedCount || 0), 0);
+  const totalAttempted = totalCorrect + totalWrong;
   const accuracy = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-slate-900 dark:text-white">Welcome back, {currentUser?.email}</h1>
+        <h1 className="text-3xl font-bold mb-2 text-slate-900 dark:text-white">Welcome back, {currentUser?.name || currentUser?.email}</h1>
         <p className="text-slate-500 dark:text-slate-400">Track your progress and attempt new mock tests.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-12">
-        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 rounded-2xl text-white shadow-xl shadow-indigo-500/30 transform hover:-translate-y-1 transition-transform h-auto min-h-min overflow-visible relative z-10">
-          <h3 className="text-indigo-100 mb-1 font-semibold uppercase tracking-wider text-sm">My Rank</h3>
-          <p className="text-4xl font-black">{myRank === 'Not Attempted' ? <span className="text-xl">Not Attempted</span> : (myRank ? `#${myRank}` : 'Loading...')}</p>
+      {totalTests === 0 ? (
+        <div className="bg-indigo-50 dark:bg-indigo-900/30 p-8 rounded-2xl text-center border border-indigo-100 dark:border-indigo-800 mb-12 shadow-sm">
+          <h2 className="text-2xl font-bold text-indigo-800 dark:text-indigo-300 mb-2">Welcome to GK NEET MOCK!</h2>
+          <p className="text-indigo-600 dark:text-indigo-400">Attempt your first test to see analytics.</p>
         </div>
-        <div className="bg-purple-50 dark:bg-purple-900/30 p-6 rounded-2xl border border-purple-200 dark:border-purple-800 shadow-md h-auto min-h-min overflow-visible relative z-10">
-          <h3 className="text-purple-800 dark:text-purple-300 mb-1 font-bold">Total Tests Taken</h3>
-          <p className="text-3xl font-black text-black dark:text-white">{totalTests}</p>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-12">
+          {/* Rank Card - Prominent */}
+          <div className="col-span-2 md:col-span-4 lg:col-span-1 bg-gradient-to-br from-indigo-500 to-purple-600 p-6 rounded-2xl text-white shadow-xl shadow-indigo-500/30 transform hover:-translate-y-1 transition-transform h-auto min-h-min overflow-visible relative z-10">
+            <h3 className="text-indigo-100 mb-1 font-semibold uppercase tracking-wider text-sm">My Rank</h3>
+            <p className="text-4xl font-black">{myRank === 'Not Attempted' ? <span className="text-2xl">Not Attempted</span> : (myRank ? `#${myRank}` : 'Loading...')}</p>
+          </div>
+          
+          <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-xl border border-purple-200 dark:border-purple-800 shadow-sm text-center">
+            <h3 className="text-purple-800 dark:text-purple-300 mb-1 text-xs font-bold uppercase tracking-wide">Total Tests</h3>
+            <p className="text-2xl font-black text-slate-900 dark:text-white">{totalTests}</p>
+          </div>
+          <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-xl border border-purple-200 dark:border-purple-800 shadow-sm text-center">
+            <h3 className="text-purple-800 dark:text-purple-300 mb-1 text-xs font-bold uppercase tracking-wide">Highest Score</h3>
+            <p className="text-2xl font-black text-slate-900 dark:text-white">{highestScore}</p>
+          </div>
+          <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-xl border border-purple-200 dark:border-purple-800 shadow-sm text-center">
+            <h3 className="text-purple-800 dark:text-purple-300 mb-1 text-xs font-bold uppercase tracking-wide">Average Score</h3>
+            <p className="text-2xl font-black text-slate-900 dark:text-white">{averageScore}</p>
+          </div>
+          <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-xl border border-purple-200 dark:border-purple-800 shadow-sm text-center">
+            <h3 className="text-purple-800 dark:text-purple-300 mb-1 text-xs font-bold uppercase tracking-wide">Overall Accuracy</h3>
+            <p className="text-2xl font-black text-slate-900 dark:text-white">{accuracy}%</p>
+          </div>
+
+          {/* Additional Analytics */}
+          <div className="bg-emerald-50 dark:bg-emerald-900/30 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800 shadow-sm text-center">
+            <h3 className="text-emerald-800 dark:text-emerald-300 mb-1 text-xs font-bold uppercase tracking-wide">Attempted Qs</h3>
+            <p className="text-2xl font-black text-slate-900 dark:text-white">{totalAttempted}</p>
+          </div>
+          <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-xl border border-green-200 dark:border-green-800 shadow-sm text-center">
+            <h3 className="text-green-800 dark:text-green-300 mb-1 text-xs font-bold uppercase tracking-wide">Correct Answers</h3>
+            <p className="text-2xl font-black text-slate-900 dark:text-white">{totalCorrect}</p>
+          </div>
+          <div className="bg-red-50 dark:bg-red-900/30 p-4 rounded-xl border border-red-200 dark:border-red-800 shadow-sm text-center">
+            <h3 className="text-red-800 dark:text-red-300 mb-1 text-xs font-bold uppercase tracking-wide">Wrong Answers</h3>
+            <p className="text-2xl font-black text-slate-900 dark:text-white">{totalWrong}</p>
+          </div>
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm text-center lg:col-span-2">
+            <h3 className="text-slate-600 dark:text-slate-300 mb-1 text-xs font-bold uppercase tracking-wide">Unattempted Qs</h3>
+            <p className="text-2xl font-black text-slate-900 dark:text-white">{totalUnattempted}</p>
+          </div>
         </div>
-        <div className="bg-purple-50 dark:bg-purple-900/30 p-6 rounded-2xl border border-purple-200 dark:border-purple-800 shadow-md h-auto min-h-min overflow-visible relative z-10">
-          <h3 className="text-purple-800 dark:text-purple-300 mb-1 font-bold">Highest Score</h3>
-          <p className="text-3xl font-black text-black dark:text-white">{highestScore}</p>
-        </div>
-        <div className="bg-purple-50 dark:bg-purple-900/30 p-6 rounded-2xl border border-purple-200 dark:border-purple-800 shadow-md h-auto min-h-min overflow-visible relative z-10">
-          <h3 className="text-purple-800 dark:text-purple-300 mb-1 font-bold">Average Score</h3>
-          <p className="text-3xl font-black text-black dark:text-white">{averageScore}</p>
-        </div>
-        <div className="bg-purple-50 dark:bg-purple-900/30 p-6 rounded-2xl border border-purple-200 dark:border-purple-800 shadow-md h-auto min-h-min overflow-visible relative z-10">
-          <h3 className="text-purple-800 dark:text-purple-300 mb-1 font-bold">Overall Accuracy</h3>
-          <p className="text-3xl font-black text-black dark:text-white">{accuracy}%</p>
-        </div>
-      </div>
+      )}
 
       <h2 className="text-2xl font-bold mb-6 text-slate-900 dark:text-white">Available Mock Tests</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

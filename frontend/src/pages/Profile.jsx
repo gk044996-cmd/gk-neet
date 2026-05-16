@@ -1,20 +1,41 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { useAuth } from '../context/AuthContext';
-import { User, Award, Flame, Target } from 'lucide-react';
+import { User, Award, Flame, Target, AlertTriangle } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BASE_URL } from '../config';
 
 export default function Profile() {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const [analytics, setAnalytics] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchRealData = async () => {
       try {
         const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+
         const res = await fetch(`${BASE_URL}/tests/my-results`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
+
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('token');
+          navigate('/login');
+          return;
+        }
+
+        if (!res.ok) {
+          throw new Error('Failed to fetch profile data');
+        }
+
         const data = await res.json();
         
         const completedResults = data.filter(r => r.completed);
@@ -22,7 +43,8 @@ export default function Profile() {
         const highestScore = totalTests > 0 ? Math.max(...completedResults.map(r => r.score || 0)) : 0;
         
         const totalCorrect = completedResults.reduce((acc, r) => acc + (r.correctCount || 0), 0);
-        const totalAttempted = completedResults.reduce((acc, r) => acc + ((r.correctCount || 0) + (r.wrongCount || 0)), 0);
+        const totalWrong = completedResults.reduce((acc, r) => acc + (r.wrongCount || 0), 0);
+        const totalAttempted = totalCorrect + totalWrong;
         const accuracy = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
         
         // Reverse so chronological order for graph
@@ -51,12 +73,37 @@ export default function Profile() {
         });
       } catch (err) {
         console.error("Failed to fetch profile data", err);
+        setError(err.message || 'An unexpected error occurred while loading your profile.');
+      } finally {
+        setLoading(false);
       }
     };
     fetchRealData();
-  }, []);
+  }, [navigate]);
 
-  if(!analytics) return <div className="text-center py-20">Loading profile...</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <span className="ml-3 text-slate-600 font-semibold text-lg">Loading profile...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[60vh] text-center px-4">
+        <AlertTriangle className="w-16 h-16 text-red-500 mb-4" />
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-2">Oops! Something went wrong</h2>
+        <p className="text-slate-500 dark:text-slate-400 mb-6">{error}</p>
+        <button onClick={() => window.location.reload()} className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors">
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  if (!analytics) return null;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

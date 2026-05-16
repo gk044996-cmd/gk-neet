@@ -114,48 +114,50 @@ export default function Leaderboard() {
       {/* Rest of the Leaderboard */}
       {rest.length > 0 && (
         <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-          <table className="min-w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800/50">
-                <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Rank</th>
-                <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Student</th>
-                <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Score</th>
-                <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Accuracy</th>
-                <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Correct</th>
-                <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Wrong</th>
-                <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Time</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-              {rest.map((user, idx) => (
-                <tr key={user._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                  <td className="px-6 py-5">
-                    <span className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold">
-                      {idx + 4}
-                    </span>
-                  </td>
-                  <td className="px-6 py-5 font-bold text-slate-800 dark:text-white">
-                    {user.name}
-                  </td>
-                  <td className="px-6 py-5">
-                    <span className="text-lg font-black text-indigo-600 dark:text-indigo-400">{user.highestScore}</span>
-                  </td>
-                  <td className="px-6 py-5 font-semibold text-emerald-600">
-                    {Math.round(user.accuracy)}%
-                  </td>
-                  <td className="px-6 py-5 font-medium text-emerald-500">
-                    {user.correctAnswers}
-                  </td>
-                  <td className="px-6 py-5 font-medium text-rose-500">
-                    {user.wrongAnswers}
-                  </td>
-                  <td className="px-6 py-5 font-medium text-blue-500">
-                    {Math.round(user.timeTaken / 60)}m
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-left border-collapse whitespace-nowrap">
+              <thead>
+                <tr className="bg-slate-50 dark:bg-slate-800/50">
+                  <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Rank</th>
+                  <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Student</th>
+                  <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Score</th>
+                  <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Accuracy</th>
+                  <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Correct</th>
+                  <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Wrong</th>
+                  <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Time</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                {rest.map((user, idx) => (
+                  <tr key={user._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                    <td className="px-6 py-5">
+                      <span className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold">
+                        {idx + 4}
+                      </span>
+                    </td>
+                    <td className="px-6 py-5 font-bold text-slate-800 dark:text-white">
+                      {user.name}
+                    </td>
+                    <td className="px-6 py-5">
+                      <span className="text-lg font-black text-indigo-600 dark:text-indigo-400">{user.highestScore}</span>
+                    </td>
+                    <td className="px-6 py-5 font-semibold text-emerald-600">
+                      {Math.round(user.accuracy)}%
+                    </td>
+                    <td className="px-6 py-5 font-medium text-emerald-500">
+                      {user.correctAnswers}
+                    </td>
+                    <td className="px-6 py-5 font-medium text-rose-500">
+                      {user.wrongAnswers}
+                    </td>
+                    <td className="px-6 py-5 font-medium text-blue-500">
+                      {Math.round(user.timeTaken / 60)}m
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

@@ -53,10 +53,19 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Base Route
-app.get('/', (req, res) => {
-  res.status(200).json({ message: 'GK NEET MOCK API Server is running.' });
-});
+// Serve frontend in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../frontend/dist', 'index.html'));
+  });
+} else {
+  // Base Route for Development
+  app.get('/', (req, res) => {
+    res.status(200).json({ message: 'GK NEET MOCK API Server is running.' });
+  });
+}
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/gk-neet';

@@ -83,21 +83,31 @@ router.get('/me', async (req, res) => {
 // Get Leaderboard
 router.get('/leaderboard', async (req, res) => {
   try {
-    const users = await User.find({ role: 'student' }).select('name email');
     const results = await Result.find({ completed: true });
+    const userIdsWithResults = [...new Set(results.map(r => r.userId.toString()))];
+    const users = await User.find({ _id: { $in: userIdsWithResults } }).select('name email');
 
     let leaderboard = users.map(user => {
       const userResults = results.filter(r => r.userId.toString() === user._id.toString());
       const totalTests = userResults.length;
-      const highestScore = totalTests > 0 ? Math.max(...userResults.map(r => r.score || 0)) : 0;
+      
+      let highestScore = -Infinity;
+      let timeTaken = 0;
+      let earliestSubmission = new Date();
+
+      if (totalTests > 0) {
+        highestScore = Math.max(...userResults.map(r => r.score != null ? r.score : -Infinity));
+        const highestScoreResults = userResults.filter(r => r.score === highestScore);
+        const bestResult = highestScoreResults.sort((a, b) => new Date(a.submittedAt || a.attemptedAt || 0) - new Date(b.submittedAt || b.attemptedAt || 0))[0];
+        earliestSubmission = bestResult.submittedAt || bestResult.attemptedAt || new Date();
+        timeTaken = userResults.reduce((acc, r) => acc + (r.timeTaken || 0), 0);
+      }
       
       const totalCorrect = userResults.reduce((acc, r) => acc + (r.correctCount || 0), 0);
-      const totalAttempted = userResults.reduce((acc, r) => acc + ((r.correctCount || 0) + (r.wrongCount || 0)), 0);
-      const accuracy = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
-      const timeTaken = userResults.reduce((acc, r) => acc + (r.timeTaken || 0), 0);
-      const correctAnswers = totalCorrect;
-      const wrongAnswers = userResults.reduce((acc, r) => acc + (r.wrongCount || 0), 0);
-
+      const totalWrong = userResults.reduce((acc, r) => acc + (r.wrongCount || 0), 0);
+      const totalAttempted = totalCorrect + totalWrong;
+      const accuracy = totalAttempted > 0 ? (totalCorrect / totalAttempted) * 100 : 0;
+      
       return {
         _id: user._id,
         name: user.name,
@@ -105,20 +115,20 @@ router.get('/leaderboard', async (req, res) => {
         highestScore,
         accuracy,
         timeTaken,
-        correctAnswers,
-        wrongAnswers
+        correctAnswers: totalCorrect,
+        wrongAnswers: totalWrong,
+        earliestSubmission
       };
     });
 
-    // Exclude users who haven't completed any tests
     leaderboard = leaderboard.filter(l => l.totalTests > 0);
 
-    // Rank primarily by highestScore, then accuracy, then lowest timeTaken
+    // Rank primarily by highestScore, then accuracy, then lowest timeTaken, then earlier submission time
     leaderboard.sort((a, b) => {
       if (b.highestScore !== a.highestScore) return b.highestScore - a.highestScore;
       if (b.accuracy !== a.accuracy) return b.accuracy - a.accuracy;
       if (a.timeTaken !== b.timeTaken) return a.timeTaken - b.timeTaken;
-      return b.totalTests - a.totalTests;
+      return new Date(a.earliestSubmission) - new Date(b.earliestSubmission);
     });
 
     res.json(leaderboard);

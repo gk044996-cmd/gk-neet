@@ -6,23 +6,23 @@ export default function Home() {
   return (
     <div className="w-full">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden animated-bg">
+      <section className="relative min-h-[85svh] md:min-h-[90vh] flex items-start md:items-center justify-center pt-28 md:pt-0 overflow-hidden animated-bg">
         <div className="absolute inset-0 bg-slate-50/80 dark:bg-slate-900/90 backdrop-blur-sm -z-0" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/20 blur-[120px] rounded-full -z-10 pointer-events-none" />
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 w-full">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="inline-block mb-4 px-4 py-1.5 rounded-full bg-blue-100/50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 backdrop-blur-md text-blue-700 dark:text-blue-300 font-semibold text-sm"
+            className="inline-block mb-5 md:mb-6 px-4 py-1.5 rounded-full bg-blue-100/50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 backdrop-blur-md text-blue-700 dark:text-blue-300 font-semibold text-[11px] sm:text-xs md:text-sm shadow-sm"
           >
             🚀 The Ultimate NEET Preparation Platform
           </motion.div>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6"
+            className="text-[2.8rem] leading-[1.1] sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-5 md:mb-6"
           >
             Prepare Like <br/>
             <span className="gradient-text">Real NEET</span>
@@ -31,7 +31,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-xl md:text-2xl text-slate-700 dark:text-slate-300 mb-10 max-w-3xl mx-auto font-medium"
+            className="text-base sm:text-lg md:text-2xl text-slate-700 dark:text-slate-300 mb-8 md:mb-10 max-w-3xl mx-auto font-medium px-2"
           >
             Experience the exact NTA exam pattern, get detailed analytics, and improve your score with our premium mock test platform.
           </motion.p>
@@ -39,13 +39,13 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="flex flex-col sm:flex-row justify-center items-center gap-4"
+            className="flex flex-col sm:flex-row justify-center items-center gap-3.5 md:gap-4 px-2 sm:px-0"
           >
-            <Link to="/register" className="px-8 py-4 rounded-full premium-gradient text-white font-bold text-lg hover:shadow-lg hover:shadow-blue-500/40 hover:-translate-y-1 transition-all w-full sm:w-auto text-center flex items-center justify-center gap-2">
+            <Link to="/register" className="px-8 py-3.5 md:py-4 rounded-full premium-gradient text-white font-bold text-base md:text-lg hover:shadow-lg hover:shadow-blue-500/40 hover:-translate-y-1 transition-all w-full sm:w-auto text-center flex items-center justify-center gap-2">
               Start Mock Test
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
             </Link>
-            <Link to="/login" className="px-8 py-4 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-md text-slate-900 dark:text-white font-bold text-lg border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700 shadow-sm hover:shadow-md transition-all w-full sm:w-auto text-center">
+            <Link to="/login" className="px-8 py-3.5 md:py-4 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-md text-slate-900 dark:text-white font-bold text-base md:text-lg border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700 shadow-sm hover:shadow-md transition-all w-full sm:w-auto text-center">
               View Analytics
             </Link>
           </motion.div>
