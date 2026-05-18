@@ -55,11 +55,24 @@ app.use((err, req, res, next) => {
 
 // Serve Frontend in Production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
-  
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../frontend', 'dist', 'index.html'));
-  });
+  const fs = require('fs');
+  const frontendPath = path.join(__dirname, '../frontend/dist');
+  const indexPath = path.join(frontendPath, 'index.html');
+
+  if (fs.existsSync(indexPath)) {
+    app.use(express.static(frontendPath));
+    app.get('*', (req, res) => {
+      res.sendFile(indexPath);
+    });
+  } else {
+    console.error('CRITICAL ERROR: frontend/dist/index.html not found. Frontend was not built successfully.');
+    app.get('*', (req, res) => {
+      res.status(503).json({
+        status: 'error',
+        message: 'Frontend build is missing. Please ensure the build command executes npm run build.'
+      });
+    });
+  }
 } else {
   // Base Route for Health Check (Development)
   app.get('/', (req, res) => {
