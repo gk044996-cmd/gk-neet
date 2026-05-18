@@ -4,8 +4,8 @@
   "description": "GK NEET MOCK Platform",
   "scripts": {
     "install-backend": "cd backend && npm install",
-    "install-frontend": "cd frontend && npm install",
-    "postinstall": "npm run install-backend && npm run install-frontend",
+    "install-frontend": "cd frontend && npm install --include=dev",
+    "postinstall": "npm run install-backend && npm run install-frontend && npm run build",
     "build": "cd frontend && npm run build",
     "start": "cd backend && npm start"
   },
