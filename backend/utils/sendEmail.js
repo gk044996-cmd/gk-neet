@@ -11,8 +11,8 @@ const sendEmail = async (options) => {
 
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 587, // Render sometimes blocks port 465 or has IPv6 issues, 587 works better
-    secure: false, // false for 587, true for 465
+    port: 587, // 587 with secure false is the standard for non-blocked networks like Vercel/Railway
+    secure: false,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS
@@ -32,7 +32,12 @@ const sendEmail = async (options) => {
     to: options.email,
     subject: options.subject,
     text: options.message,
-    html: options.html
+    html: options.html || `<div style="font-family: sans-serif; line-height: 1.6; color: #333;">
+        <h2 style="color: #4f46e5;">GK NEET MOCK</h2>
+        <p>${options.message.replace(/\n/g, '<br>')}</p>
+        <hr style="border: none; border-top: 1px solid #eaeaea; margin: 20px 0;" />
+        <p style="font-size: 12px; color: #888;">This is an automated message. Please do not reply.</p>
+      </div>`
   };
 
   try {

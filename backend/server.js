@@ -87,7 +87,13 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/gk-neet';
 mongoose.connect(MONGO_URI)
   .then(() => {
     console.log('Connected to MongoDB');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    // Only listen if not running in Vercel
+    if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+      app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    }
   })
   .catch(err => console.error(err));
+
+// Export app for Vercel Serverless Functions
+module.exports = app;
 
