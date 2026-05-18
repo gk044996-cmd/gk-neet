@@ -22,6 +22,8 @@ app.use(compression()); // Compress all responses for speed
 app.use(express.json({ limit: '10kb' }));
 app.use(mongoSanitize());
 app.use(xss());
+// Trust the reverse proxy (Render load balancer) to fix rate limiter IP tracking
+app.set('trust proxy', 1);
 
 const limiter = rateLimit({
   max: 5000, // Increased for development/testing

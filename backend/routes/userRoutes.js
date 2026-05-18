@@ -38,7 +38,7 @@ router.post('/send-otp', async (req, res) => {
       console.log('⚠️  EMAIL FAILED TO SEND ⚠️');
       console.log('Error:', emailErr.message);
       console.log('=============================================\n');
-      return res.status(500).json({ error: 'Failed to send OTP email. Please check server configuration.' });
+      return res.status(500).json({ error: emailErr.message || 'Failed to send OTP email.' });
     }
 
     res.json({ message: 'OTP sent successfully' });
@@ -95,7 +95,7 @@ router.post('/forgot-password/send-otp', async (req, res) => {
       console.log('⚠️  EMAIL FAILED TO SEND ⚠️');
       console.log('Error:', emailErr.message);
       console.log('=============================================\n');
-      return res.status(500).json({ error: 'Failed to send OTP email. Please check server configuration.' });
+      return res.status(500).json({ error: emailErr.message || 'Failed to send OTP email.' });
     }
 
     res.json({ message: 'Password reset OTP sent successfully' });

@@ -1,10 +1,18 @@
 const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
+  console.log('\n--- EMAIL CONFIGURATION CHECK ---');
+  console.log('EMAIL_USER exists:', !!process.env.EMAIL_USER);
+  if (process.env.EMAIL_USER) {
+    console.log('EMAIL_USER length:', process.env.EMAIL_USER.length);
+  }
+  console.log('EMAIL_PASS exists:', !!process.env.EMAIL_PASS);
+  console.log('-----------------------------------\n');
+
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 465, // Use 465 for secure, 587 for non-secure
-    secure: true,
+    port: 587, // Render sometimes blocks port 465 or has IPv6 issues, 587 works better
+    secure: false, // false for 587, true for 465
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS
@@ -16,7 +24,7 @@ const sendEmail = async (options) => {
     console.log('✅ SMTP connection verified successfully');
   } catch (error) {
     console.error('❌ SMTP Connection Error:', error);
-    throw new Error('Failed to connect to email server. Please check SMTP configuration.');
+    throw new Error('SMTP Verification Failed: ' + error.message);
   }
 
   const mailOptions = {
@@ -33,7 +41,7 @@ const sendEmail = async (options) => {
     return info;
   } catch (error) {
     console.error('❌ Error sending email:', error);
-    throw new Error('Server error while sending OTP');
+    throw new Error('Failed to send email: ' + error.message);
   }
 };
 
