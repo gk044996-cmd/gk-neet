@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { AlertTriangle, Maximize, X } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { BASE_URL } from '../config';
 
 
@@ -14,7 +15,10 @@ export default function MockTest() {
   const [markedForReview, setMarkedForReview] = useState({});
   const [timeLeft, setTimeLeft] = useState(180 * 60);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [warnings, setWarnings] = useState(0);
+  const [warnings, setWarnings] = useState(() => parseInt(localStorage.getItem(`tab_violations_${id}`)) || 0);
+  const [violationSubmit, setViolationSubmit] = useState(false);
+  const debounceRef = useRef(false);
+  const handleSubmitRef = useRef(null);
   const [started, setStarted] = useState(false);
   const [test, setTest] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -73,27 +77,43 @@ export default function MockTest() {
 
   // Security & Anti-cheat measures
   useEffect(() => {
-    if (!started) return;
+    if (!started || violationSubmit) return;
+
+    const handleViolation = () => {
+      if (debounceRef.current) return;
+      debounceRef.current = true;
+      setTimeout(() => debounceRef.current = false, 2000); // 2 second debounce to prevent double counts
+
+      setWarnings(w => {
+        const newW = w + 1;
+        localStorage.setItem(`tab_violations_${id}`, newW.toString());
+        
+        if (newW === 1) {
+          toast.error('Warning: Tab switching detected (1/3)', { duration: 4000 });
+        } else if (newW === 2) {
+          toast.error('Final Warning: One more switch will auto submit your test.', { duration: 4000, icon: '⚠️' });
+        } else if (newW >= 3) {
+          setViolationSubmit(true);
+          if (handleSubmitRef.current) {
+            handleSubmitRef.current(true, 'auto');
+          }
+        }
+        return newW;
+      });
+    };
 
     const handleVisibilityChange = () => {
-      if (document.hidden) {
-        setWarnings(w => {
-          const newW = w + 1;
-          setTimeout(() => {
-            alert(`Warning ${newW}/3: Tab switching is not allowed during the exam.`);
-            if (newW >= 3) {
-              const submitBtn = document.getElementById('submit-exam-btn');
-              if (submitBtn) submitBtn.click();
-            }
-          }, 50);
-          return newW;
-        });
-      }
+      if (document.hidden) handleViolation();
+    };
+
+    const handleBlur = () => {
+      handleViolation();
     };
 
     const preventCopy = (e) => e.preventDefault();
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('blur', handleBlur);
     document.addEventListener('contextmenu', preventCopy);
     document.addEventListener('copy', preventCopy);
 
@@ -106,11 +126,12 @@ export default function MockTest() {
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleBlur);
       document.removeEventListener('contextmenu', preventCopy);
       document.removeEventListener('copy', preventCopy);
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [started]);
+  }, [started, violationSubmit, id]);
 
   // Timer
   useEffect(() => {
@@ -207,19 +228,37 @@ export default function MockTest() {
       }
       
       localStorage.removeItem(`test_answers_${id}`);
-      if (submissionType === 'auto') {
-        alert("Test auto submitted because exam time ended.");
+      localStorage.removeItem(`tab_violations_${id}`);
+      
+      if (submissionType === 'auto' && !violationSubmit) {
+        toast.error("Test auto submitted because exam time ended.");
       }
       
       navigate(`/results/${data.detailedResult._id}`, { state: { result: data.detailedResult, test: test } });
     } catch (err) {
       console.error(err);
-      alert('Failed to submit test. Please try again.');
+      toast.error('Failed to submit test. Please try again.');
     }
-  }, [test, id, navigate]);
+  }, [test, id, navigate, violationSubmit]);
+
+  // Assign to ref for safe usage inside effects without triggering re-renders or stale closures
+  useEffect(() => {
+    handleSubmitRef.current = handleSubmit;
+  }, [handleSubmit]);
 
   if (loading) return <div className="flex justify-center items-center h-screen">Loading Test...</div>;
   if (!test) return <div className="flex justify-center items-center h-screen">Test not found</div>;
+  
+  if (violationSubmit) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen bg-slate-50 dark:bg-slate-900 px-4 text-center">
+        <AlertTriangle className="w-16 h-16 text-red-500 mb-6 animate-bounce" />
+        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-3">Test Auto Submitting</h2>
+        <p className="text-lg text-slate-600 dark:text-slate-400 max-w-md">Submitting your test due to multiple tab switches. Please wait...</p>
+        <div className="mt-8 animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
+      </div>
+    );
+  }
 
   if (!started) {
     return (

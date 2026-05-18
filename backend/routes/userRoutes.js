@@ -94,19 +94,30 @@ router.get('/leaderboard', async (req, res) => {
       let highestScore = -Infinity;
       let timeTaken = 0;
       let earliestSubmission = new Date();
+      let accuracy = 0;
+      let totalCorrect = 0;
+      let totalWrong = 0;
+      let totalAttempted = 0;
 
       if (totalTests > 0) {
         highestScore = Math.max(...userResults.map(r => r.score != null ? r.score : -Infinity));
         const highestScoreResults = userResults.filter(r => r.score === highestScore);
-        const bestResult = highestScoreResults.sort((a, b) => new Date(a.submittedAt || a.attemptedAt || 0) - new Date(b.submittedAt || b.attemptedAt || 0))[0];
+        
+        // Sort highest score results by highest accuracy, then lowest timeTaken
+        highestScoreResults.sort((a, b) => {
+           if (b.accuracy !== a.accuracy) return (b.accuracy || 0) - (a.accuracy || 0);
+           return (a.timeTaken || 0) - (b.timeTaken || 0);
+        });
+        
+        const bestResult = highestScoreResults[0];
         earliestSubmission = bestResult.submittedAt || bestResult.attemptedAt || new Date();
-        timeTaken = userResults.reduce((acc, r) => acc + (r.timeTaken || 0), 0);
+        timeTaken = bestResult.timeTaken || 0;
+        
+        totalCorrect = bestResult.correctCount || 0;
+        totalWrong = bestResult.wrongCount || 0;
+        totalAttempted = totalCorrect + totalWrong;
+        accuracy = totalAttempted > 0 ? (totalCorrect / totalAttempted) * 100 : 0;
       }
-      
-      const totalCorrect = userResults.reduce((acc, r) => acc + (r.correctCount || 0), 0);
-      const totalWrong = userResults.reduce((acc, r) => acc + (r.wrongCount || 0), 0);
-      const totalAttempted = totalCorrect + totalWrong;
-      const accuracy = totalAttempted > 0 ? (totalCorrect / totalAttempted) * 100 : 0;
       
       return {
         _id: user._id,
@@ -117,6 +128,7 @@ router.get('/leaderboard', async (req, res) => {
         timeTaken,
         correctAnswers: totalCorrect,
         wrongAnswers: totalWrong,
+        totalAttempted,
         earliestSubmission
       };
     });

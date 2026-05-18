@@ -80,9 +80,32 @@ export default function Result() {
     }
   };
 
-  if (loading) return <div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div></div>;
-  if (error) return <div className="min-h-screen bg-slate-50 flex items-center justify-center text-xl text-red-600">{error}</div>;
-  if (!result || !test) return <div className="flex justify-center items-center h-screen text-xl">Result not found.</div>;
+  if (loading) return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
+      <p className="text-slate-500 dark:text-slate-400 font-semibold">Loading your detailed result...</p>
+    </div>
+  );
+  
+  if (error) return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col items-center justify-center text-center px-4">
+      <div className="text-red-500 mb-4"><svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
+      <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Failed to load result</h2>
+      <p className="text-slate-500 dark:text-slate-400 mb-6">{error}</p>
+      <div className="flex gap-4">
+        <button onClick={fetchResultData} className="px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700">Retry</button>
+        <button onClick={() => navigate('/dashboard')} className="px-6 py-2 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white rounded-xl hover:bg-slate-300">Go Back</button>
+      </div>
+    </div>
+  );
+
+  if (!result || !test) return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col items-center justify-center text-center px-4">
+      <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Result not found</h2>
+      <p className="text-slate-500 dark:text-slate-400 mb-6">The requested result data could not be found or has been deleted.</p>
+      <button onClick={() => navigate('/dashboard')} className="px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700">Go to Dashboard</button>
+    </div>
+  );
 
   const data = {
     totalScore: result.score,
@@ -120,15 +143,21 @@ export default function Result() {
                         const qId = typeof q === 'object' ? q._id : q;
                         return saId === qId;
                       });
-                      const isUnattempted = studentAnswer?.selectedOption === null || studentAnswer?.selectedOption === undefined || studentAnswer?.selectedOption === -1;
-                      const isCorrect = studentAnswer?.isCorrect;
                       const selectedOption = studentAnswer?.selectedOption;
+                      const isUnattempted = selectedOption === null || selectedOption === undefined || selectedOption === -1;
                       
                       let correctIndex = q.correctAnswerIndex;
                       if (correctIndex === undefined || correctIndex === null) {
-                        const correctStr = String(q.correctAnswer).trim().toLowerCase();
-                        correctIndex = q.options.findIndex(o => String(o).trim().toLowerCase() === correctStr || String(q.options.indexOf(o)) === correctStr);
+                        const correctStr = String(q.correctAnswer || '').trim().toLowerCase();
+                        if (['a','1'].includes(correctStr)) correctIndex = 0;
+                        else if (['b','2'].includes(correctStr)) correctIndex = 1;
+                        else if (['c','3'].includes(correctStr)) correctIndex = 2;
+                        else if (['d','4'].includes(correctStr)) correctIndex = 3;
+                        else {
+                          correctIndex = (q.options || []).findIndex(o => String(o).trim().toLowerCase() === correctStr || String((q.options || []).indexOf(o)) === correctStr);
+                        }
                       }
+                      const isCorrect = !isUnattempted && selectedOption === correctIndex;
 
                       return (
                         <>
@@ -165,7 +194,7 @@ export default function Result() {
                             ) : (
                               <>
                                 <p style={{ margin: '0 0 8px 0', color: '#dc2626', fontSize: '14px', fontWeight: 'bold' }}>❌ Your Answer: Incorrect</p>
-                                <p style={{ margin: 0, color: '#059669', fontSize: '14px', fontWeight: 'bold' }}>💡 Correct Answer: {['A','B','C','D'][correctIndex]} - {q.options[correctIndex]}</p>
+                                <p style={{ margin: 0, color: '#059669', fontSize: '14px', fontWeight: 'bold' }}>💡 Correct Answer: {['A','B','C','D'][correctIndex]} - {q.options ? q.options[correctIndex] : q.correctAnswer}</p>
                               </>
                             )}
                           </div>
@@ -176,54 +205,6 @@ export default function Result() {
                   {q.explanation && (
                     <div style={{ padding: '10px', backgroundColor: '#eff6ff', borderLeft: '4px solid #3b82f6', marginTop: '10px' }}>
                       <p style={{ margin: 0, fontSize: '13px', color: '#1e3a8a' }}><strong>Explanation:</strong> {q.explanation}</p>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <h2 style={{ fontSize: '18px', marginTop: '40px', marginBottom: '15px' }}>Quick Answer Key</h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-            {test.questions.map((q, idx) => {
-              const studentAnswer = result.selectedAnswers?.find(sa => {
-                const saId = typeof sa.questionId === 'object' ? sa.questionId._id : sa.questionId;
-                const qId = typeof q === 'object' ? q._id : q;
-                return saId === qId;
-              });
-              const isCorrect = studentAnswer?.isCorrect;
-              const isUnattempted = studentAnswer?.selectedOption === null || studentAnswer?.selectedOption === undefined || studentAnswer?.selectedOption === -1;
-              let correctIndex = q.correctAnswerIndex;
-              if (correctIndex === undefined || correctIndex === null) {
-                const correctStr = String(q.correctAnswer).trim().toLowerCase();
-                correctIndex = q.options.findIndex(o => String(o).trim().toLowerCase() === correctStr || String(q.options.indexOf(o)) === correctStr);
-              }
-              const correctOptLetter = ['A','B','C','D'][correctIndex] || '-';
-              const studentOptLetter = isUnattempted ? '-' : ['A','B','C','D'][studentAnswer?.selectedOption];
-              
-              let bgColor = '#f8f9fa';
-              let borderColor = '#e2e8f0';
-              let textColor = '#333333';
-              
-              if (isCorrect) { bgColor = '#ecfdf5'; borderColor = '#a7f3d0'; textColor = '#065f46'; } 
-              else if (!isUnattempted) { bgColor = '#fef2f2'; borderColor = '#fecaca'; textColor = '#991b1b'; }
-              
-              return (
-                <div key={q._id} style={{ width: '150px', padding: '10px', border: `1px solid ${borderColor}`, borderRadius: '8px', backgroundColor: bgColor, color: textColor, fontSize: '13px', display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontWeight: 'bold', borderBottom: `1px solid ${borderColor}`, paddingBottom: '4px' }}>
-                    <span>Q{idx + 1}</span>
-                    {isUnattempted ? <span style={{ color: '#64748b' }}>Not Attempted</span> : isCorrect ? <span style={{ color: '#059669' }}>Correct</span> : <span style={{ color: '#dc2626' }}>Wrong</span>}
-                  </div>
-                  {!isUnattempted && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                      <span style={{ opacity: 0.8 }}>Your Ans:</span>
-                      <strong style={{ color: isCorrect ? '#059669' : '#dc2626' }}>{studentOptLetter}</strong>
-                    </div>
-                  )}
-                  {(!isCorrect || isUnattempted) && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ opacity: 0.8 }}>Correct:</span>
-                      <strong style={{ color: '#059669' }}>{correctOptLetter}</strong>
                     </div>
                   )}
                 </div>
@@ -304,10 +285,10 @@ export default function Result() {
           </div>
         )}
 
-        {/* Answer Key Section (For PDF Download) */}
-        <div className="mt-12 pt-8 border-t border-slate-200">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6">Answer Key</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {/* Detailed Answer Review Section */}
+        <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-700">
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-8">Detailed Answer Review</h2>
+          <div className="space-y-8">
             {test.questions.map((q, idx) => {
               const studentAnswer = result.selectedAnswers?.find(sa => {
                 const saId = typeof sa.questionId === 'object' ? sa.questionId._id : sa.questionId;
@@ -315,46 +296,97 @@ export default function Result() {
                 return saId === qId;
               });
               
-              const isCorrect = studentAnswer?.isCorrect;
-              const isUnattempted = studentAnswer?.selectedOption === null || studentAnswer?.selectedOption === undefined || studentAnswer?.selectedOption === -1;
+              const selectedOption = studentAnswer?.selectedOption;
+              const isUnattempted = selectedOption === null || selectedOption === undefined || selectedOption === -1;
+
               let correctIndex = q.correctAnswerIndex;
               if (correctIndex === undefined || correctIndex === null) {
-                const correctStr = String(q.correctAnswer).trim().toLowerCase();
-                correctIndex = q.options.findIndex(o => String(o).trim().toLowerCase() === correctStr || String(q.options.indexOf(o)) === correctStr);
+                const correctStr = String(q.correctAnswer || '').trim().toLowerCase();
+                if (['a','1'].includes(correctStr)) correctIndex = 0;
+                else if (['b','2'].includes(correctStr)) correctIndex = 1;
+                else if (['c','3'].includes(correctStr)) correctIndex = 2;
+                else if (['d','4'].includes(correctStr)) correctIndex = 3;
+                else {
+                  correctIndex = (q.options || []).findIndex(o => String(o).trim().toLowerCase() === correctStr || String((q.options || []).indexOf(o)) === correctStr);
+                }
               }
-              const correctOptLetter = ['A','B','C','D'][correctIndex] || '-';
-              const studentOptLetter = isUnattempted ? '-' : ['A','B','C','D'][studentAnswer?.selectedOption];
+              const isCorrect = !isUnattempted && selectedOption === correctIndex;
+
+              let borderClass = "border-slate-200 dark:border-slate-700";
+              let badgeClass = "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300";
+              let badgeText = "Not Attempted";
               
-              let bgClass = "bg-slate-50 border-slate-200 dark:bg-slate-800 dark:border-slate-700";
-              if (isCorrect) bgClass = "bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-300";
-              else if (!isUnattempted) bgClass = "bg-red-50 border-red-200 text-red-900 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300";
-              
+              if (isCorrect) {
+                borderClass = "border-emerald-500 dark:border-emerald-500";
+                badgeClass = "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400";
+                badgeText = "Correct Answer";
+              } else if (!isUnattempted) {
+                borderClass = "border-red-500 dark:border-red-500";
+                badgeClass = "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400";
+                badgeText = "Incorrect Answer";
+              }
+
               return (
-                <div key={q._id} className={`p-4 rounded-xl border shadow-sm ${bgClass} flex flex-col transition-all hover:shadow-md`}>
-                  <div className="flex justify-between items-center mb-3 pb-2 border-b border-slate-200 dark:border-slate-700/50">
-                    <span className="font-extrabold text-slate-800 dark:text-slate-200 text-base">Q{idx + 1}.</span>
-                    {isUnattempted ? (
-                      <span className="text-[10px] uppercase font-bold text-slate-500 bg-slate-200 dark:bg-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-md">Not Attempted</span>
-                    ) : isCorrect ? (
-                      <span className="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-100 dark:bg-emerald-900/50 dark:text-emerald-400 px-2.5 py-1 rounded-md">Correct</span>
-                    ) : (
-                      <span className="text-[10px] uppercase font-bold text-red-700 bg-red-100 dark:bg-red-900/50 dark:text-red-400 px-2.5 py-1 rounded-md">Incorrect</span>
-                    )}
+                <div key={q._id} className={`p-6 rounded-2xl border-2 ${borderClass} bg-white dark:bg-slate-800 shadow-sm transition-all`}>
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white flex-1 pr-4">
+                      <span className="text-indigo-600 dark:text-indigo-400 mr-2">Q{idx + 1}.</span> 
+                      {q.text}
+                    </h3>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap ${badgeClass}`}>
+                      {badgeText}
+                    </span>
                   </div>
-                  <div className="text-sm font-semibold space-y-1.5">
-                    {!isUnattempted && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-500 dark:text-slate-400">Your Ans:</span>
-                        <span className={`text-base font-black px-2 py-0.5 rounded-md ${isCorrect ? 'text-emerald-700 bg-emerald-100/50 dark:text-emerald-400 dark:bg-emerald-900/30' : 'text-red-700 bg-red-100/50 dark:text-red-400 dark:bg-red-900/30'}`}>{studentOptLetter}</span>
-                      </div>
-                    )}
-                    {(!isCorrect || isUnattempted) && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-500 dark:text-slate-400">Correct:</span>
-                        <span className="text-base font-black px-2 py-0.5 rounded-md text-emerald-700 bg-emerald-100/50 dark:text-emerald-400 dark:bg-emerald-900/30">{correctOptLetter}</span>
-                      </div>
-                    )}
+
+                  {q.imageUrl && (
+                    <div className="mb-6">
+                      <img src={q.imageUrl} alt="Question" className="max-h-64 object-contain rounded-lg border border-slate-200 dark:border-slate-700" />
+                    </div>
+                  )}
+
+                  <div className="space-y-3">
+                    {(q.options || []).map((opt, oIdx) => {
+                      const isThisCorrect = oIdx === correctIndex;
+                      const isThisSelected = oIdx === selectedOption;
+                      
+                      let optBg = "bg-slate-50 dark:bg-slate-900/50";
+                      let optBorder = "border-slate-200 dark:border-slate-700";
+                      let optText = "text-slate-700 dark:text-slate-300";
+                      let icon = null;
+
+                      if (isThisCorrect) {
+                        optBg = "bg-emerald-50 dark:bg-emerald-900/20";
+                        optBorder = "border-emerald-400 dark:border-emerald-500";
+                        optText = "text-emerald-800 dark:text-emerald-300 font-semibold";
+                        icon = <span className="text-emerald-500 dark:text-emerald-400 ml-auto">✓ Correct</span>;
+                      } else if (isThisSelected && !isCorrect) {
+                        optBg = "bg-red-50 dark:bg-red-900/20";
+                        optBorder = "border-red-400 dark:border-red-500";
+                        optText = "text-red-800 dark:text-red-300 font-semibold";
+                        icon = <span className="text-red-500 dark:text-red-400 ml-auto">✗ Your Ans</span>;
+                      }
+
+                      return (
+                        <div key={oIdx} className={`p-4 rounded-xl border-2 flex items-center ${optBg} ${optBorder} ${optText} transition-all`}>
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold mr-4 shrink-0 ${isThisCorrect ? 'bg-emerald-200 text-emerald-800 dark:bg-emerald-800 dark:text-emerald-200' : isThisSelected && !isCorrect ? 'bg-red-200 text-red-800 dark:bg-red-800 dark:text-red-200' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300'}`}>
+                            {['A', 'B', 'C', 'D'][oIdx]}
+                          </div>
+                          <span className="flex-1 break-words">{opt}</span>
+                          {icon && <div className="text-sm font-bold pl-2">{icon}</div>}
+                        </div>
+                      );
+                    })}
                   </div>
+
+                  {q.explanation && (
+                    <div className="mt-6 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
+                      <h4 className="font-bold text-blue-800 dark:text-blue-300 mb-1 flex items-center gap-2">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        Explanation
+                      </h4>
+                      <p className="text-sm text-blue-900 dark:text-blue-200">{q.explanation}</p>
+                    </div>
+                  )}
                 </div>
               );
             })}

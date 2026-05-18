@@ -112,19 +112,19 @@ export default function Profile() {
       <div className="flex flex-col md:flex-row gap-8">
         {/* Left Col - Info */}
         <div className="w-full md:w-1/3 space-y-6">
-          <div className="glass-panel p-8 rounded-3xl text-center h-auto min-h-min overflow-visible relative z-10 break-words">
-            <div className="w-24 h-24 mx-auto bg-primary/20 rounded-full flex items-center justify-center mb-4 shrink-0">
-              <User size={40} className="text-primary" />
+          <div className="bg-white dark:bg-[#163E5A] border border-slate-200 dark:border-[#1B4965] shadow-lg dark:shadow-black/20 p-8 rounded-3xl text-center h-auto min-h-min overflow-visible relative z-10 break-words">
+            <div className="w-24 h-24 mx-auto bg-primary/10 dark:bg-[#12344D] rounded-full flex items-center justify-center mb-4 shrink-0 shadow-inner">
+              <User size={40} className="text-primary dark:text-[#5df8d8]" />
             </div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{currentUser?.name || currentUser?.displayName || 'NEET Aspirant'}</h2>
-            <p className="text-slate-500 dark:text-slate-400">{currentUser?.email}</p>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC]">{currentUser?.name || currentUser?.displayName || 'NEET Aspirant'}</h2>
+            <p className="text-slate-500 dark:text-[#D1E7F0] mt-1">{currentUser?.email}</p>
           </div>
 
-          <div className="glass-panel p-6 rounded-3xl h-auto min-h-min overflow-visible relative z-10 break-words">
-            <h3 className="font-bold mb-4 flex items-center gap-2 text-slate-900 dark:text-white"><Target className="text-primary" /> AI Recommendations</h3>
+          <div className="bg-white dark:bg-[#163E5A] border border-slate-200 dark:border-[#1B4965] shadow-lg dark:shadow-black/20 p-6 rounded-3xl h-auto min-h-min overflow-visible relative z-10 break-words">
+            <h3 className="font-bold mb-4 flex items-center gap-2 text-slate-900 dark:text-[#F8FAFC]"><Target className="text-primary dark:text-[#5df8d8]" /> AI Recommendations</h3>
             <ul className="space-y-3 text-sm">
               {analytics.recommendations.map((rec, i) => (
-                <li key={i} className="flex gap-2 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 p-4 rounded-lg border border-blue-100 dark:border-blue-800 h-auto min-h-min" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+                <li key={i} className="flex gap-2 bg-blue-50 dark:bg-[#12344D] text-blue-800 dark:text-[#D1E7F0] p-4 rounded-xl border border-blue-100 dark:border-[#1B4965] h-auto min-h-min shadow-sm" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>
                   <span className="shrink-0">💡</span> <span>{rec}</span>
                 </li>
               ))}
@@ -135,38 +135,38 @@ export default function Profile() {
         {/* Right Col - Stats */}
         <div className="w-full md:w-2/3 space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="glass-panel p-5 rounded-2xl text-center h-auto min-h-min overflow-visible relative z-10">
-              <Flame className="mx-auto text-orange-500 mb-2" />
-              <div className="text-2xl font-black text-slate-900 dark:text-white">{analytics.streak}</div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">Day Streak</div>
+            <div className="bg-white dark:bg-[#163E5A] border border-slate-200 dark:border-[#1B4965] shadow-lg dark:shadow-black/20 p-5 rounded-2xl text-center h-auto min-h-min overflow-visible relative z-10">
+              <Flame className="mx-auto text-orange-500 dark:text-orange-400 mb-2" />
+              <div className="text-2xl font-black text-slate-900 dark:text-[#F8FAFC]">{analytics.streak}</div>
+              <div className="text-xs text-slate-500 dark:text-[#A9C7D8] font-medium mt-1">Day Streak</div>
             </div>
-            <div className="glass-panel p-5 rounded-2xl text-center h-auto min-h-min overflow-visible relative z-10">
-              <Award className="mx-auto text-yellow-500 mb-2" />
-              <div className="text-2xl font-black text-slate-900 dark:text-white">{analytics.totalTests}</div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">Tests Attempted</div>
+            <div className="bg-white dark:bg-[#163E5A] border border-slate-200 dark:border-[#1B4965] shadow-lg dark:shadow-black/20 p-5 rounded-2xl text-center h-auto min-h-min overflow-visible relative z-10">
+              <Award className="mx-auto text-yellow-500 dark:text-yellow-400 mb-2" />
+              <div className="text-2xl font-black text-slate-900 dark:text-[#F8FAFC]">{analytics.totalTests}</div>
+              <div className="text-xs text-slate-500 dark:text-[#A9C7D8] font-medium mt-1">Tests Attempted</div>
             </div>
-            <div className="glass-panel p-5 rounded-2xl text-center h-auto min-h-min overflow-visible relative z-10">
-              <Target className="mx-auto text-green-500 mb-2" />
-              <div className="text-2xl font-black text-slate-900 dark:text-white">{analytics.accuracy}%</div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">Avg Accuracy</div>
+            <div className="bg-white dark:bg-[#163E5A] border border-slate-200 dark:border-[#1B4965] shadow-lg dark:shadow-black/20 p-5 rounded-2xl text-center h-auto min-h-min overflow-visible relative z-10">
+              <Target className="mx-auto text-green-500 dark:text-green-400 mb-2" />
+              <div className="text-2xl font-black text-slate-900 dark:text-[#F8FAFC]">{analytics.accuracy}%</div>
+              <div className="text-xs text-slate-500 dark:text-[#A9C7D8] font-medium mt-1">Avg Accuracy</div>
             </div>
-            <div className="glass-panel p-5 rounded-2xl text-center h-auto min-h-min overflow-visible relative z-10">
-              <User className="mx-auto text-purple-500 mb-2" />
-              <div className="text-2xl font-black text-slate-900 dark:text-white">{analytics.highestScore}</div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">Highest Score</div>
+            <div className="bg-white dark:bg-[#163E5A] border border-slate-200 dark:border-[#1B4965] shadow-lg dark:shadow-black/20 p-5 rounded-2xl text-center h-auto min-h-min overflow-visible relative z-10">
+              <User className="mx-auto text-purple-500 dark:text-purple-400 mb-2" />
+              <div className="text-2xl font-black text-slate-900 dark:text-[#F8FAFC]">{analytics.highestScore}</div>
+              <div className="text-xs text-slate-500 dark:text-[#A9C7D8] font-medium mt-1">Highest Score</div>
             </div>
           </div>
 
-          <div className="glass-panel p-6 rounded-3xl h-auto min-h-min overflow-visible relative z-10">
-            <h3 className="font-bold mb-6 text-slate-900 dark:text-white">Progress History (Last 5 Tests)</h3>
+          <div className="bg-white dark:bg-[#163E5A] border border-slate-200 dark:border-[#1B4965] shadow-lg dark:shadow-black/20 p-6 rounded-3xl h-auto min-h-min overflow-visible relative z-10">
+            <h3 className="font-bold mb-6 text-slate-900 dark:text-[#F8FAFC]">Progress History (Last 5 Tests)</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={analytics.graphData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis dataKey="name" stroke="#64748b" />
-                  <YAxis domain={[0, 720]} stroke="#64748b" />
-                  <Tooltip contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                  <Line type="monotone" dataKey="score" stroke="#0ea5e9" strokeWidth={3} dot={{ r: 6, fill: '#0ea5e9', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 8 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#94a3b8" opacity={0.3} />
+                  <XAxis dataKey="name" stroke="#A9C7D8" />
+                  <YAxis domain={[0, 720]} stroke="#A9C7D8" />
+                  <Tooltip contentStyle={{ borderRadius: '10px', border: 'none', backgroundColor: '#12344D', color: '#F8FAFC', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.3)' }} itemStyle={{ color: '#F8FAFC' }} />
+                  <Line type="monotone" dataKey="score" stroke="#5df8d8" strokeWidth={3} dot={{ r: 6, fill: '#5df8d8', strokeWidth: 2, stroke: '#12344D' }} activeDot={{ r: 8 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>

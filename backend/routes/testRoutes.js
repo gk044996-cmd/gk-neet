@@ -75,9 +75,9 @@ router.get('/result/:resultId', protect, async (req, res) => {
     const result = await Result.findById(req.params.resultId)
       .populate({
         path: 'testId',
-        populate: { path: 'questions', select: 'correctAnswerIndex correctAnswer' }
+        populate: { path: 'questions' }
       })
-      .populate('selectedAnswers.questionId', 'correctAnswerIndex correctAnswer');
+      .populate('selectedAnswers.questionId');
     if (!result) return res.status(404).json({ error: 'Result not found' });
     if (result.userId.toString() !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Unauthorized' });
@@ -212,10 +212,21 @@ router.post('/:id/submit', async (req, res) => {
         
         if (q.correctAnswer !== undefined && q.correctAnswer !== null && q.correctAnswer !== '') {
           const correctAnswerStr = String(q.correctAnswer).trim().toLowerCase();
+          
+          let correctIndexFromLetter = -1;
+          if (correctAnswerStr === 'a' || correctAnswerStr === '1') correctIndexFromLetter = 0;
+          if (correctAnswerStr === 'b' || correctAnswerStr === '2') correctIndexFromLetter = 1;
+          if (correctAnswerStr === 'c' || correctAnswerStr === '3') correctIndexFromLetter = 2;
+          if (correctAnswerStr === 'd' || correctAnswerStr === '4') correctIndexFromLetter = 3;
+
           const selectedTextStr = selectedText ? String(selectedText).trim().toLowerCase() : '';
           const selectedIndexStr = String(selectedOptionIndex);
           
-          if (selectedTextStr === correctAnswerStr || selectedIndexStr === correctAnswerStr) {
+          if (
+            selectedTextStr === correctAnswerStr || 
+            selectedIndexStr === correctAnswerStr || 
+            selectedOptionIndex === correctIndexFromLetter
+          ) {
             isCorrect = true;
           }
         } 

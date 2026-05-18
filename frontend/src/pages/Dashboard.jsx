@@ -34,7 +34,8 @@ export default function Dashboard() {
     })
       .then(res => res.json())
       .then(data => {
-        const rankIndex = data.findIndex(u => u._id === currentUser.id);
+        const currentUserId = currentUser?._id || currentUser?.id;
+        const rankIndex = data.findIndex(u => u._id === currentUserId);
         if (rankIndex !== -1) {
           setMyRank(rankIndex + 1);
         } else {
@@ -71,7 +72,7 @@ export default function Dashboard() {
           {/* Rank Card - Prominent */}
           <div className="col-span-2 md:col-span-4 lg:col-span-1 bg-gradient-to-br from-indigo-500 to-purple-600 p-6 rounded-2xl text-white shadow-xl shadow-indigo-500/30 transform hover:-translate-y-1 transition-transform h-auto min-h-min overflow-visible relative z-10">
             <h3 className="text-indigo-100 mb-1 font-semibold uppercase tracking-wider text-sm">My Rank</h3>
-            <p className="text-4xl font-black">{myRank === 'Not Attempted' ? <span className="text-2xl">Not Attempted</span> : (myRank ? `#${myRank}` : 'Loading...')}</p>
+            <p className="text-3xl font-black">{myRank === 'Not Attempted' ? <span className="text-2xl">Not Attempted</span> : (myRank ? `Rank #${myRank}` : 'Loading...')}</p>
           </div>
           
           <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-xl border border-purple-200 dark:border-purple-800 shadow-sm text-center">
