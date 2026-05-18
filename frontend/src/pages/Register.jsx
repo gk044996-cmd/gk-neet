@@ -7,8 +7,9 @@ import { BASE_URL } from '../config';
 
 export default function Register() {
   const { signup } = useAuth();
-  const [name, setName] = useState('');
   const [username, setUsername] = useState('');
+  const [isUsernameAvailable, setIsUsernameAvailable] = useState(null);
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
@@ -23,6 +24,29 @@ export default function Register() {
   const [otpVerified, setOtpVerified] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const [isOtpLoading, setIsOtpLoading] = useState(false);
+
+  // Debounce username check
+  useEffect(() => {
+    const checkUsername = async () => {
+      if (username.length < 3) {
+        setIsUsernameAvailable(null);
+        return;
+      }
+      setIsCheckingUsername(true);
+      try {
+        const res = await fetch(`${BASE_URL}/users/check-username?username=${encodeURIComponent(username)}`);
+        const data = await res.json();
+        setIsUsernameAvailable(data.available);
+      } catch (err) {
+        setIsUsernameAvailable(null);
+      } finally {
+        setIsCheckingUsername(false);
+      }
+    };
+    
+    const timeoutId = setTimeout(checkUsername, 500);
+    return () => clearTimeout(timeoutId);
+  }, [username]);
 
   useEffect(() => {
     if (cooldown > 0) {
@@ -102,11 +126,17 @@ export default function Register() {
     if (password.length < 6) {
       return triggerError('Password must be at least 6 characters.');
     }
+    if (username.length < 3) {
+      return triggerError('Username must be at least 3 characters long.');
+    }
+    if (isUsernameAvailable === false) {
+      return triggerError('Username already taken. Please choose another username.');
+    }
     
     setIsLoading(true);
     try {
       setError('');
-      await signup(email, password, name, username);
+      await signup(email, password, username);
       navigate('/login');
     } catch (err) {
       triggerError('Failed to create an account');
@@ -182,23 +212,6 @@ export default function Register() {
               className="space-y-4"
             >
               <div className="relative group">
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-cyan-400 transition-colors">Full Name</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-cyan-400 transition-colors">
-                    <User size={20} />
-                  </div>
-                  <input 
-                    type="text" 
-                    required 
-                    className="block w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-700 bg-slate-900/50 text-white focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none transition-all shadow-inner font-medium placeholder-slate-600" 
-                    placeholder="John Doe" 
-                    value={name} 
-                    onChange={(e) => setName(e.target.value)} 
-                  />
-                </div>
-              </div>
-
-              <div className="relative group">
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-cyan-400 transition-colors">Username</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-cyan-400 transition-colors">
@@ -207,12 +220,27 @@ export default function Register() {
                   <input 
                     type="text" 
                     required 
-                    className="block w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-700 bg-slate-900/50 text-white focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none transition-all shadow-inner font-medium placeholder-slate-600" 
+                    className={`block w-full pl-11 pr-10 py-3.5 rounded-2xl border ${isUsernameAvailable === false ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/50' : isUsernameAvailable === true ? 'border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/50' : 'border-slate-700 focus:border-cyan-500 focus:ring-cyan-500/50'} bg-slate-900/50 text-white focus:ring-2 outline-none transition-all shadow-inner font-medium placeholder-slate-600`}
                     placeholder="johndoe123" 
                     value={username} 
-                    onChange={(e) => setUsername(e.target.value)} 
+                    onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))} // only alphanumeric + underscore
                   />
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    {isCheckingUsername ? (
+                      <Loader2 size={18} className="animate-spin text-slate-400" />
+                    ) : isUsernameAvailable === true ? (
+                      <CheckCircle2 size={18} className="text-emerald-500" />
+                    ) : isUsernameAvailable === false ? (
+                      <span className="text-red-500 font-black text-sm">❌</span>
+                    ) : null}
+                  </div>
                 </div>
+                {isUsernameAvailable === false && (
+                  <p className="text-red-400 text-xs mt-1 ml-1 font-semibold">Username already taken</p>
+                )}
+                {isUsernameAvailable === true && (
+                  <p className="text-emerald-400 text-xs mt-1 ml-1 font-semibold">Username available</p>
+                )}
               </div>
 
               <div className="relative group">

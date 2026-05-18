@@ -116,7 +116,7 @@ export default function Profile() {
             <div className="w-24 h-24 mx-auto bg-primary/10 dark:bg-[#12344D] rounded-full flex items-center justify-center mb-4 shrink-0 shadow-inner">
               <User size={40} className="text-primary dark:text-[#5df8d8]" />
             </div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC]">{currentUser?.name || currentUser?.displayName || 'NEET Aspirant'}</h2>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC]">@{currentUser?.username || 'user'}</h2>
             <p className="text-slate-500 dark:text-[#D1E7F0] mt-1">{currentUser?.email}</p>
           </div>
 

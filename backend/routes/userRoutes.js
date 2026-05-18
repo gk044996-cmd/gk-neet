@@ -134,7 +134,7 @@ router.post('/reset-password', async (req, res) => {
 
 // Register
 router.post('/register', async (req, res) => {
-  const { email, password, name, username } = req.body;
+  const { email, password, username } = req.body;
   
   if (!username) return res.status(400).json({ error: 'Username is required' });
   
@@ -150,11 +150,11 @@ router.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const userRole = 'student'; // Always student on register
-    const user = new User({ email, password: hashedPassword, name, username, role: userRole, isVerified: true });
+    const user = new User({ email, password: hashedPassword, username, role: userRole, isVerified: true });
     await user.save();
 
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'mysecretkey123', { expiresIn: '7d' });
-    res.json({ token, user: { id: user._id, email, name: user.name, username: user.username, role: user.role } });
+    res.json({ token, user: { id: user._id, email, username: user.username, role: user.role } });
   } catch (err) {
     if (err.code === 11000) {
       if (err.keyPattern?.username) return res.status(400).json({ error: 'Username already taken. Please choose another username.' });
@@ -176,7 +176,7 @@ router.post('/login', async (req, res) => {
       if (!adminUser) {
         const salt = await bcrypt.genSalt(10);
         const hashedAdminPass = await bcrypt.hash(ADMIN_PASS, salt);
-        adminUser = new User({ email: ADMIN_EMAIL, password: hashedAdminPass, name: 'Admin', role: 'admin' });
+        adminUser = new User({ email: ADMIN_EMAIL, password: hashedAdminPass, username: 'admin', role: 'admin' });
         await adminUser.save();
       } else if (adminUser.role !== 'admin') {
         adminUser.role = 'admin';
@@ -184,7 +184,7 @@ router.post('/login', async (req, res) => {
       }
       
       const token = jwt.sign({ id: adminUser._id, role: 'admin' }, process.env.JWT_SECRET || 'mysecretkey123', { expiresIn: '7d' });
-      return res.json({ token, user: { id: adminUser._id, email: adminUser.email, name: adminUser.name, role: 'admin' }, redirectTo: '/admin' });
+      return res.json({ token, user: { id: adminUser._id, email: adminUser.email, username: adminUser.username, role: 'admin' }, redirectTo: '/admin' });
     }
 
     const user = await User.findOne({ email });
@@ -198,7 +198,7 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'mysecretkey123', { expiresIn: '7d' });
-    res.json({ token, user: { id: user._id, email, name: user.name, role: user.role }, redirectTo: '/dashboard' });
+    res.json({ token, user: { id: user._id, email, username: user.username, role: user.role }, redirectTo: '/dashboard' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -224,7 +224,7 @@ router.put('/profile', async (req, res) => {
   
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'mysecretkey123');
-    const { name, username } = req.body;
+    const { username } = req.body;
     
     const user = await User.findById(decoded.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
@@ -235,10 +235,8 @@ router.put('/profile', async (req, res) => {
       user.username = username;
     }
     
-    if (name) user.name = name;
-    
     await user.save();
-    res.json({ message: 'Profile updated successfully', user: { id: user._id, email: user.email, name: user.name, username: user.username, role: user.role } });
+    res.json({ message: 'Profile updated successfully', user: { id: user._id, email: user.email, username: user.username, role: user.role } });
   } catch (err) {
     if (err.code === 11000 && err.keyPattern?.username) {
       return res.status(400).json({ error: 'Username already taken. Please choose another username.' });
@@ -252,7 +250,7 @@ router.get('/leaderboard', async (req, res) => {
   try {
     const results = await Result.find({ completed: true });
     const userIdsWithResults = [...new Set(results.map(r => r.userId.toString()))];
-    const users = await User.find({ _id: { $in: userIdsWithResults } }).select('name email');
+    const users = await User.find({ _id: { $in: userIdsWithResults } }).select('username email');
 
     let leaderboard = users.map(user => {
       const userResults = results.filter(r => r.userId.toString() === user._id.toString());
@@ -288,7 +286,8 @@ router.get('/leaderboard', async (req, res) => {
       
       return {
         _id: user._id,
-        name: user.name,
+        name: user.username, // Using username as name for frontend compatibility if needed
+        username: user.username,
         totalTests,
         highestScore,
         accuracy,
@@ -311,6 +310,23 @@ router.get('/leaderboard', async (req, res) => {
     });
 
     res.json(leaderboard);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Check username availability
+router.get('/check-username', async (req, res) => {
+  try {
+    const { username } = req.query;
+    if (!username) return res.json({ available: false });
+    
+    // Check using case insensitive regex
+    const existing = await User.findOne({ username: { $regex: new RegExp(`^${username}$`, 'i') } });
+    if (existing) {
+      return res.json({ available: false });
+    }
+    return res.json({ available: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

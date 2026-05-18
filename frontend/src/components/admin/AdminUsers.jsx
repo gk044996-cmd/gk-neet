@@ -60,7 +60,7 @@ export default function AdminUsers({ BASE_URL }) {
         <table className="min-w-[800px] w-full divide-y divide-slate-200 dark:divide-slate-700 text-left">
           <thead className="bg-slate-50 dark:bg-slate-900/50">
             <tr>
-              <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider">Name / Email</th>
+              <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider">Username / Email</th>
               <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider">Role</th>
               <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider">Tests Taken</th>
               <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider">Avg / High Score</th>
@@ -72,7 +72,7 @@ export default function AdminUsers({ BASE_URL }) {
             {users.map(u => (
               <tr key={u._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                 <td className="px-6 py-4">
-                  <div className="font-bold text-slate-900 dark:text-white">{u.name}</div>
+                  <div className="font-bold text-slate-900 dark:text-white">@{u.username}</div>
                   <div className="text-sm font-semibold text-slate-500 dark:text-slate-400 mt-1">{u.email}</div>
                   <div className="text-xs font-bold text-slate-400 dark:text-slate-500 mt-2">Joined: {new Date(u.createdAt).toLocaleDateString()}</div>
                 </td>
