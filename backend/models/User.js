@@ -6,6 +6,9 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   role: { type: String, enum: ['student', 'admin'], default: 'student' },
+  isVerified: { type: Boolean, default: false },
+  hasBadge: { type: Boolean, default: false },
+  badgeExpiry: { type: Date },
   history: [{
     testId: { type: mongoose.Schema.Types.ObjectId, ref: 'Test' },
     score: Number,

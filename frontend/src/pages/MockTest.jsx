@@ -23,6 +23,8 @@ export default function MockTest() {
   const [test, setTest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const isSubmittingIntentRef = useRef(false);
   const warningsShownRef = useRef({ 10: false, 5: false, 1: false });
 
   const timeLeftRef = useRef(timeLeft);
@@ -80,6 +82,7 @@ export default function MockTest() {
     if (!started || violationSubmit) return;
 
     const handleViolation = () => {
+      if (isSubmittingIntentRef.current) return;
       if (debounceRef.current) return;
       debounceRef.current = true;
       setTimeout(() => debounceRef.current = false, 2000); // 2 second debounce to prevent double counts
@@ -197,7 +200,7 @@ export default function MockTest() {
   };
 
   const handleSubmit = useCallback(async (forced = false, submissionType = 'manual') => {
-    if (!forced && !window.confirm('Are you sure you want to submit the test?')) return;
+    // window.confirm removed to fix tab-switch bug, handled by custom modal
     
     if (timeLeftRef.current <= 0) {
       submissionType = 'auto';
@@ -245,6 +248,28 @@ export default function MockTest() {
   useEffect(() => {
     handleSubmitRef.current = handleSubmit;
   }, [handleSubmit]);
+
+  const handleIntentSubmit = (e, forced) => {
+    if (forced) {
+      handleSubmit(true, 'auto');
+    } else {
+      isSubmittingIntentRef.current = true;
+      setShowSubmitModal(true);
+    }
+  };
+
+  const cancelSubmit = () => {
+    setShowSubmitModal(false);
+    // Small delay before re-enabling to prevent catching modal close focus event
+    setTimeout(() => {
+      isSubmittingIntentRef.current = false;
+    }, 200);
+  };
+
+  const confirmSubmit = () => {
+    setShowSubmitModal(false);
+    handleSubmit(true, 'manual');
+  };
 
   if (loading) return <div className="flex justify-center items-center h-screen">Loading Test...</div>;
   if (!test) return <div className="flex justify-center items-center h-screen">Test not found</div>;
@@ -307,6 +332,24 @@ export default function MockTest() {
     <div className="fixed inset-0 z-[100] flex flex-col bg-slate-50 dark:bg-slate-900 select-none animate-fade-in">
       <SEO title="Mock Test Active" />
       
+      {/* Submit Confirmation Modal */}
+      {showSubmitModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl border border-slate-200 dark:border-slate-700 transform transition-all animate-slide-up">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Submit Test?</h3>
+            <p className="text-slate-500 dark:text-slate-400 mb-6">Are you sure you want to submit your exam? You cannot undo this action.</p>
+            <div className="flex gap-3 w-full">
+              <button onClick={cancelSubmit} className="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition-colors">
+                Cancel
+              </button>
+              <button onClick={confirmSubmit} className="flex-1 py-3 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl transition-colors shadow-lg shadow-emerald-500/30">
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Overlay for mobile palette */}
       {isPaletteOpen && (
         <div 
@@ -425,7 +468,7 @@ export default function MockTest() {
           <div className="grid grid-cols-3 w-full md:w-auto md:flex gap-3">
             <button onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="px-1 py-3.5 bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 disabled:opacity-50 rounded-2xl font-bold text-sm text-center transition-transform active:scale-95 shadow-sm border border-slate-200">Previous</button>
             <button onClick={() => setCurrentQIndex(Math.min(test.questions.length-1, currentQIndex+1))} className="px-1 py-3.5 bg-[#2563EB] hover:bg-blue-700 text-white rounded-2xl font-bold text-sm shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] text-center transition-transform active:scale-95">Save & Next</button>
-            <button id="submit-exam-btn" onClick={(e) => handleSubmit(e.currentTarget.dataset.type === 'auto', e.currentTarget.dataset.type === 'auto' ? 'auto' : 'manual')} className="px-1 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl font-extrabold text-sm shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] text-center hover:opacity-90 transition-all disabled:opacity-50 active:scale-95" disabled={timeLeft <= 0}>Submit</button>
+            <button id="submit-exam-btn" onClick={(e) => handleIntentSubmit(e, e.currentTarget.dataset.type === 'auto')} className="px-1 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl font-extrabold text-sm shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] text-center hover:opacity-90 transition-all disabled:opacity-50 active:scale-95" disabled={timeLeft <= 0}>Submit</button>
           </div>
         </div>
       </footer>
