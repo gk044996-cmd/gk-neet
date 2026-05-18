@@ -35,15 +35,13 @@ router.post('/send-otp', async (req, res) => {
       console.log('=============================================\n');
     } catch (emailErr) {
       console.log('\n=============================================');
-      console.log('⚠️  EMAIL FAILED TO SEND - USING DEV FALLBACK ⚠️');
+      console.log('⚠️  EMAIL FAILED TO SEND ⚠️');
       console.log('Error:', emailErr.message);
-      console.log('Please check your EMAIL_USER and EMAIL_PASS App Password in .env');
-      console.log(`Generated OTP for ${email}: [ ${otp} ]`);
       console.log('=============================================\n');
-      // We don't throw here so the dev flow isn't blocked.
+      return res.status(500).json({ error: 'Failed to send OTP email. Please check server configuration.' });
     }
 
-    res.json({ message: 'OTP processed successfully' });
+    res.json({ message: 'OTP sent successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -51,16 +49,84 @@ router.post('/send-otp', async (req, res) => {
 
 // Verify OTP
 router.post('/verify-otp', async (req, res) => {
-  const { email, otp } = req.body;
+  const { email, otp, type } = req.body;
   if (!email || !otp) return res.status(400).json({ error: 'Email and OTP are required' });
   try {
     const record = await OTP.findOne({ email, otp });
     if (!record) return res.status(400).json({ error: 'Invalid or expired OTP' });
     
-    // Delete OTP after successful verification
-    await OTP.deleteMany({ email });
+    // Delete OTP after successful verification, unless it is for password reset
+    if (type !== 'reset') {
+      await OTP.deleteMany({ email });
+    }
     
-    res.json({ message: 'Email verified successfully' });
+    res.json({ message: 'OTP verified successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Forgot Password - Send OTP
+router.post('/forgot-password/send-otp', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ error: 'No account found with this email' });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await OTP.deleteMany({ email });
+    await OTP.create({ email, otp });
+
+    const message = `Your password reset OTP for GK NEET MOCK is: ${otp}\n\nIt will expire in 5 minutes.\nPlease do not share this OTP with anyone.`;
+    try {
+      await sendEmail({
+        email,
+        subject: 'GK NEET MOCK - Password Reset OTP',
+        message
+      });
+      console.log('\n=============================================');
+      console.log('✅ PASSWORD RESET EMAIL SENT SUCCESSFULLY');
+      console.log(`Email dispatched to: ${email}`);
+      console.log('=============================================\n');
+    } catch (emailErr) {
+      console.log('\n=============================================');
+      console.log('⚠️  EMAIL FAILED TO SEND ⚠️');
+      console.log('Error:', emailErr.message);
+      console.log('=============================================\n');
+      return res.status(500).json({ error: 'Failed to send OTP email. Please check server configuration.' });
+    }
+
+    res.json({ message: 'Password reset OTP sent successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Reset Password
+router.post('/reset-password', async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  if (!email || !otp || !newPassword) return res.status(400).json({ error: 'Missing required fields' });
+  
+  if (newPassword.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+
+  try {
+    const record = await OTP.findOne({ email, otp });
+    if (!record) return res.status(400).json({ error: 'Invalid or expired OTP' });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ error: 'User not found' });
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    await OTP.deleteMany({ email });
+
+    res.json({ message: 'Password reset successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -68,21 +134,32 @@ router.post('/verify-otp', async (req, res) => {
 
 // Register
 router.post('/register', async (req, res) => {
-  const { email, password, name } = req.body;
+  const { email, password, name, username } = req.body;
+  
+  if (!username) return res.status(400).json({ error: 'Username is required' });
+  
   try {
-    let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ error: 'User already exists' });
+    let existingEmail = await User.findOne({ email });
+    if (existingEmail) return res.status(400).json({ error: 'User with this email already exists' });
+
+    // Case-insensitive username check
+    let existingUsername = await User.findOne({ username: { $regex: new RegExp(`^${username}$`, 'i') } });
+    if (existingUsername) return res.status(400).json({ error: 'Username already taken. Please choose another username.' });
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const userRole = 'student'; // Always student on register
-    user = new User({ email, password: hashedPassword, name, role: userRole, isVerified: true });
+    const user = new User({ email, password: hashedPassword, name, username, role: userRole, isVerified: true });
     await user.save();
 
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'mysecretkey123', { expiresIn: '7d' });
-    res.json({ token, user: { id: user._id, email, name: user.name, role: user.role } });
+    res.json({ token, user: { id: user._id, email, name: user.name, username: user.username, role: user.role } });
   } catch (err) {
+    if (err.code === 11000) {
+      if (err.keyPattern?.username) return res.status(400).json({ error: 'Username already taken. Please choose another username.' });
+      if (err.keyPattern?.email) return res.status(400).json({ error: 'User with this email already exists' });
+    }
     res.status(500).json({ error: err.message });
   }
 });
@@ -137,6 +214,36 @@ router.get('/me', async (req, res) => {
     res.json(user);
   } catch (err) {
     res.status(401).json({ error: 'Token is not valid' });
+  }
+});
+
+// Update Profile
+router.put('/profile', async (req, res) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'No token, authorization denied' });
+  
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'mysecretkey123');
+    const { name, username } = req.body;
+    
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    if (username && username.toLowerCase() !== (user.username || '').toLowerCase()) {
+      let existingUsername = await User.findOne({ username: { $regex: new RegExp(`^${username}$`, 'i') } });
+      if (existingUsername) return res.status(400).json({ error: 'Username already taken. Please choose another username.' });
+      user.username = username;
+    }
+    
+    if (name) user.name = name;
+    
+    await user.save();
+    res.json({ message: 'Profile updated successfully', user: { id: user._id, email: user.email, name: user.name, username: user.username, role: user.role } });
+  } catch (err) {
+    if (err.code === 11000 && err.keyPattern?.username) {
+      return res.status(400).json({ error: 'Username already taken. Please choose another username.' });
+    }
+    res.status(500).json({ error: err.message });
   }
 });
 

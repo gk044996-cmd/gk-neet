@@ -46,11 +46,11 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
-  const signup = async (email, password, name) => {
+  const signup = async (email, password, name, username) => {
     const res = await fetch(`${BASE_URL}/users/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, name })
+      body: JSON.stringify({ email, password, name, username })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to signup');

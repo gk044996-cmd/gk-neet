@@ -8,6 +8,7 @@ import { BASE_URL } from '../config';
 export default function Register() {
   const { signup } = useAuth();
   const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
@@ -105,7 +106,7 @@ export default function Register() {
     setIsLoading(true);
     try {
       setError('');
-      await signup(email, password, name);
+      await signup(email, password, name, username);
       navigate('/login');
     } catch (err) {
       triggerError('Failed to create an account');
@@ -193,6 +194,23 @@ export default function Register() {
                     placeholder="John Doe" 
                     value={name} 
                     onChange={(e) => setName(e.target.value)} 
+                  />
+                </div>
+              </div>
+
+              <div className="relative group">
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-cyan-400 transition-colors">Username</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-cyan-400 transition-colors">
+                    <User size={20} />
+                  </div>
+                  <input 
+                    type="text" 
+                    required 
+                    className="block w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-700 bg-slate-900/50 text-white focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none transition-all shadow-inner font-medium placeholder-slate-600" 
+                    placeholder="johndoe123" 
+                    value={username} 
+                    onChange={(e) => setUsername(e.target.value)} 
                   />
                 </div>
               </div>
