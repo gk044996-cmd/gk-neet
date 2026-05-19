@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DocumentTextIcon, ChartBarIcon, ArrowDownTrayIcon, ClockIcon } from '@heroicons/react/24/outline';
-import { BASE_URL } from '../config';
+import { API_URL } from '../config';
 import Navbar from '../components/Navbar';
 
 function MyResults() {
@@ -18,7 +18,7 @@ function MyResults() {
   const fetchResults = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${BASE_URL}/tests/my-results`, {
+      const res = await fetch(`${API_URL}/api/tests/my-results`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

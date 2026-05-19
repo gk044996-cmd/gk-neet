@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SEO from '../components/SEO';
 import { Bell, AlertCircle, CheckCircle, Info } from 'lucide-react';
-import { BASE_URL } from '../config';
+import { API_URL } from '../config';
 
 export default function Notifications() {
   const [notifs, setNotifs] = useState([]);
@@ -11,7 +11,7 @@ export default function Notifications() {
     const fetchNotifications = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`${BASE_URL}/notifications`, {
+        const res = await fetch(`${API_URL}/api/notifications`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {
@@ -30,7 +30,7 @@ export default function Notifications() {
   const markAsRead = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      await fetch(`${BASE_URL}/notifications/${id}/read`, {
+      await fetch(`${API_URL}/api/notifications/${id}/read`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });

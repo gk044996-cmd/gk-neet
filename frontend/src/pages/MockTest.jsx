@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { AlertTriangle, Maximize, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { BASE_URL } from '../config';
+import { API_URL } from '../config';
 
 
 
@@ -39,7 +39,7 @@ export default function MockTest() {
     const fetchTest = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`${BASE_URL}/tests/${id}`, {
+        const res = await fetch(`${API_URL}/api/tests/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -211,7 +211,7 @@ export default function MockTest() {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${BASE_URL}/tests/${id}/submit`, {
+      const res = await fetch(`${API_URL}/api/tests/${id}/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

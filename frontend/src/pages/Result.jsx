@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import html2pdf from 'html2pdf.js';
-import { BASE_URL } from '../config';
+import { API_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -30,7 +30,7 @@ export default function Result() {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const res = await fetch(`${BASE_URL}/tests/result/${id}`, {
+      const res = await fetch(`${API_URL}/api/tests/result/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

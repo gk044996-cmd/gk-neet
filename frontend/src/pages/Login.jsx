@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, ArrowRight, Loader2, CheckCircle2, KeyRound } from 'lucide-react';
-import { BASE_URL } from '../config';
+import { API_URL } from '../config';
 
 export default function Login() {
   const { login } = useAuth();
@@ -43,7 +43,7 @@ export default function Login() {
     setForgotError('');
     setForgotMsg('');
     try {
-      const res = await fetch(`${BASE_URL}/users/forgot-password/send-otp`, {
+      const res = await fetch(`${API_URL}/api/users/forgot-password/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail })
@@ -71,7 +71,7 @@ export default function Login() {
     setForgotError('');
     setForgotMsg('');
     try {
-      const res = await fetch(`${BASE_URL}/users/verify-otp`, {
+      const res = await fetch(`${API_URL}/api/users/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail, otp: forgotOtp, type: 'reset' })
@@ -102,7 +102,7 @@ export default function Login() {
     setForgotError('');
     setForgotMsg('');
     try {
-      const res = await fetch(`${BASE_URL}/users/reset-password`, {
+      const res = await fetch(`${API_URL}/api/users/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail, otp: forgotOtp, newPassword })

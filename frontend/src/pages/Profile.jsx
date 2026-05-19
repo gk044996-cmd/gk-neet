@@ -4,7 +4,7 @@ import SEO from '../components/SEO';
 import { useAuth } from '../context/AuthContext';
 import { User, Award, Flame, Target, AlertTriangle } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { BASE_URL } from '../config';
+import { API_URL } from '../config';
 
 export default function Profile() {
   const { currentUser } = useAuth();
@@ -22,7 +22,7 @@ export default function Profile() {
           return;
         }
 
-        const res = await fetch(`${BASE_URL}/tests/my-results`, {
+        const res = await fetch(`${API_URL}/api/tests/my-results`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 

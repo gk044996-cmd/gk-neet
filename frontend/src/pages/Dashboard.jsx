@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { BASE_URL } from '../config';
+import { API_URL } from '../config';
 
 export default function Dashboard() {
   const { currentUser } = useAuth();
@@ -13,7 +13,7 @@ export default function Dashboard() {
     const token = localStorage.getItem('token');
     
     // Fetch tests
-    fetch(`${BASE_URL}/tests`, {
+    fetch(`${API_URL}/api/tests`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -21,7 +21,7 @@ export default function Dashboard() {
       .catch(err => console.error(err));
       
     // Fetch results
-    fetch(`${BASE_URL}/tests/my-results`, {
+    fetch(`${API_URL}/api/tests/my-results`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -29,7 +29,7 @@ export default function Dashboard() {
       .catch(err => console.error(err));
 
     // Fetch leaderboard for rank
-    fetch(`${BASE_URL}/users/leaderboard`, {
+    fetch(`${API_URL}/api/users/leaderboard`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => res.json())

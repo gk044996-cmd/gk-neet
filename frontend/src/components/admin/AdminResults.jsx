@@ -12,7 +12,7 @@ export default function AdminResults({ BASE_URL }) {
   const fetchResults = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${BASE_URL}/admin/results`, {
+      const res = await fetch(`${API_URL}/api/admin/results`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();

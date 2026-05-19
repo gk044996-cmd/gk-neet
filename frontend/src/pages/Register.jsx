@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, ArrowRight, Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
-import { BASE_URL } from '../config';
+import { API_URL } from '../config';
 
 export default function Register() {
   const { signup } = useAuth();
@@ -34,7 +34,7 @@ export default function Register() {
       }
       setIsCheckingUsername(true);
       try {
-        const res = await fetch(`${BASE_URL}/users/check-username?username=${encodeURIComponent(username)}`);
+        const res = await fetch(`${API_URL}/api/users/check-username?username=${encodeURIComponent(username)}`);
         const data = await res.json();
         setIsUsernameAvailable(data.available);
       } catch (err) {
@@ -71,7 +71,7 @@ export default function Register() {
     setIsOtpLoading(true);
     try {
       setError('');
-      const res = await fetch(`${BASE_URL}/users/send-otp`, {
+      const res = await fetch(`${API_URL}/api/users/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -94,7 +94,7 @@ export default function Register() {
     setIsOtpLoading(true);
     try {
       setError('');
-      const res = await fetch(`${BASE_URL}/users/verify-otp`, {
+      const res = await fetch(`${API_URL}/api/users/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp })

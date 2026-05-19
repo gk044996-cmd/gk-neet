@@ -11,7 +11,7 @@ import toast from 'react-hot-toast';
 import AdminUsers from '../../components/admin/AdminUsers';
 import AdminResults from '../../components/admin/AdminResults';
 import Leaderboard from '../../components/Leaderboard';
-import { BASE_URL } from '../../config';
+import { API_URL } from '../../config';
 import { useAuth } from '../../context/AuthContext';
 
 const AdminDashboard = () => {
@@ -53,7 +53,7 @@ const AdminDashboard = () => {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${BASE_URL}/admin/stats`, {
+      const res = await fetch(`${API_URL}/api/admin/stats`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -72,7 +72,7 @@ const AdminDashboard = () => {
   const fetchTests = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${BASE_URL}/tests`, {
+      const res = await fetch(`${API_URL}/api/tests`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -90,7 +90,7 @@ const AdminDashboard = () => {
       if (qSubject) query.append('subject', qSubject);
       if (qUsageStatus) query.append('usageStatus', qUsageStatus);
 
-      const res = await fetch(`${BASE_URL}/questions?${query.toString()}`, {
+      const res = await fetch(`${API_URL}/api/questions?${query.toString()}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -112,7 +112,7 @@ const AdminDashboard = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${BASE_URL}/admin/upload-questions`, {
+      const res = await fetch(`${API_URL}/api/admin/upload-questions`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
@@ -137,7 +137,7 @@ const AdminDashboard = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${BASE_URL}/admin/upload-questions`, {
+      const res = await fetch(`${API_URL}/api/admin/upload-questions`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
@@ -159,7 +159,7 @@ const AdminDashboard = () => {
   const toggleTestPublish = async (id, currentStatus) => {
     try {
       const token = localStorage.getItem('token');
-      await fetch(`${BASE_URL}/tests/${id}`, {
+      await fetch(`${API_URL}/api/tests/${id}`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
@@ -178,7 +178,7 @@ const AdminDashboard = () => {
     if (!window.confirm('Are you sure you want to delete this test?')) return;
     try {
       const token = localStorage.getItem('token');
-      await fetch(`${BASE_URL}/tests/${id}`, { 
+      await fetch(`${API_URL}/api/tests/${id}`, { 
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -193,7 +193,7 @@ const AdminDashboard = () => {
     if (!window.confirm('Delete this question?')) return;
     try {
       const token = localStorage.getItem('token');
-      await fetch(`${BASE_URL}/questions/${id}`, { 
+      await fetch(`${API_URL}/api/questions/${id}`, { 
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -225,7 +225,7 @@ const AdminDashboard = () => {
       const totalMarks = selectedQuestions.length * 4;
       const duration = newTest.type === 'Full NEET Mock' ? 180 : newTest.duration;
       
-      const res = await fetch(`${BASE_URL}/tests`, {
+      const res = await fetch(`${API_URL}/api/tests`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -253,7 +253,7 @@ const AdminDashboard = () => {
     if (!window.confirm(`Are you sure you want to delete ${selectedForDelete.length} questions?`)) return;
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${BASE_URL}/questions/bulk-delete`, {
+      const res = await fetch(`${API_URL}/api/questions/bulk-delete`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -278,7 +278,7 @@ const AdminDashboard = () => {
     try {
       setCreateTestStatus({ loading: true, error: null, success: null });
       const token = localStorage.getItem('token');
-      const res = await fetch(`${BASE_URL}/questions/random-neet-mock`, {
+      const res = await fetch(`${API_URL}/api/questions/random-neet-mock`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -307,7 +307,7 @@ const AdminDashboard = () => {
         imageUrl: newQuestion.imageUrl
       };
 
-      const url = editQuestionId ? `${BASE_URL}/questions/${editQuestionId}` : `${BASE_URL}/questions`;
+      const url = editQuestionId ? `${API_URL}/api/questions/${editQuestionId}` : `${API_URL}/api/questions`;
       const method = editQuestionId ? 'PUT' : 'POST';
 
       const res = await fetch(url, {

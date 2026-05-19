@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BASE_URL } from '../config';
+import { API_URL } from '../config';
 
 export default function Leaderboard() {
   const [leaders, setLeaders] = useState([]);
@@ -12,7 +12,7 @@ export default function Leaderboard() {
   const fetchLeaderboard = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${BASE_URL}/users/leaderboard`, {
+      const res = await fetch(`${API_URL}/api/users/leaderboard`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
