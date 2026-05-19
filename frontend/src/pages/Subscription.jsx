@@ -77,10 +77,7 @@ export default function Subscription() {
             const verifyData = await verifyRes.json();
             
             if (verifyData.success) {
-              alert('Payment Successful! Welcome to Premium.');
-              // We need to refresh the current user to get the new premium status
-              // A simple way is to reload or navigate to dashboard
-              window.location.href = '/dashboard';
+              navigate('/payment-success');
             } else {
               alert('Payment Verification Failed!');
             }

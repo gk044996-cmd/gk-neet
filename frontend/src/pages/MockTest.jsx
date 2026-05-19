@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
-import { AlertTriangle, Maximize, X } from 'lucide-react';
+import { AlertTriangle, Maximize, X, ChevronLeft, ChevronRight, CheckCircle2, Bookmark, Save } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { API_URL } from '../config';
-
-
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function MockTest() {
   const { id } = useParams();
@@ -70,14 +69,12 @@ export default function MockTest() {
     fetchTest();
   }, [id, navigate]);
 
-  // Auto-save answers
   useEffect(() => {
     if (started) {
       localStorage.setItem(`test_answers_${id}`, JSON.stringify(answers));
     }
   }, [answers, started, id]);
 
-  // Security & Anti-cheat measures
   useEffect(() => {
     if (!started || violationSubmit) return;
 
@@ -85,7 +82,7 @@ export default function MockTest() {
       if (isSubmittingIntentRef.current) return;
       if (debounceRef.current) return;
       debounceRef.current = true;
-      setTimeout(() => debounceRef.current = false, 2000); // 2 second debounce to prevent double counts
+      setTimeout(() => debounceRef.current = false, 2000);
 
       setWarnings(w => {
         const newW = w + 1;
@@ -136,22 +133,21 @@ export default function MockTest() {
     };
   }, [started, violationSubmit, id]);
 
-  // Timer
   useEffect(() => {
     if (!started) return;
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev === 601 && !warningsShownRef.current[10]) {
           warningsShownRef.current[10] = true;
-          setTimeout(() => alert('Only 10 minutes remaining!'), 0);
+          setTimeout(() => toast('Only 10 minutes remaining!', { icon: '⏰' }), 0);
         }
         if (prev === 301 && !warningsShownRef.current[5]) {
           warningsShownRef.current[5] = true;
-          setTimeout(() => alert('Only 5 minutes remaining!'), 0);
+          setTimeout(() => toast.error('Only 5 minutes remaining!'), 0);
         }
         if (prev === 61 && !warningsShownRef.current[1]) {
           warningsShownRef.current[1] = true;
-          setTimeout(() => alert('Final 1 minute remaining! Your test will auto submit.'), 0);
+          setTimeout(() => toast.error('Final 1 minute remaining! Your test will auto submit.'), 0);
         }
         if (prev <= 1) {
           clearInterval(timer);
@@ -200,13 +196,10 @@ export default function MockTest() {
   };
 
   const handleSubmit = useCallback(async (forced = false, submissionType = 'manual') => {
-    // window.confirm removed to fix tab-switch bug, handled by custom modal
-    
     if (timeLeftRef.current <= 0) {
       submissionType = 'auto';
     }
 
-    // Convert answers to array mapped to questions
     const finalAnswers = test.questions.map((q, i) => answersRef.current[i] !== undefined ? answersRef.current[i] : -1);
 
     try {
@@ -244,7 +237,6 @@ export default function MockTest() {
     }
   }, [test, id, navigate, violationSubmit]);
 
-  // Assign to ref for safe usage inside effects without triggering re-renders or stale closures
   useEffect(() => {
     handleSubmitRef.current = handleSubmit;
   }, [handleSubmit]);
@@ -260,7 +252,6 @@ export default function MockTest() {
 
   const cancelSubmit = () => {
     setShowSubmitModal(false);
-    // Small delay before re-enabling to prevent catching modal close focus event
     setTimeout(() => {
       isSubmittingIntentRef.current = false;
     }, 200);
@@ -271,49 +262,68 @@ export default function MockTest() {
     handleSubmit(true, 'manual');
   };
 
-  if (loading) return <div className="flex justify-center items-center h-screen">Loading Test...</div>;
-  if (!test) return <div className="flex justify-center items-center h-screen">Test not found</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-slate-50 dark:bg-slate-900">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-600"></div>
+      </div>
+    );
+  }
+  
+  if (!test) return <div className="flex justify-center items-center h-screen font-bold text-xl text-slate-500">Test not found</div>;
   
   if (violationSubmit) {
     return (
       <div className="flex flex-col justify-center items-center h-screen bg-slate-50 dark:bg-slate-900 px-4 text-center">
-        <AlertTriangle className="w-16 h-16 text-red-500 mb-6 animate-bounce" />
-        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-3">Test Auto Submitting</h2>
-        <p className="text-lg text-slate-600 dark:text-slate-400 max-w-md">Submitting your test due to multiple tab switches. Please wait...</p>
-        <div className="mt-8 animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
+        <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white dark:bg-slate-800 p-10 rounded-[3rem] shadow-2xl border border-red-100 dark:border-red-900/30 flex flex-col items-center">
+          <AlertTriangle className="w-20 h-20 text-red-500 mb-6 animate-pulse" />
+          <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-3">Anti-Cheat Triggered</h2>
+          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-md mb-8">Your test is being auto-submitted due to multiple tab switching violations. Please wait...</p>
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-red-500 border-t-transparent"></div>
+        </motion.div>
       </div>
     );
   }
 
   if (!started) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
         <SEO title="Exam Instructions" />
-        <div className="max-w-3xl w-full glass-panel p-6 md:p-10 rounded-3xl animate-slide-up">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-extrabold mb-3 gradient-text">NTA Mock Test Instructions</h1>
-            <p className="text-slate-500 dark:text-slate-400">Please read carefully before starting</p>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl w-full bg-white dark:bg-slate-800/80 backdrop-blur-xl border border-slate-200 dark:border-slate-700/50 p-8 md:p-12 rounded-[2.5rem] shadow-2xl">
+          <div className="text-center mb-10">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-sm font-bold tracking-widest uppercase mb-4 border border-indigo-100 dark:border-indigo-800/50">NTA Mock Test</span>
+            <h1 className="text-3xl md:text-5xl font-black mb-4 text-slate-900 dark:text-white tracking-tight">{test.title}</h1>
+            <p className="text-slate-500 dark:text-slate-400 text-lg">Please read all instructions carefully before beginning your exam.</p>
           </div>
           
-          <div className="space-y-4 mb-8 bg-white/50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
-            <div className="flex items-start gap-3">
-              <div className="bg-blue-100 text-blue-600 p-2 rounded-lg mt-0.5"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
-              <div><strong className="block text-slate-800 dark:text-slate-200">Duration</strong><span className="text-slate-600 dark:text-slate-400 text-sm">The exam is of 180 minutes duration.</span></div>
+          <div className="space-y-4 mb-10">
+            <div className="flex items-start gap-4 p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
+              <div className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 p-3 rounded-xl shrink-0"><Clock size={24} /></div>
+              <div>
+                <strong className="block text-lg text-slate-900 dark:text-white mb-1">Duration</strong>
+                <span className="text-slate-600 dark:text-slate-400 font-medium">The exam duration is strictly {test.duration} minutes. Timer cannot be paused.</span>
+              </div>
             </div>
-            <div className="flex items-start gap-3">
-              <div className="bg-green-100 text-green-600 p-2 rounded-lg mt-0.5"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
-              <div><strong className="block text-slate-800 dark:text-slate-200">Scoring Scheme</strong><span className="text-slate-600 dark:text-slate-400 text-sm">180 questions in total. +4 marks for correct, -1 for wrong.</span></div>
+            <div className="flex items-start gap-4 p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
+              <div className="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 p-3 rounded-xl shrink-0"><CheckCircle2 size={24} /></div>
+              <div>
+                <strong className="block text-lg text-slate-900 dark:text-white mb-1">Scoring Scheme</strong>
+                <span className="text-slate-600 dark:text-slate-400 font-medium">{test.totalQuestions || test.questions?.length} questions in total. You get +4 marks for correct and -1 for wrong answers.</span>
+              </div>
             </div>
-            <div className="flex items-start gap-3">
-              <div className="bg-red-100 text-red-600 p-2 rounded-lg mt-0.5"><AlertTriangle size={20}/></div>
-              <div><strong className="block text-slate-800 dark:text-slate-200 text-red-600">Anti-Cheat Enabled</strong><span className="text-slate-600 dark:text-slate-400 text-sm">Do not switch tabs. 3 warnings will lead to auto-submit.</span></div>
+            <div className="flex items-start gap-4 p-5 rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 transition-colors hover:bg-red-100 dark:hover:bg-red-900/40">
+              <div className="bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 p-3 rounded-xl shrink-0"><AlertTriangle size={24}/></div>
+              <div>
+                <strong className="block text-lg text-red-700 dark:text-red-400 mb-1">Anti-Cheat System Active</strong>
+                <span className="text-red-600 dark:text-red-300 font-medium">Do not switch tabs or minimize the window. 3 warnings will lead to automatic submission.</span>
+              </div>
             </div>
           </div>
           
-          <button onClick={startExam} className="w-full py-4 premium-gradient text-white rounded-xl font-bold text-lg hover:opacity-90 flex justify-center items-center gap-2 shadow-lg shadow-blue-500/30 transition-all transform hover:scale-[1.02] active:scale-95">
-            <Maximize size={20} /> I have read the instructions. Begin Exam
+          <button onClick={startExam} className="w-full py-5 bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 text-white rounded-2xl font-black text-xl flex justify-center items-center gap-3 shadow-xl shadow-indigo-500/30 transition-all transform hover:-translate-y-1 active:scale-95 group">
+            <Maximize size={24} className="group-hover:scale-110 transition-transform" /> I am ready to begin
           </button>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -322,35 +332,38 @@ export default function MockTest() {
 
   if (!currentQ) {
     return (
-      <div className="flex justify-center items-center h-screen bg-slate-50">
+      <div className="flex justify-center items-center h-screen bg-slate-50 dark:bg-slate-900">
         <div className="text-xl text-slate-500 font-bold">No questions found in this test.</div>
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col bg-slate-50 dark:bg-slate-900 select-none animate-fade-in">
+    <div className="fixed inset-0 z-[100] flex flex-col bg-slate-100 dark:bg-[#0f172a] select-none">
       <SEO title="Mock Test Active" />
       
-      {/* Submit Confirmation Modal */}
-      {showSubmitModal && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl border border-slate-200 dark:border-slate-700 transform transition-all animate-slide-up">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Submit Test?</h3>
-            <p className="text-slate-500 dark:text-slate-400 mb-6">Are you sure you want to submit your exam? You cannot undo this action.</p>
-            <div className="flex gap-3 w-full">
-              <button onClick={cancelSubmit} className="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition-colors">
-                Cancel
-              </button>
-              <button onClick={confirmSubmit} className="flex-1 py-3 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl transition-colors shadow-lg shadow-emerald-500/30">
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {showSubmitModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4">
+            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="bg-white dark:bg-slate-800 rounded-[2rem] p-8 max-w-sm w-full shadow-2xl border border-slate-200 dark:border-slate-700 text-center">
+              <div className="w-20 h-20 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 size={40} />
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2">Submit Exam?</h3>
+              <p className="text-slate-500 dark:text-slate-400 mb-8 font-medium">Are you sure you want to finalize your submission? This action cannot be undone.</p>
+              <div className="flex gap-4 w-full">
+                <button onClick={cancelSubmit} className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition-colors">
+                  Cancel
+                </button>
+                <button onClick={confirmSubmit} className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors shadow-lg shadow-indigo-500/30">
+                  Confirm
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Overlay for mobile palette */}
       {isPaletteOpen && (
         <div 
           className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 md:hidden transition-opacity"
@@ -358,98 +371,120 @@ export default function MockTest() {
         />
       )}
 
-      {/* Premium Header */}
-      <header className="premium-gradient text-white px-4 md:px-6 py-3 shadow-lg z-10 flex flex-col md:flex-row md:items-center justify-between gap-3">
+      {/* Modern Header */}
+      <header className="bg-white dark:bg-slate-800/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-700/50 px-4 py-3 shadow-sm z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center justify-between w-full md:w-auto">
-          <div className="font-extrabold text-lg md:text-xl tracking-wide flex items-center gap-2">
-            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-md">
-              <span className="text-white">NTA</span>
+          <div className="font-black text-xl text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
+            <div className="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center text-sm shadow-sm">
+              NTA
             </div>
-            NEET MOCK
+            {test.title}
           </div>
           <div className="flex items-center gap-3 md:hidden">
-            <div className={`text-xl font-mono font-bold bg-black/20 px-3 py-1 rounded-lg backdrop-blur-md ${timeLeft < 60 ? 'text-red-300 animate-pulse bg-red-900/40' : (timeLeft < 600 ? 'text-yellow-300' : '')}`}>
+            <div className={`text-xl font-mono font-black px-3 py-1.5 rounded-lg border ${timeLeft < 60 ? 'text-red-600 border-red-200 bg-red-50 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/50 animate-pulse' : (timeLeft < 600 ? 'text-amber-600 border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800/50 dark:text-amber-400' : 'text-slate-700 border-slate-200 bg-slate-50 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300')}`}>
               {formatTime(timeLeft)}
             </div>
             <button 
               onClick={() => setIsPaletteOpen(!isPaletteOpen)}
-              className="bg-white/20 hover:bg-white/30 transition-colors p-2 rounded-lg text-white backdrop-blur-md shadow-sm"
+              className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 p-2 rounded-lg text-slate-700 dark:text-slate-300 transition-colors"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" /></svg>
             </button>
           </div>
         </div>
         
         <div className="w-full md:w-auto overflow-x-auto flex gap-2 pb-1 md:pb-0 hide-scrollbar">
           {['Physics', 'Chemistry', 'Botany', 'Zoology'].map(sub => (
-            <span key={sub} className={`whitespace-nowrap px-4 py-1.5 text-xs md:text-sm font-semibold rounded-full cursor-pointer transition-all ${currentQ.subject === sub ? 'bg-white text-blue-600 shadow-md transform scale-105' : 'bg-white/10 hover:bg-white/20 text-white border border-white/10'}`}>
+            <span key={sub} className={`whitespace-nowrap px-5 py-2 text-sm font-bold rounded-full cursor-pointer transition-all ${currentQ.subject === sub ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>
               {sub}
             </span>
           ))}
         </div>
         
-        <div className="hidden md:flex items-center gap-6">
-          <div className={`flex items-center gap-3 bg-black/20 px-4 py-2 rounded-xl backdrop-blur-md border ${timeLeft < 60 ? 'border-red-500/50 bg-red-900/30' : 'border-white/10'}`}>
-            <div className="text-xs uppercase tracking-wider font-semibold opacity-80">Time Left</div>
-            <div className={`text-2xl font-mono font-bold transition-colors ${timeLeft < 60 ? 'text-red-300 animate-pulse' : (timeLeft < 600 ? 'text-yellow-300' : '')}`}>
+        <div className="hidden md:flex items-center gap-4">
+          <div className={`flex items-center gap-4 px-5 py-2 rounded-xl border shadow-inner ${timeLeft < 60 ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-800/50' : 'border-slate-200 bg-slate-50 dark:bg-slate-800 dark:border-slate-700'}`}>
+            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">Time Left</div>
+            <div className={`text-2xl font-mono font-black ${timeLeft < 60 ? 'text-red-600 dark:text-red-400 animate-pulse' : (timeLeft < 600 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-900 dark:text-white')}`}>
               {formatTime(timeLeft)}
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative bg-slate-50 dark:bg-slate-900">
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
         {/* Question Area */}
-        <div className="flex-1 overflow-y-auto p-3 md:p-8 hide-scrollbar relative z-10 bg-slate-50 dark:bg-slate-900">
-          <div key={currentQIndex} className="bg-[#BFE9FF] shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-3xl p-5 md:p-10 min-h-min h-auto flex flex-col max-w-4xl mx-auto animate-fade-in border-2 border-[#87CEEB] relative z-20 overflow-visible break-words">
-            <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-200 dark:border-slate-700">
-              <h2 className="text-lg md:text-2xl font-extrabold text-[#0F172A] flex items-center gap-3">
-                <span className="bg-[#0B2447] text-white w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-sm md:text-base shadow-md">Q{currentQIndex + 1}</span>
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 hide-scrollbar relative z-10">
+          <motion.div 
+            key={currentQIndex} 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+            className="bg-white dark:bg-slate-800/80 backdrop-blur-xl shadow-xl dark:shadow-2xl rounded-[2rem] p-6 md:p-10 min-h-min h-auto flex flex-col max-w-4xl mx-auto border border-slate-200 dark:border-slate-700/50 relative overflow-visible"
+          >
+            <div className="flex justify-between items-center mb-8 pb-6 border-b border-slate-100 dark:border-slate-700/50">
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-4">
+                <span className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 w-12 h-12 rounded-2xl flex items-center justify-center text-lg shadow-sm border border-indigo-200 dark:border-indigo-800/50">
+                  Q{currentQIndex + 1}
+                </span>
+                <span className="text-slate-400 text-sm font-bold uppercase tracking-widest">{currentQ.subject}</span>
               </h2>
               <div className="flex items-center gap-2">
-                <span className="text-xs md:text-sm font-bold text-emerald-800 bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-200 shadow-sm">+4</span>
-                <span className="text-xs md:text-sm font-bold text-rose-800 bg-rose-100 px-3 py-1.5 rounded-lg border border-rose-200 shadow-sm">-1</span>
+                <span className="text-sm font-black text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800/50 shadow-sm">+4</span>
+                <span className="text-sm font-black text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/30 px-3 py-1.5 rounded-lg border border-rose-200 dark:border-rose-800/50 shadow-sm">-1</span>
               </div>
             </div>
-            <p className="text-lg md:text-xl mb-8 font-black leading-relaxed text-[#0F172A] selection:bg-[#87CEEB]/50" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>{currentQ.text}</p>
-            <div className="space-y-4 md:space-y-5 flex-grow h-auto min-h-min overflow-visible relative z-30">
-              {currentQ.options.map((opt, i) => (
-                <label key={i} className={`flex items-start p-5 md:p-6 border-2 rounded-2xl cursor-pointer transition-all duration-300 group h-auto min-h-min z-40 relative ${answers[currentQIndex] === i ? 'border-[#2563EB] bg-[#A7D8FF] shadow-[0_0_15px_rgba(37,99,235,0.3)] scale-[1.02]' : 'border-[#87CEEB] bg-[#F0F9FF] hover:border-[#2563EB]/50 hover:bg-[#E0F4FF] hover:shadow-md'}`}>
-                  <div className="relative flex items-center justify-center mt-0.5 shrink-0">
-                    <input type="radio" name={`question-${currentQIndex}`} className="peer sr-only" checked={answers[currentQIndex] === i} disabled={timeLeft <= 0} onChange={() => setAnswers({ ...answers, [currentQIndex]: i })} />
-                    <div className={`w-6 h-6 rounded-full border-2 transition-colors ${answers[currentQIndex] === i ? 'border-[#2563EB] bg-[#2563EB]' : 'border-[#87CEEB] bg-white group-hover:border-[#2563EB]/50'} peer-disabled:opacity-50`}></div>
-                    <div className="absolute inset-0 rounded-full scale-0 peer-checked:scale-[0.4] bg-white transition-transform peer-disabled:opacity-50"></div>
-                  </div>
-                  <span className={`ml-4 text-base md:text-lg font-extrabold ${answers[currentQIndex] === i ? 'text-[#0B2447]' : 'text-[#1E293B] group-hover:text-[#0F172A]'}`} style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>{opt}</span>
-                </label>
-              ))}
+            
+            <p className="text-xl md:text-2xl mb-10 font-bold leading-relaxed text-slate-800 dark:text-slate-200" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+              {currentQ.text}
+            </p>
+            
+            <div className="space-y-4 flex-grow relative z-20">
+              {currentQ.options.map((opt, i) => {
+                const isSelected = answers[currentQIndex] === i;
+                return (
+                  <label 
+                    key={i} 
+                    className={`flex items-start p-6 border-2 rounded-2xl cursor-pointer transition-all duration-200 group relative ${isSelected ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20 dark:border-indigo-400 shadow-md shadow-indigo-500/10' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30'}`}
+                  >
+                    <div className="relative flex items-center justify-center mt-1 shrink-0">
+                      <input type="radio" name={`question-${currentQIndex}`} className="peer sr-only" checked={isSelected} disabled={timeLeft <= 0} onChange={() => setAnswers({ ...answers, [currentQIndex]: i })} />
+                      <div className={`w-6 h-6 rounded-full border-2 transition-colors ${isSelected ? 'border-indigo-600 bg-indigo-600 dark:border-indigo-400 dark:bg-indigo-400' : 'border-slate-300 dark:border-slate-600 bg-transparent group-hover:border-indigo-400'} peer-disabled:opacity-50`}></div>
+                      <div className="absolute inset-0 rounded-full scale-0 peer-checked:scale-[0.4] bg-white transition-transform peer-disabled:opacity-50"></div>
+                    </div>
+                    <span className={`ml-5 text-lg font-bold ${isSelected ? 'text-indigo-900 dark:text-indigo-100' : 'text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white'}`} style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+                      {opt}
+                    </span>
+                  </label>
+                );
+              })}
             </div>
-          </div>
+          </motion.div>
         </div>
 
-        {/* NTA Palette (Collapsible on mobile) */}
-        <div className={`fixed inset-y-0 right-0 transform ${isPaletteOpen ? 'translate-x-0' : 'translate-x-full'} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out w-[85vw] max-w-[320px] md:w-[320px] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 flex flex-col z-50 shadow-2xl`}>
-          <div className="p-4 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center md:block">
-            <div className="grid grid-cols-2 gap-y-3 gap-x-2 text-[11px] md:text-xs font-semibold w-full">
-              <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-md bg-emerald-500 text-white flex items-center justify-center shadow-sm">1</div> <span className="text-slate-600 dark:text-slate-300">Answered</span></div>
-              <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-md bg-rose-500 text-white flex items-center justify-center shadow-sm">2</div> <span className="text-slate-600 dark:text-slate-300">Not Ans</span></div>
-              <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-md bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center shadow-sm border border-slate-300 dark:border-slate-600">3</div> <span className="text-slate-600 dark:text-slate-300">Not Visited</span></div>
-              <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-md bg-violet-500 text-white flex items-center justify-center shadow-sm">4</div> <span className="text-slate-600 dark:text-slate-300">Review</span></div>
+        {/* NTA Palette */}
+        <div className={`fixed inset-y-0 right-0 transform ${isPaletteOpen ? 'translate-x-0' : 'translate-x-full'} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out w-[85vw] max-w-[340px] md:w-[340px] bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 flex flex-col z-50 shadow-2xl`}>
+          <div className="p-5 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center md:block">
+            <div className="grid grid-cols-2 gap-y-4 gap-x-3 text-xs font-bold w-full">
+              <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-lg bg-emerald-500 text-white flex items-center justify-center shadow-sm"></div> <span className="text-slate-600 dark:text-slate-300">Answered</span></div>
+              <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-lg bg-rose-500 text-white flex items-center justify-center shadow-sm"></div> <span className="text-slate-600 dark:text-slate-300">Not Ans</span></div>
+              <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center shadow-inner border border-slate-300 dark:border-slate-600"></div> <span className="text-slate-600 dark:text-slate-300">Not Visited</span></div>
+              <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-lg bg-violet-500 text-white flex items-center justify-center shadow-sm"></div> <span className="text-slate-600 dark:text-slate-300">Review</span></div>
             </div>
-            <button onClick={() => setIsPaletteOpen(false)} className="md:hidden ml-2 p-2 bg-slate-200 dark:bg-slate-700 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-300">
+            <button onClick={() => setIsPaletteOpen(false)} className="md:hidden ml-4 p-2.5 bg-slate-200 dark:bg-slate-700 rounded-xl text-slate-700 dark:text-slate-300">
               <X size={20} />
             </button>
           </div>
-          <div className="p-4 flex-1 overflow-y-auto grid grid-cols-5 gap-2 content-start custom-scrollbar bg-white dark:bg-slate-900">
+          
+          <div className="p-5 flex-1 overflow-y-auto grid grid-cols-5 gap-2.5 content-start custom-scrollbar bg-white dark:bg-slate-800">
             {test.questions.map((_, i) => {
-              let bg = "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700";
-              if (answers[i] !== undefined) bg = "bg-emerald-500 text-white border-transparent";
-              else if (markedForReview[i]) bg = "bg-violet-500 text-white border-transparent";
-              else if (i === currentQIndex) bg = "bg-rose-500 text-white border-2 border-slate-900 dark:border-white shadow-lg scale-110 z-10"; 
+              let bg = "bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-600";
+              if (answers[i] !== undefined) bg = "bg-emerald-500 text-white border-transparent shadow-md shadow-emerald-500/20";
+              else if (markedForReview[i]) bg = "bg-violet-500 text-white border-transparent shadow-md shadow-violet-500/20";
+              else if (i === currentQIndex) bg = "bg-rose-500 text-white border-transparent shadow-lg shadow-rose-500/30 scale-110 z-10 ring-2 ring-rose-200 dark:ring-rose-900"; 
 
               return (
-                <button key={i} onClick={() => { setCurrentQIndex(i); setIsPaletteOpen(false); }} className={`w-full aspect-square rounded-lg flex items-center justify-center font-bold text-xs md:text-sm shadow-sm transition-all hover:-translate-y-0.5 ${bg}`}>
+                <button key={i} onClick={() => { setCurrentQIndex(i); setIsPaletteOpen(false); }} className={`w-full aspect-square rounded-xl flex items-center justify-center font-bold text-sm transition-all hover:scale-110 ${bg}`}>
                   {i + 1}
                 </button>
               );
@@ -458,18 +493,31 @@ export default function MockTest() {
         </div>
       </div>
 
-      {/* Modern Footer Actions - Premium Mobile Bottom Nav */}
-      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-3 py-4 md:p-5 z-20 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.08)] rounded-t-[24px] relative">
-        <div className="flex flex-col justify-between items-stretch gap-3 min-h-[110px] md:min-h-0 md:flex-row md:items-center max-w-5xl mx-auto">
-          <div className="grid grid-cols-2 w-full md:w-auto md:flex gap-3">
-            <button onClick={() => { setMarkedForReview({ ...markedForReview, [currentQIndex]: true }); setCurrentQIndex(Math.min(test.questions.length-1, currentQIndex+1)); }} className="px-2 py-3.5 bg-violet-100 text-violet-800 hover:bg-violet-200 dark:bg-violet-900/40 dark:text-violet-300 rounded-2xl font-bold text-sm text-center transition-transform active:scale-95 shadow-sm border border-violet-200">Mark for Review</button>
-            <button onClick={() => { const newA = {...answers}; delete newA[currentQIndex]; setAnswers(newA); }} className="px-2 py-3.5 bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 rounded-2xl font-bold text-sm text-center transition-transform active:scale-95 shadow-sm border border-slate-200">Clear</button>
+      {/* Modern Bottom Controls */}
+      <footer className="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-4 md:p-6 z-20 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] relative">
+        <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 max-w-7xl mx-auto w-full">
+          
+          <div className="flex gap-3 w-full md:w-auto">
+            <button onClick={() => { setMarkedForReview({ ...markedForReview, [currentQIndex]: true }); setCurrentQIndex(Math.min(test.questions.length-1, currentQIndex+1)); }} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-4 bg-violet-50 hover:bg-violet-100 text-violet-700 dark:bg-violet-900/20 dark:hover:bg-violet-900/40 dark:text-violet-400 rounded-2xl font-bold transition-colors border border-violet-200 dark:border-violet-800/50">
+              <Bookmark size={18} /> <span className="hidden sm:inline">Mark for</span> Review
+            </button>
+            <button onClick={() => { const newA = {...answers}; delete newA[currentQIndex]; setAnswers(newA); }} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 rounded-2xl font-bold transition-colors border border-slate-200 dark:border-slate-600">
+              <X size={18} /> Clear
+            </button>
           </div>
-          <div className="grid grid-cols-3 w-full md:w-auto md:flex gap-3">
-            <button onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="px-1 py-3.5 bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 disabled:opacity-50 rounded-2xl font-bold text-sm text-center transition-transform active:scale-95 shadow-sm border border-slate-200">Previous</button>
-            <button onClick={() => setCurrentQIndex(Math.min(test.questions.length-1, currentQIndex+1))} className="px-1 py-3.5 bg-[#2563EB] hover:bg-blue-700 text-white rounded-2xl font-bold text-sm shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] text-center transition-transform active:scale-95">Save & Next</button>
-            <button id="submit-exam-btn" onClick={(e) => handleIntentSubmit(e, e.currentTarget.dataset.type === 'auto')} className="px-1 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl font-extrabold text-sm shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] text-center hover:opacity-90 transition-all disabled:opacity-50 active:scale-95" disabled={timeLeft <= 0}>Submit</button>
+          
+          <div className="flex gap-3 w-full md:w-auto">
+            <button onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 disabled:opacity-50 rounded-2xl font-bold transition-colors border border-slate-200 dark:border-slate-600">
+              <ChevronLeft size={20} /> Prev
+            </button>
+            <button onClick={() => setCurrentQIndex(Math.min(test.questions.length-1, currentQIndex+1))} className="flex-[2] md:flex-none flex items-center justify-center gap-2 px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-indigo-500/25 transform hover:-translate-y-0.5">
+              Save & Next <ChevronRight size={20} />
+            </button>
+            <button id="submit-exam-btn" onClick={(e) => handleIntentSubmit(e, e.currentTarget.dataset.type === 'auto')} className="flex-[2] md:flex-none flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-2xl font-black transition-all shadow-lg shadow-emerald-500/25 transform hover:-translate-y-0.5" disabled={timeLeft <= 0}>
+              <CheckCircle2 size={20} /> Submit
+            </button>
           </div>
+          
         </div>
       </footer>
     </div>

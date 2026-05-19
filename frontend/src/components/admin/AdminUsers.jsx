@@ -97,6 +97,11 @@ export default function AdminUsers() {
                   </div>
                   <div className="text-sm font-semibold text-slate-500 dark:text-slate-400 mt-1">{u.email}</div>
                   <div className="text-xs font-bold text-slate-400 dark:text-slate-500 mt-2">Joined: {new Date(u.createdAt).toLocaleDateString()}</div>
+                  {u.isPremium && u.premiumExpiresAt && (
+                    <div className="text-xs font-bold text-amber-500 mt-1">
+                      Expires: {new Date(u.premiumExpiresAt).toLocaleDateString()}
+                    </div>
+                  )}
                 </td>
                 <td className="px-6 py-4">
                   <span className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider ${u.role === 'admin' ? 'bg-purple-500/10 text-purple-600 border border-purple-500/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'}`}>
