@@ -200,7 +200,7 @@ export default function MockTest() {
       submissionType = 'auto';
     }
 
-    const finalAnswers = test.questions.map((q, i) => answersRef.current[i] !== undefined ? answersRef.current[i] : -1);
+    const finalAnswers = test?.questions?.map((q, i) => answersRef.current[i] !== undefined ? answersRef.current[i] : -1) || [];
 
     try {
       const token = localStorage.getItem('token');
@@ -308,7 +308,7 @@ export default function MockTest() {
               <div className="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 p-3 rounded-xl shrink-0"><CheckCircle2 size={24} /></div>
               <div>
                 <strong className="block text-lg text-slate-900 dark:text-white mb-1">Scoring Scheme</strong>
-                <span className="text-slate-600 dark:text-slate-400 font-medium">{test.totalQuestions || test.questions?.length} questions in total. You get +4 marks for correct and -1 for wrong answers.</span>
+                <span className="text-slate-600 dark:text-slate-400 font-medium">{test?.totalQuestions || test?.questions?.length || 0} questions in total. You get +4 marks for correct and -1 for wrong answers.</span>
               </div>
             </div>
             <div className="flex items-start gap-4 p-5 rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 transition-colors hover:bg-red-100 dark:hover:bg-red-900/40">
@@ -328,7 +328,7 @@ export default function MockTest() {
     );
   }
 
-  const currentQ = test.questions[currentQIndex];
+  const currentQ = test?.questions?.[currentQIndex];
 
   if (!currentQ) {
     return (
@@ -378,7 +378,7 @@ export default function MockTest() {
             <div className="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center text-sm shadow-sm">
               NTA
             </div>
-            {test.title}
+            {test?.title || 'Mock Test'}
           </div>
           <div className="flex items-center gap-3 md:hidden">
             <div className={`text-xl font-mono font-black px-3 py-1.5 rounded-lg border ${timeLeft < 60 ? 'text-red-600 border-red-200 bg-red-50 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/50 animate-pulse' : (timeLeft < 600 ? 'text-amber-600 border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800/50 dark:text-amber-400' : 'text-slate-700 border-slate-200 bg-slate-50 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300')}`}>
@@ -427,7 +427,7 @@ export default function MockTest() {
                 <span className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 w-12 h-12 rounded-2xl flex items-center justify-center text-lg shadow-sm border border-indigo-200 dark:border-indigo-800/50">
                   Q{currentQIndex + 1}
                 </span>
-                <span className="text-slate-400 text-sm font-bold uppercase tracking-widest">{currentQ.subject}</span>
+                <span className="text-slate-400 text-sm font-bold uppercase tracking-widest">{currentQ?.subject || ''}</span>
               </h2>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-black text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800/50 shadow-sm">+4</span>
@@ -436,11 +436,11 @@ export default function MockTest() {
             </div>
             
             <p className="text-xl md:text-2xl mb-10 font-bold leading-relaxed text-slate-800 dark:text-slate-200" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>
-              {currentQ.text}
+              {currentQ?.text || ''}
             </p>
             
             <div className="space-y-4 flex-grow relative z-20">
-              {currentQ.options.map((opt, i) => {
+              {currentQ?.options?.map((opt, i) => {
                 const isSelected = answers[currentQIndex] === i;
                 return (
                   <label 
@@ -477,7 +477,7 @@ export default function MockTest() {
           </div>
           
           <div className="p-5 flex-1 overflow-y-auto grid grid-cols-5 gap-2.5 content-start custom-scrollbar bg-white dark:bg-slate-800">
-            {test.questions.map((_, i) => {
+            {test?.questions?.map((_, i) => {
               let bg = "bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-600";
               if (answers[i] !== undefined) bg = "bg-emerald-500 text-white border-transparent shadow-md shadow-emerald-500/20";
               else if (markedForReview[i]) bg = "bg-violet-500 text-white border-transparent shadow-md shadow-violet-500/20";
@@ -498,7 +498,7 @@ export default function MockTest() {
         <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 max-w-7xl mx-auto w-full">
           
           <div className="flex gap-3 w-full md:w-auto">
-            <button onClick={() => { setMarkedForReview({ ...markedForReview, [currentQIndex]: true }); setCurrentQIndex(Math.min(test.questions.length-1, currentQIndex+1)); }} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-4 bg-violet-50 hover:bg-violet-100 text-violet-700 dark:bg-violet-900/20 dark:hover:bg-violet-900/40 dark:text-violet-400 rounded-2xl font-bold transition-colors border border-violet-200 dark:border-violet-800/50">
+            <button onClick={() => { setMarkedForReview({ ...markedForReview, [currentQIndex]: true }); setCurrentQIndex(Math.min((test?.questions?.length || 1)-1, currentQIndex+1)); }} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-4 bg-violet-50 hover:bg-violet-100 text-violet-700 dark:bg-violet-900/20 dark:hover:bg-violet-900/40 dark:text-violet-400 rounded-2xl font-bold transition-colors border border-violet-200 dark:border-violet-800/50">
               <Bookmark size={18} /> <span className="hidden sm:inline">Mark for</span> Review
             </button>
             <button onClick={() => { const newA = {...answers}; delete newA[currentQIndex]; setAnswers(newA); }} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 rounded-2xl font-bold transition-colors border border-slate-200 dark:border-slate-600">
@@ -510,7 +510,7 @@ export default function MockTest() {
             <button onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 disabled:opacity-50 rounded-2xl font-bold transition-colors border border-slate-200 dark:border-slate-600">
               <ChevronLeft size={20} /> Prev
             </button>
-            <button onClick={() => setCurrentQIndex(Math.min(test.questions.length-1, currentQIndex+1))} className="flex-[2] md:flex-none flex items-center justify-center gap-2 px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-indigo-500/25 transform hover:-translate-y-0.5">
+            <button onClick={() => setCurrentQIndex(Math.min((test?.questions?.length || 1)-1, currentQIndex+1))} className="flex-[2] md:flex-none flex items-center justify-center gap-2 px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-indigo-500/25 transform hover:-translate-y-0.5">
               Save & Next <ChevronRight size={20} />
             </button>
             <button id="submit-exam-btn" onClick={(e) => handleIntentSubmit(e, e.currentTarget.dataset.type === 'auto')} className="flex-[2] md:flex-none flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-2xl font-black transition-all shadow-lg shadow-emerald-500/25 transform hover:-translate-y-0.5" disabled={timeLeft <= 0}>
