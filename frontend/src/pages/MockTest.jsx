@@ -46,8 +46,13 @@ function MockTestContent() {
         const data = await res.json();
         
         if (res.status === 403) {
-          alert(data.error || 'You have already completed this test.');
-          navigate('/dashboard');
+          if (data.message === 'Premium subscription required') {
+            toast.error('This test requires a Premium Subscription.');
+            navigate('/premium');
+          } else {
+            alert(data.error || 'You have already completed this test.');
+            navigate('/dashboard');
+          }
           return;
         }
         
@@ -373,39 +378,40 @@ function MockTestContent() {
       )}
 
       {/* Modern Header */}
-      <header className="bg-white dark:bg-slate-800/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-700/50 px-4 py-3 shadow-sm z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center justify-between w-full md:w-auto">
-          <div className="font-black text-xl text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
-            <div className="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center text-sm shadow-sm">
+      <header className="bg-white dark:bg-[linear-gradient(145deg,rgba(15,20,30,0.9),rgba(20,10,35,0.95))] backdrop-blur-xl border-b border-slate-200 dark:border-indigo-500/30 px-4 py-3 sm:py-4 shadow-[0_4px_30px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_30px_rgba(99,102,241,0.15)] z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-indigo-500/5 to-purple-500/5 pointer-events-none"></div>
+        <div className="flex items-center justify-between w-full md:w-auto relative z-10">
+          <div className="font-black text-xl text-slate-900 dark:text-white flex items-center gap-3 tracking-tight">
+            <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-cyan-500 text-white rounded-xl flex items-center justify-center text-sm shadow-lg shadow-indigo-500/30 border border-white/10 shrink-0">
               NTA
             </div>
-            {test?.title || 'Mock Test'}
+            <span className="truncate max-w-[200px] sm:max-w-[300px]">{test?.title || 'Mock Test'}</span>
           </div>
           <div className="flex items-center gap-3 md:hidden">
-            <div className={`text-xl font-mono font-black px-3 py-1.5 rounded-lg border ${timeLeft < 60 ? 'text-red-600 border-red-200 bg-red-50 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/50 animate-pulse' : (timeLeft < 600 ? 'text-amber-600 border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800/50 dark:text-amber-400' : 'text-slate-700 border-slate-200 bg-slate-50 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300')}`}>
+            <div className={`text-lg sm:text-xl font-mono font-black px-3 py-1.5 rounded-xl border-2 shadow-inner ${timeLeft < 60 ? 'text-red-500 border-red-500/50 bg-red-500/10 dark:bg-red-900/20 animate-pulse' : (timeLeft < 600 ? 'text-amber-500 border-amber-500/50 bg-amber-500/10 dark:bg-amber-900/20' : 'text-cyan-600 dark:text-cyan-400 border-cyan-500/30 bg-cyan-500/10 dark:bg-cyan-900/20 shadow-[inset_0_0_15px_rgba(6,182,212,0.15)]')}`}>
               {formatTime(timeLeft)}
             </div>
             <button 
               onClick={() => setIsPaletteOpen(!isPaletteOpen)}
-              className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 p-2 rounded-lg text-slate-700 dark:text-slate-300 transition-colors"
+              className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 p-2 sm:p-2.5 rounded-xl text-slate-700 dark:text-slate-300 transition-colors border border-slate-200 dark:border-white/10 shadow-sm"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" /></svg>
             </button>
           </div>
         </div>
         
-        <div className="w-full md:w-auto overflow-x-auto flex gap-2 pb-1 md:pb-0 hide-scrollbar">
+        <div className="w-full md:w-auto overflow-x-auto flex gap-2 sm:gap-3 pb-1 md:pb-0 hide-scrollbar relative z-10 snap-x">
           {['Physics', 'Chemistry', 'Botany', 'Zoology'].map(sub => (
-            <span key={sub} className={`whitespace-nowrap px-5 py-2 text-sm font-bold rounded-full cursor-pointer transition-all ${currentQ.subject === sub ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>
+            <span key={sub} className={`snap-start whitespace-nowrap px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold rounded-full cursor-pointer transition-all border ${currentQ.subject === sub ? 'bg-[linear-gradient(90deg,rgba(99,102,241,0.15),rgba(168,85,247,0.15))] dark:bg-[linear-gradient(90deg,rgba(99,102,241,0.3),rgba(168,85,247,0.3))] text-indigo-700 dark:text-indigo-300 border-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.2)]' : 'bg-slate-50/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 border-slate-200 dark:border-white/10'}`}>
               {sub}
             </span>
           ))}
         </div>
         
-        <div className="hidden md:flex items-center gap-4">
-          <div className={`flex items-center gap-4 px-5 py-2 rounded-xl border shadow-inner ${timeLeft < 60 ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-800/50' : 'border-slate-200 bg-slate-50 dark:bg-slate-800 dark:border-slate-700'}`}>
-            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">Time Left</div>
-            <div className={`text-2xl font-mono font-black ${timeLeft < 60 ? 'text-red-600 dark:text-red-400 animate-pulse' : (timeLeft < 600 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-900 dark:text-white')}`}>
+        <div className="hidden md:flex items-center gap-4 relative z-10">
+          <div className={`flex items-center gap-4 px-6 py-2.5 rounded-2xl border-2 shadow-inner backdrop-blur-md ${timeLeft < 60 ? 'border-red-500/50 bg-red-500/10 dark:bg-red-900/20' : 'border-cyan-500/30 bg-cyan-500/5 dark:bg-cyan-900/10 shadow-[inset_0_0_20px_rgba(6,182,212,0.1)]'}`}>
+            <div className={`text-xs font-black uppercase tracking-widest ${timeLeft < 60 ? 'text-red-500' : 'text-cyan-600 dark:text-cyan-400'}`}>Time Left</div>
+            <div className={`text-3xl font-mono font-black ${timeLeft < 60 ? 'text-red-500 animate-pulse' : (timeLeft < 600 ? 'text-amber-500' : 'text-slate-900 dark:text-white')}`}>
               {formatTime(timeLeft)}
             </div>
           </div>
@@ -495,27 +501,28 @@ function MockTestContent() {
       </div>
 
       {/* Modern Bottom Controls */}
-      <footer className="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-4 md:p-6 z-20 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] relative">
-        <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 max-w-7xl mx-auto w-full">
+      <footer className="bg-white dark:bg-[linear-gradient(145deg,rgba(15,20,30,0.9),rgba(20,10,35,0.95))] backdrop-blur-xl border-t border-slate-200 dark:border-indigo-500/30 p-3 sm:p-4 md:p-6 z-20 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] dark:shadow-[0_-10px_30px_rgba(99,102,241,0.1)] relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-indigo-500/5 to-cyan-500/5 pointer-events-none"></div>
+        <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3 md:gap-4 max-w-7xl mx-auto w-full relative z-10">
           
-          <div className="flex gap-3 w-full md:w-auto">
-            <button onClick={() => { setMarkedForReview({ ...markedForReview, [currentQIndex]: true }); setCurrentQIndex(Math.min((test?.questions?.length || 1)-1, currentQIndex+1)); }} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-4 bg-violet-50 hover:bg-violet-100 text-violet-700 dark:bg-violet-900/20 dark:hover:bg-violet-900/40 dark:text-violet-400 rounded-2xl font-bold transition-colors border border-violet-200 dark:border-violet-800/50">
-              <Bookmark size={18} /> <span className="hidden sm:inline">Mark for</span> Review
+          <div className="flex gap-2 sm:gap-3 w-full md:w-auto">
+            <button onClick={() => { setMarkedForReview({ ...markedForReview, [currentQIndex]: true }); setCurrentQIndex(Math.min((test?.questions?.length || 1)-1, currentQIndex+1)); }} className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-5 py-2.5 sm:py-4 bg-[linear-gradient(145deg,rgba(139,92,246,0.1),rgba(139,92,246,0.05))] hover:bg-[linear-gradient(145deg,rgba(139,92,246,0.2),rgba(139,92,246,0.1))] text-violet-700 dark:text-violet-300 rounded-xl sm:rounded-2xl font-bold transition-all border border-violet-200 dark:border-violet-500/30 shadow-[inset_0_0_10px_rgba(139,92,246,0.05)] active:scale-95">
+              <Bookmark size={18} className="hidden sm:block" /> <span className="text-xs sm:text-base leading-tight">Review</span>
             </button>
-            <button onClick={() => { const newA = {...answers}; delete newA[currentQIndex]; setAnswers(newA); }} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 rounded-2xl font-bold transition-colors border border-slate-200 dark:border-slate-600">
-              <X size={18} /> Clear
+            <button onClick={() => { const newA = {...answers}; delete newA[currentQIndex]; setAnswers(newA); }} className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-5 py-2.5 sm:py-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl sm:rounded-2xl font-bold transition-all border border-slate-200 dark:border-white/10 active:scale-95">
+              <X size={18} className="hidden sm:block" /> <span className="text-xs sm:text-base leading-tight">Clear</span>
             </button>
           </div>
           
-          <div className="flex gap-3 w-full md:w-auto">
-            <button onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 disabled:opacity-50 rounded-2xl font-bold transition-colors border border-slate-200 dark:border-slate-600">
-              <ChevronLeft size={20} /> Prev
+          <div className="flex gap-2 sm:gap-3 w-full md:w-auto">
+            <button onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="flex-1 md:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-1 sm:px-5 py-2.5 sm:py-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-50 rounded-xl sm:rounded-2xl font-bold transition-all border border-slate-200 dark:border-white/10 active:scale-95">
+              <ChevronLeft size={20} className="hidden sm:block" /> <span className="text-xs sm:text-base leading-tight">Prev</span>
             </button>
-            <button onClick={() => setCurrentQIndex(Math.min((test?.questions?.length || 1)-1, currentQIndex+1))} className="flex-[2] md:flex-none flex items-center justify-center gap-2 px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-indigo-500/25 transform hover:-translate-y-0.5">
-              Save & Next <ChevronRight size={20} />
+            <button onClick={() => setCurrentQIndex(Math.min((test?.questions?.length || 1)-1, currentQIndex+1))} className="flex-[2] md:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-8 py-2.5 sm:py-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-xl sm:rounded-2xl font-bold transition-all shadow-lg shadow-indigo-500/30 transform hover:-translate-y-0.5 active:scale-95 border border-indigo-400/50">
+               <span className="text-xs sm:text-base leading-tight text-center">Save & Next</span> <ChevronRight size={20} className="hidden sm:block" />
             </button>
-            <button id="submit-exam-btn" onClick={(e) => handleIntentSubmit(e, e.currentTarget.dataset.type === 'auto')} className="flex-[2] md:flex-none flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-2xl font-black transition-all shadow-lg shadow-emerald-500/25 transform hover:-translate-y-0.5" disabled={timeLeft <= 0}>
-              <CheckCircle2 size={20} /> Submit
+            <button id="submit-exam-btn" onClick={(e) => handleIntentSubmit(e, e.currentTarget.dataset.type === 'auto')} className="flex-[2] md:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-8 py-2.5 sm:py-4 bg-gradient-to-r from-emerald-400 to-cyan-500 hover:from-emerald-500 hover:to-cyan-600 text-white rounded-xl sm:rounded-2xl font-black transition-all shadow-[0_0_20px_rgba(16,185,129,0.4)] transform hover:-translate-y-0.5 active:scale-95 border border-emerald-300/50" disabled={timeLeft <= 0}>
+              <CheckCircle2 size={20} className="hidden sm:block" /> <span className="text-xs sm:text-base leading-tight uppercase tracking-wider text-center">Submit</span>
             </button>
           </div>
           

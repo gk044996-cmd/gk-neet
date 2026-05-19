@@ -9,9 +9,11 @@ const userSchema = new mongoose.Schema({
   isVerified: { type: Boolean, default: false },
   isPremium: { type: Boolean, default: false },
   premiumPlan: { type: String, default: 'free' },
-  premiumPurchasedAt: { type: Date },
+  premiumActivatedAt: { type: Date },
   premiumExpiresAt: { type: Date },
-  hasBadge: { type: Boolean, default: false },
+  premiumBadge: { type: Boolean, default: false },
+  razorpayPaymentId: { type: String },
+  razorpayOrderId: { type: String },
   badgeExpiry: { type: Date },
   history: [{
     testId: { type: mongoose.Schema.Types.ObjectId, ref: 'Test' },

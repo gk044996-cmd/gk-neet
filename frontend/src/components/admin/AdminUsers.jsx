@@ -72,8 +72,7 @@ export default function AdminUsers() {
   if (loading) return <div className="py-12 text-center text-slate-500 font-bold">Loading users...</div>;
 
   return (
-    <motion.div initial={{opacity:0}} animate={{opacity:1}} className="bg-white dark:bg-[linear-gradient(145deg,rgba(15,30,55,0.9),rgba(20,10,40,0.85))] backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-blue-500/30 dark:shadow-[0_8px_30px_rgba(59,130,246,0.15)] flex flex-col relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 to-cyan-500/5 pointer-events-none"></div>
+    <motion.div initial={{opacity:0}} animate={{opacity:1}} className="bg-white dark:bg-[#22252D] p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/80 flex flex-col relative overflow-hidden">
       <h2 className="relative z-10 text-2xl sm:text-3xl font-black mb-6 text-slate-800 dark:text-white tracking-tight">User Management</h2>
       
       <div className="relative z-10 overflow-x-auto custom-scrollbar border border-slate-200 dark:border-white/10 rounded-xl w-full shadow-inner">

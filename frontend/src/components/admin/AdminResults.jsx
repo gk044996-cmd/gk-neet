@@ -37,8 +37,7 @@ export default function AdminResults() {
   });
 
   return (
-    <motion.div initial={{opacity:0}} animate={{opacity:1}} className="bg-white dark:bg-[linear-gradient(145deg,rgba(40,15,55,0.9),rgba(20,10,40,0.85))] backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-rose-500/30 dark:shadow-[0_8px_30px_rgba(244,63,94,0.15)] flex flex-col relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-tl from-rose-500/5 to-purple-500/5 pointer-events-none"></div>
+    <motion.div initial={{opacity:0}} animate={{opacity:1}} className="bg-white dark:bg-[#22252D] p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/80 flex flex-col relative overflow-hidden">
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
         <h2 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white tracking-tight">All Test Results</h2>
         <input 

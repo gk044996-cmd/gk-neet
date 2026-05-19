@@ -22,6 +22,7 @@ const Profile = lazy(() => import('./pages/Profile'));
 const Leaderboard = lazy(() => import('./components/Leaderboard'));
 const Notifications = lazy(() => import('./pages/Notifications'));
 const Bookmarks = lazy(() => import('./pages/Bookmarks'));
+const Tests = lazy(() => import('./pages/Tests'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const Subscription = lazy(() => import('./pages/Subscription'));
 const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
@@ -48,6 +49,7 @@ function AppContent() {
             <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
             <Route path="/notifications" element={<PrivateRoute><Notifications /></PrivateRoute>} />
             <Route path="/bookmarks" element={<PrivateRoute><Bookmarks /></PrivateRoute>} />
+            <Route path="/tests" element={<PrivateRoute><Tests /></PrivateRoute>} />
             <Route path="/premium" element={<PrivateRoute><Subscription /></PrivateRoute>} />
             <Route path="/payment-success" element={<PrivateRoute><PaymentSuccess /></PrivateRoute>} />
             <Route path="/admin/*" element={<AdminRoute><AdminDashboard /></AdminRoute>} />

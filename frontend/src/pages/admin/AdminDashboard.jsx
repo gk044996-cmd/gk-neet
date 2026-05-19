@@ -346,27 +346,26 @@ const AdminDashboard = () => {
             <h2 className="text-2xl font-black mb-6 text-slate-800 dark:text-white tracking-tight">Admin Home</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6">
               {[
-                { label: 'Total Users', value: stats.totalUsers, icon: AcademicCapIcon, color: 'from-blue-500 to-cyan-400', shadow: 'shadow-blue-500/20' },
-                { label: 'Premium Users', value: stats.premiumUsersCount || 0, icon: AcademicCapIcon, color: 'from-amber-500 to-orange-400', shadow: 'shadow-amber-500/20' },
-                { label: 'Est. Revenue', value: stats.revenueEstimate ? `₹${stats.revenueEstimate}` : '₹0', icon: ChartBarIcon, color: 'from-green-500 to-emerald-400', shadow: 'shadow-green-500/20' },
-                { label: 'Total Tests', value: stats.totalTests, icon: DocumentPlusIcon, color: 'from-emerald-500 to-teal-400', shadow: 'shadow-emerald-500/20' },
-                { label: 'Total Questions', value: stats.totalQuestions, icon: QueueListIcon, color: 'from-indigo-500 to-blue-500', shadow: 'shadow-indigo-500/20' },
-                { label: 'Total Attempts', value: stats.totalAttempts, icon: ChartBarIcon, color: 'from-purple-500 to-pink-500', shadow: 'shadow-purple-500/20' },
-                { label: 'Avg Score', value: stats.averageScore, icon: CheckCircleIcon, color: 'from-orange-500 to-amber-400', shadow: 'shadow-orange-500/20' }
+                { label: 'Total Users', value: stats.totalUsers, icon: AcademicCapIcon, color: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400' },
+                { label: 'Premium Users', value: stats.premiumUsersCount || 0, icon: AcademicCapIcon, color: 'bg-violet-100 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400' },
+                { label: 'Est. Revenue', value: stats.revenueEstimate ? `₹${stats.revenueEstimate}` : '₹0', icon: ChartBarIcon, color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400' },
+                { label: 'Total Tests', value: stats.totalTests, icon: DocumentPlusIcon, color: 'bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400' },
+                { label: 'Total Questions', value: stats.totalQuestions, icon: QueueListIcon, color: 'bg-cyan-100 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-400' },
+                { label: 'Total Attempts', value: stats.totalAttempts, icon: ChartBarIcon, color: 'bg-rose-100 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400' },
+                { label: 'Avg Score', value: stats.averageScore, icon: CheckCircleIcon, color: 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400' }
               ].map((stat, i) => (
                 <motion.div 
                   key={i} 
-                  whileHover={{ scale: 1.02, y: -4 }}
-                  className={`relative overflow-hidden bg-white dark:bg-[linear-gradient(145deg,rgba(30,10,48,0.85),rgba(20,10,55,0.85))] backdrop-blur-xl p-6 rounded-3xl shadow-lg border border-slate-200 dark:border-indigo-500/30 dark:shadow-[0_8px_30px_rgba(99,102,241,0.15)] ${stat.shadow}`}
+                  whileHover={{ y: -4 }}
+                  className="bg-white dark:bg-[#22252D] p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/80 hover:shadow-md transition-shadow"
                 >
-                  <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${stat.color} opacity-10 rounded-full blur-2xl -mr-10 -mt-10`} />
-                  <div className="flex items-center justify-between relative z-10">
+                  <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{stat.label}</h3>
                       <p className="text-3xl sm:text-4xl font-black text-slate-800 dark:text-white">{stat.value}</p>
                     </div>
-                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${stat.color} flex items-center justify-center text-white shadow-lg`}>
-                      <stat.icon className="w-6 h-6 stroke-[2.5]" />
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color}`}>
+                      <stat.icon className="w-6 h-6 stroke-2" />
                     </div>
                   </div>
                 </motion.div>
@@ -377,8 +376,7 @@ const AdminDashboard = () => {
       
       case 'upload':
         return (
-          <div className="bg-white dark:bg-[linear-gradient(145deg,rgba(20,10,40,0.85),rgba(10,20,50,0.85))] backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-fuchsia-500/30 dark:shadow-[0_8px_30px_rgba(217,70,239,0.15)] relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-500/5 to-cyan-500/5 pointer-events-none"></div>
+          <div className="bg-white dark:bg-[#22252D] p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/80 relative overflow-hidden">
             <h2 className="relative z-10 text-2xl sm:text-3xl font-black mb-6 text-slate-800 dark:text-white tracking-tight">Bulk Upload Questions</h2>
             <div className="mb-6 p-4 sm:p-5 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-600 dark:text-slate-400">
               <p className="mb-2"><strong className="text-indigo-500 dark:text-indigo-400">Supported formats:</strong> .csv, .xlsx</p>
@@ -487,9 +485,8 @@ const AdminDashboard = () => {
 
       case 'manage_tests':
         return (
-          <div className="bg-white dark:bg-[linear-gradient(145deg,rgba(15,23,42,0.9),rgba(45,20,60,0.85))] backdrop-blur-xl rounded-[2rem] shadow-xl border border-slate-200 dark:border-purple-500/30 dark:shadow-[0_8px_30px_rgba(168,85,247,0.15)] overflow-hidden flex flex-col relative">
-            <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/5 to-blue-500/5 pointer-events-none"></div>
-            <div className="relative z-10 p-6 sm:p-8 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+          <div className="bg-white dark:bg-[#22252D] rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/80 overflow-hidden flex flex-col relative">
+            <div className="relative z-10 p-6 sm:p-8 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
               <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Manage Tests</h2>
             </div>
             <div className="relative z-10 overflow-x-auto custom-scrollbar w-full border-t border-slate-200 dark:border-white/10">
@@ -534,8 +531,7 @@ const AdminDashboard = () => {
 
       case 'manage_questions':
         return (
-          <div className="bg-white dark:bg-[linear-gradient(145deg,rgba(10,25,45,0.9),rgba(30,10,40,0.85))] backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-cyan-500/30 dark:shadow-[0_8px_30px_rgba(6,182,212,0.15)] flex flex-col relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-bl from-cyan-500/5 to-purple-500/5 pointer-events-none"></div>
+          <div className="bg-white dark:bg-[#22252D] p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/80 flex flex-col relative overflow-hidden">
             <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <h2 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white tracking-tight">Manage Questions</h2>
               <div className="flex gap-4 items-center w-full sm:w-auto justify-between sm:justify-end">
@@ -654,8 +650,7 @@ const AdminDashboard = () => {
 
       case 'create_test':
         return (
-          <div className="bg-white dark:bg-[linear-gradient(145deg,rgba(25,10,35,0.9),rgba(15,30,55,0.85))] backdrop-blur-xl p-4 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-teal-500/30 dark:shadow-[0_8px_30px_rgba(20,184,166,0.15)] w-full overflow-hidden relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-indigo-500/5 pointer-events-none"></div>
+          <div className="bg-white dark:bg-[#22252D] p-4 sm:p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/80 w-full overflow-hidden relative">
             <h2 className="relative z-10 text-2xl sm:text-3xl font-black mb-6 text-slate-800 dark:text-white tracking-tight px-2 sm:px-0">Create Manual Test</h2>
             <form onSubmit={handleCreateTest} className="space-y-5 max-w-full lg:max-w-3xl px-2 sm:px-0">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -829,8 +824,7 @@ const AdminDashboard = () => {
 
       case 'create_question':
         return (
-          <div className="bg-white dark:bg-[linear-gradient(145deg,rgba(40,10,30,0.9),rgba(20,20,50,0.85))] backdrop-blur-xl p-4 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-pink-500/30 dark:shadow-[0_8px_30px_rgba(236,72,153,0.15)] relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 to-purple-500/5 pointer-events-none"></div>
+          <div className="bg-white dark:bg-[#22252D] p-4 sm:p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/80 relative overflow-hidden">
             {editQuestionId && (
               <button 
                 type="button" 
@@ -928,7 +922,10 @@ const AdminDashboard = () => {
           <span className="text-sm font-semibold text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full hidden sm:inline-block">Admin</span>
         </div>
         <div className="hidden md:flex items-center gap-4">
-          <button onClick={logout} className="px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-sm font-medium text-slate-800 dark:text-white">Logout</button>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-[#151821] border border-slate-200 dark:border-slate-800/80">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">System Online</span>
+          </div>
         </div>
         <div className="md:hidden">
           <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-black dark:text-white border border-slate-200 dark:border-slate-700 shadow-sm rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors bg-white dark:bg-slate-900 focus:outline-none">
@@ -938,63 +935,103 @@ const AdminDashboard = () => {
       </header>
 
       {/* Mobile Admin Dropdown */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-2xl absolute w-full top-16 left-0 z-50">
-          <nav className="p-4 space-y-2 overflow-y-auto max-h-[calc(100vh-4rem)] custom-scrollbar">
-            {adminLinks.map(item => (
-              <button
-                key={item.id}
-                onClick={() => { setActiveTab(item.id); setIsMobileMenuOpen(false); }}
-                className={`w-full flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-colors ${
-                  activeTab === item.id 
-                    ? 'bg-black text-white dark:bg-white dark:text-black shadow-md' 
-                    : 'text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
-              >
-                <item.icon className={`w-5 h-5 mr-3 ${activeTab === item.id ? 'stroke-[2.5]' : 'stroke-2'}`} />
-                {item.label}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden bg-white dark:bg-[#151821] border-b border-slate-200 dark:border-slate-800/80 shadow-xl absolute w-full top-16 left-0 z-50"
+          >
+            <nav className="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-4rem)] custom-scrollbar">
+              <div className="text-xs font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase mb-3 px-2">Admin Menu</div>
+              {adminLinks.map(item => {
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => { setActiveTab(item.id); setIsMobileMenuOpen(false); }}
+                    className={`w-full flex items-center px-4 py-3.5 text-sm font-semibold rounded-xl transition-all duration-200 group ${
+                      isActive 
+                        ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' 
+                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1E222D] hover:text-slate-900 dark:hover:text-slate-200'
+                    }`}
+                  >
+                    <item.icon className={`w-5 h-5 mr-3 transition-transform duration-200 ${isActive ? 'stroke-[2.5] scale-110' : 'stroke-2 group-hover:scale-110'}`} />
+                    {item.label}
+                  </button>
+                );
+              })}
+              <div className="h-px bg-slate-200 dark:bg-slate-800/80 my-4" />
+              <button onClick={logout} className="w-full flex items-center justify-center px-4 py-3.5 text-sm font-bold rounded-xl text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 transition-all duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5 mr-2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                </svg>
+                Logout Account
               </button>
-            ))}
-            <div className="h-px bg-slate-200 dark:bg-slate-800 my-4" />
-            <button onClick={logout} className="w-full flex items-center justify-center px-4 py-3 text-sm font-bold rounded-xl border-2 border-black text-black dark:border-white dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 mr-2">
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="flex flex-1 overflow-hidden relative bg-slate-50 dark:bg-[#0B0D14]">
+        {/* Sidebar */}
+        <aside className="w-64 bg-white dark:bg-[#151821] border-r border-slate-200 dark:border-slate-800/80 hidden md:flex flex-col h-[calc(100vh-4rem)] z-10 shadow-sm relative transition-colors duration-300">
+          
+          {/* Elegant Top Profile Section */}
+          <div className="p-5 relative z-10 border-b border-slate-100 dark:border-slate-800/80">
+            <div className="flex items-center gap-3 p-2.5 -m-2.5 rounded-2xl hover:bg-slate-50 dark:hover:bg-[#1E222D] transition-colors cursor-pointer group">
+              <div className="relative shrink-0">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-bold text-lg shadow-sm group-hover:shadow-md transition-shadow">
+                  A
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-white dark:border-[#151821] rounded-full"></div>
+              </div>
+              <div className="overflow-hidden">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate">Administrator</h3>
+                <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 truncate uppercase tracking-wider">Super Admin</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Menu Items */}
+          <div className="overflow-y-auto flex-1 custom-scrollbar px-4 py-6">
+            <div className="text-xs font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase mb-4 px-2">Main Menu</div>
+            <nav className="space-y-1.5">
+              {adminLinks.map(item => {
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`w-full flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 group ${
+                      isActive 
+                        ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-sm dark:shadow-none' 
+                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#1E222D] hover:text-slate-900 dark:hover:text-slate-200'
+                    }`}
+                  >
+                    <item.icon className={`w-5 h-5 mr-3 transition-transform duration-200 ${isActive ? 'stroke-[2.5] scale-110' : 'stroke-2 group-hover:scale-110'}`} />
+                    {item.label}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Professional Matte Logout Button */}
+          <div className="p-4 border-t border-slate-100 dark:border-slate-800/80">
+            <button onClick={logout} className="w-full flex items-center justify-center px-4 py-3.5 text-sm font-bold rounded-xl text-slate-600 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 group">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5 mr-2 transition-transform duration-200 group-hover:-translate-x-1">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
               </svg>
-              Logout
+              Sign Out
             </button>
-          </nav>
-        </div>
-      )}
-
-      <div className="flex flex-1 overflow-hidden relative bg-slate-100 dark:bg-slate-900">
-        {/* Sidebar */}
-        <aside className="w-64 bg-slate-900 dark:bg-slate-950 border-r border-slate-800 hidden md:flex flex-col h-[calc(100vh-4rem)] overflow-y-auto z-10 shadow-[4px_0_24px_rgba(0,0,0,0.1)] relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 to-indigo-500/5 pointer-events-none" />
-          <div className="p-6 relative z-10">
-            <h2 className="text-xl font-black text-white tracking-widest uppercase text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">
-              Admin Panel
-            </h2>
           </div>
-          <nav className="px-3 space-y-1.5 flex-1 pb-6 relative z-10">
-            {adminLinks.map(item => (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center px-4 py-3.5 text-sm font-bold rounded-xl transition-all duration-300 group ${
-                  activeTab === item.id 
-                    ? 'bg-[linear-gradient(90deg,rgba(6,182,212,0.15),rgba(99,102,241,0.15))] text-cyan-300 border border-cyan-500/40 shadow-[inset_0_0_20px_rgba(6,182,212,0.2)]' 
-                    : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-200 border border-transparent'
-                }`}
-              >
-                <item.icon className={`w-5 h-5 mr-3 transition-transform duration-300 group-hover:scale-110 ${activeTab === item.id ? 'stroke-[2.5] text-cyan-400' : 'stroke-2'}`} />
-                {item.label}
-              </button>
-            ))}
-          </nav>
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-4 md:p-8 overflow-y-auto h-[calc(100vh-4rem)] relative">
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto h-[calc(100vh-4rem)] relative bg-slate-50 dark:bg-[#0B0D14]">
         <div className="absolute inset-0 pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-[0.05]" />
         <div className="max-w-[1400px] mx-auto relative z-10">
           <motion.div
@@ -1010,9 +1047,9 @@ const AdminDashboard = () => {
         
         {/* Preview Modal */}
         {previewQuestion && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
-              <div className="flex justify-between items-center p-6 border-b border-slate-200 dark:border-slate-700">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white dark:bg-[#22252D] rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh] border border-slate-100 dark:border-slate-800">
+              <div className="flex justify-between items-center p-6 border-b border-slate-200 dark:border-slate-800/80">
                 <h3 className="text-xl font-bold text-slate-800 dark:text-white">Question Preview</h3>
                 <button onClick={() => setPreviewQuestion(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                   <XMarkIcon className="w-6 h-6" />

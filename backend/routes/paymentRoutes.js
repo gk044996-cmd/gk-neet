@@ -49,13 +49,16 @@ router.post('/verify', protect, async (req, res) => {
       
       user.isPremium = true;
       user.premiumPlan = 'monthly';
-      user.premiumPurchasedAt = new Date();
+      user.premiumActivatedAt = new Date();
       // Add 30 days
       user.premiumExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      user.premiumBadge = true;
+      user.razorpayOrderId = razorpay_order_id;
+      user.razorpayPaymentId = razorpay_payment_id;
       
       await user.save();
 
-      res.json({ success: true, message: 'Payment verified successfully', user });
+      res.json({ success: true, message: 'Payment verified successfully. Premium unlocked!', user });
     } else {
       res.status(400).json({ success: false, error: 'Invalid signature sent!' });
     }

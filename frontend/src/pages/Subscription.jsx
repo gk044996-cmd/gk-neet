@@ -77,7 +77,7 @@ export default function Subscription() {
             const verifyData = await verifyRes.json();
             
             if (verifyData.success) {
-              navigate('/payment-success');
+              window.location.href = '/payment-success';
             } else {
               alert('Payment Verification Failed!');
             }
