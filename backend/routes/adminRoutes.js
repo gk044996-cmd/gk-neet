@@ -9,8 +9,16 @@ const User = require('../models/User');
 const Result = require('../models/Result');
 const { protect, admin } = require('../middleware/auth');
 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "/tmp");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
 
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ storage: storage });
 
 // Bulk upload questions via CSV or XLSX
 router.post('/upload-questions', protect, admin, upload.single('file'), async (req, res, next) => {
