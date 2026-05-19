@@ -49,7 +49,7 @@ export default function Bookmarks() {
           </div>
           <div>
             <h4 className="font-bold text-amber-900 dark:text-amber-400">Premium Feature</h4>
-            <p className="text-amber-800/80 dark:text-amber-500/80 text-sm">Unlock AI-generated similar questions for your bookmarks.</p>
+            <p className="text-amber-800/80 dark:text-amber-500/80 text-sm">Unlock similar questions for your bookmarks.</p>
           </div>
         </div>
         <button className="w-full sm:w-auto px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-colors shadow-lg shadow-amber-500/30 whitespace-nowrap">

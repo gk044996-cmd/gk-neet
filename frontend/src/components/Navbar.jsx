@@ -17,14 +17,19 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 transition-all shadow-sm">
+    <nav className="fixed w-full z-50 bg-white/80 dark:bg-[linear-gradient(135deg,rgba(15,23,42,0.9),rgba(30,58,138,0.9),rgba(6,182,212,0.9))] backdrop-blur-xl border-b border-slate-200/50 dark:border-cyan-500/30 transition-all shadow-sm dark:shadow-[0_4px_30px_rgba(6,182,212,0.15)] relative">
+      {/* Separation glow effect for dark theme */}
+      <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-0 dark:opacity-50 blur-[0.5px]"></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-[72px] items-center">
-          <Link to="/" className="text-xl md:text-2xl font-black flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform">
-              <span className="text-sm">GK</span>
+          <Link to="/" className="text-xl md:text-2xl font-black flex items-center gap-3 group relative">
+            <div className="relative">
+              <div className="absolute inset-0 bg-cyan-400 blur-md opacity-30 group-hover:opacity-60 transition-opacity rounded-xl"></div>
+              <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white shadow-[0_0_15px_rgba(6,182,212,0.5)] border border-white/20 group-hover:scale-110 transition-transform">
+                <span className="text-sm tracking-wider">GK</span>
+              </div>
             </div>
-            <span className="bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent group-hover:opacity-80 transition-opacity">NEET MOCK</span>
+            <span className="bg-gradient-to-r from-slate-900 to-slate-700 dark:from-cyan-100 dark:to-white bg-clip-text text-transparent group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] dark:group-hover:drop-shadow-[0_0_10px_rgba(6,182,212,0.8)] transition-all tracking-tight">NEET MOCK</span>
           </Link>
           
           {/* Desktop Menu */}
@@ -64,12 +69,13 @@ export default function Navbar() {
             {currentUser?.isPremium && <span className="text-xl" title="Premium">👑</span>}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-xl transition-colors bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-700"
+              className="relative group p-2.5 rounded-xl transition-all duration-300 bg-white/50 dark:bg-blue-900/40 backdrop-blur-md shadow-sm dark:shadow-[0_0_15px_rgba(6,182,212,0.2)] border border-slate-200 dark:border-cyan-400/30 hover:dark:border-cyan-400/60 active:scale-95 overflow-hidden"
             >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
               {isMobileMenuOpen ? (
-                <XMarkIcon className="h-6 w-6 stroke-[2.5]" />
+                <XMarkIcon className="h-6 w-6 stroke-[2.5] text-slate-800 dark:text-cyan-100 relative z-10 group-hover:drop-shadow-[0_0_8px_rgba(6,182,212,0.8)] transition-all" />
               ) : (
-                <Bars3Icon className="h-6 w-6 stroke-[2.5]" />
+                <Bars3Icon className="h-6 w-6 stroke-[2.5] text-slate-800 dark:text-cyan-100 relative z-10 group-hover:drop-shadow-[0_0_8px_rgba(6,182,212,0.8)] transition-all" />
               )}
             </button>
           </div>

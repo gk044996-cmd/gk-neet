@@ -781,7 +781,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              {/* Smart Warning System */}
+              {/* Automated Warning System */}
               {(() => {
                 const reusedCount = selectedQuestions.filter(q => q.usageCount > 0).length;
                 if (reusedCount > 0) {
@@ -789,7 +789,7 @@ const AdminDashboard = () => {
                     <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl flex items-start gap-3">
                       <span className="text-yellow-600 mt-0.5">⚠️</span>
                       <div>
-                        <p className="text-sm font-bold text-yellow-800">Smart Warning System</p>
+                        <p className="text-sm font-bold text-yellow-800">Automated Warning System</p>
                         <p className="text-sm text-yellow-700">This test contains {reusedCount} previously used question{reusedCount > 1 ? 's' : ''}.</p>
                       </div>
                     </div>

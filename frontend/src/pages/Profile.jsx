@@ -56,7 +56,7 @@ export default function Profile() {
 
         let recommendations = [];
         if (totalTests === 0) {
-          recommendations.push("Start taking mock tests to see AI recommendations here.");
+          recommendations.push("Start taking mock tests to see study recommendations here.");
         } else if (accuracy < 50) {
           recommendations.push("Focus on revising core concepts to improve accuracy.");
         } else {
@@ -148,7 +148,7 @@ export default function Profile() {
 
           <div className="bg-white dark:bg-slate-800/80 backdrop-blur-xl border border-slate-200 dark:border-slate-700/50 shadow-xl p-8 rounded-[2rem]">
             <h3 className="font-black mb-6 flex items-center gap-3 text-xl text-slate-900 dark:text-white">
-              <Target className="text-indigo-500" /> AI Recommendations
+              <Target className="text-indigo-500" /> Study Recommendations
             </h3>
             <ul className="space-y-4 text-sm font-medium">
               {analytics.recommendations.map((rec, i) => (

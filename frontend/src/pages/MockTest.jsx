@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
-import { AlertTriangle, Maximize, X, ChevronLeft, ChevronRight, CheckCircle2, Bookmark, Save } from 'lucide-react';
+import { AlertTriangle, Maximize, X, ChevronLeft, ChevronRight, CheckCircle2, Bookmark, Save, Clock } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { API_URL } from '../config';
 import { motion, AnimatePresence } from 'framer-motion';
+import ErrorBoundary from '../components/ErrorBoundary';
 
-export default function MockTest() {
+function MockTestContent() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [currentQIndex, setCurrentQIndex] = useState(0);
@@ -521,5 +522,13 @@ export default function MockTest() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function MockTest() {
+  return (
+    <ErrorBoundary>
+      <MockTestContent />
+    </ErrorBoundary>
   );
 }

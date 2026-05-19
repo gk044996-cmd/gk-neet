@@ -82,7 +82,7 @@ export default function Dashboard() {
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-cyan-500"></div>
             <div className="w-20 h-20 bg-indigo-100 dark:bg-indigo-800/50 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">🚀</div>
             <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-3">Begin Your Journey</h2>
-            <p className="text-slate-600 dark:text-slate-400 text-lg max-w-2xl mx-auto mb-6">Attempt your first mock test to unlock detailed AI analytics, rank tracking, and performance insights.</p>
+            <p className="text-slate-600 dark:text-slate-400 text-lg max-w-2xl mx-auto mb-6">Attempt your first mock test to unlock detailed analytics, rank tracking, and performance insights.</p>
             <a href="#tests" className="inline-block px-8 py-4 bg-indigo-600 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-700 transition-colors">View Available Tests</a>
           </motion.div>
         ) : (

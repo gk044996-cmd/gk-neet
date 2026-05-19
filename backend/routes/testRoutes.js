@@ -4,9 +4,9 @@ const Test = require('../models/Test');
 const Question = require('../models/Question');
 const Result = require('../models/Result');
 const Notification = require('../models/Notification');
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 const { protect, admin, checkPremiumAccess } = require('../middleware/auth');
-
-
 
 const questionsData = [
   // Physics
@@ -169,10 +169,7 @@ router.delete('/:id', protect, admin, async (req, res) => {
   }
 });
 
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-
-// Evaluate and submit test
+// Evaluates and submits the test
 router.post('/:id/submit', protect, checkPremiumAccess, async (req, res) => {
   try {
     const user = req.user;
