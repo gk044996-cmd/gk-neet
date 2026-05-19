@@ -357,7 +357,7 @@ const AdminDashboard = () => {
                 <motion.div 
                   key={i} 
                   whileHover={{ scale: 1.02, y: -4 }}
-                  className={`relative overflow-hidden bg-white dark:bg-slate-800/80 backdrop-blur-xl p-6 rounded-3xl shadow-lg border border-slate-200 dark:border-slate-700/50 ${stat.shadow}`}
+                  className={`relative overflow-hidden bg-white dark:bg-[linear-gradient(145deg,rgba(30,10,48,0.85),rgba(20,10,55,0.85))] backdrop-blur-xl p-6 rounded-3xl shadow-lg border border-slate-200 dark:border-indigo-500/30 dark:shadow-[0_8px_30px_rgba(99,102,241,0.15)] ${stat.shadow}`}
                 >
                   <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${stat.color} opacity-10 rounded-full blur-2xl -mr-10 -mt-10`} />
                   <div className="flex items-center justify-between relative z-10">
@@ -377,8 +377,9 @@ const AdminDashboard = () => {
       
       case 'upload':
         return (
-          <div className="bg-white dark:bg-slate-800/80 backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-slate-700/50">
-            <h2 className="text-2xl sm:text-3xl font-black mb-6 text-slate-800 dark:text-white tracking-tight">Bulk Upload Questions</h2>
+          <div className="bg-white dark:bg-[linear-gradient(145deg,rgba(20,10,40,0.85),rgba(10,20,50,0.85))] backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-fuchsia-500/30 dark:shadow-[0_8px_30px_rgba(217,70,239,0.15)] relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-500/5 to-cyan-500/5 pointer-events-none"></div>
+            <h2 className="relative z-10 text-2xl sm:text-3xl font-black mb-6 text-slate-800 dark:text-white tracking-tight">Bulk Upload Questions</h2>
             <div className="mb-6 p-4 sm:p-5 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-600 dark:text-slate-400">
               <p className="mb-2"><strong className="text-indigo-500 dark:text-indigo-400">Supported formats:</strong> .csv, .xlsx</p>
               <p className="mb-2"><strong className="text-cyan-500 dark:text-cyan-400">Columns:</strong> questionType, questionText, statement1, statement2, statement3, statement4, assertion, reason, leftColumn, rightColumn, imageReference, option1, option2, option3, option4, correctAnswer, subject</p>
@@ -418,9 +419,9 @@ const AdminDashboard = () => {
             {previewData && (
               <div className="mt-8 border-t border-slate-200 dark:border-slate-700 pt-8">
                 <h3 className="text-xl font-bold mb-4 text-slate-800 dark:text-white">Upload Preview</h3>
-                <div className="overflow-x-auto custom-scrollbar border border-slate-200 dark:border-slate-700 rounded-xl mb-4">
-                  <table className="min-w-[600px] w-full text-left text-sm divide-y divide-slate-200 dark:divide-slate-700">
-                    <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-400">
+                <div className="relative z-10 overflow-x-auto custom-scrollbar border border-slate-200 dark:border-white/10 rounded-xl mb-4 shadow-inner">
+                  <table className="min-w-[600px] w-full text-left text-sm divide-y divide-slate-200 dark:divide-white/5">
+                    <thead className="bg-slate-50 dark:bg-black/20 text-slate-600 dark:text-slate-400">
                       <tr>
                         <th className="px-4 py-3 font-bold uppercase text-xs">Row</th>
                         <th className="px-4 py-3 font-bold uppercase text-xs">Question</th>
@@ -428,9 +429,9 @@ const AdminDashboard = () => {
                         <th className="px-4 py-3 font-bold uppercase text-xs">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50 bg-white dark:bg-slate-800">
+                    <tbody className="divide-y divide-slate-100 dark:divide-white/5 bg-white dark:bg-transparent">
                       {previewData.slice(0, 50).map((row, idx) => (
-                        <tr key={idx} className={`hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${row.status === 'Error' ? 'bg-red-50/50 dark:bg-red-900/10' : ''}`}>
+                        <tr key={idx} className={`hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group ${row.status === 'Error' ? 'bg-red-50/50 dark:bg-red-900/10' : ''}`}>
                           <td className="px-4 py-3 text-slate-500 font-semibold">{row.rowNum}</td>
                           <td className="px-4 py-3 font-medium text-slate-800 dark:text-slate-200 truncate max-w-[200px]" title={row.question}>{row.question}</td>
                           <td className="px-4 py-3">
@@ -486,13 +487,14 @@ const AdminDashboard = () => {
 
       case 'manage_tests':
         return (
-          <div className="bg-white dark:bg-slate-800/80 backdrop-blur-xl rounded-[2rem] shadow-xl border border-slate-200 dark:border-slate-700/50 overflow-hidden flex flex-col">
-            <div className="p-6 sm:p-8 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+          <div className="bg-white dark:bg-[linear-gradient(145deg,rgba(15,23,42,0.9),rgba(45,20,60,0.85))] backdrop-blur-xl rounded-[2rem] shadow-xl border border-slate-200 dark:border-purple-500/30 dark:shadow-[0_8px_30px_rgba(168,85,247,0.15)] overflow-hidden flex flex-col relative">
+            <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/5 to-blue-500/5 pointer-events-none"></div>
+            <div className="relative z-10 p-6 sm:p-8 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
               <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Manage Tests</h2>
             </div>
-            <div className="overflow-x-auto custom-scrollbar w-full">
-              <table className="min-w-[800px] w-full divide-y divide-slate-200 dark:divide-slate-700">
-                <thead className="bg-slate-50 dark:bg-slate-900/50">
+            <div className="relative z-10 overflow-x-auto custom-scrollbar w-full border-t border-slate-200 dark:border-white/10">
+              <table className="min-w-[800px] w-full divide-y divide-slate-200 dark:divide-white/5">
+                <thead className="bg-slate-50 dark:bg-black/20">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">Title</th>
                     <th className="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">Duration</th>
@@ -500,9 +502,9 @@ const AdminDashboard = () => {
                     <th className="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800/50">
+                <tbody className="divide-y divide-slate-200 dark:divide-white/5 bg-white dark:bg-transparent">
                   {tests.map(test => (
-                    <tr key={test._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                    <tr key={test._id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 dark:text-white">
                         {test.accessType === 'premium' && <span className="mr-2 text-[10px] font-bold px-2 py-0.5 rounded bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-sm">PREMIUM</span>}
                         {test.accessType === 'free' && <span className="mr-2 text-[10px] font-bold px-2 py-0.5 rounded bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300 shadow-sm">FREE</span>}
@@ -532,8 +534,9 @@ const AdminDashboard = () => {
 
       case 'manage_questions':
         return (
-          <div className="bg-white dark:bg-slate-800/80 backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-slate-700/50 flex flex-col">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div className="bg-white dark:bg-[linear-gradient(145deg,rgba(10,25,45,0.9),rgba(30,10,40,0.85))] backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-cyan-500/30 dark:shadow-[0_8px_30px_rgba(6,182,212,0.15)] flex flex-col relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-bl from-cyan-500/5 to-purple-500/5 pointer-events-none"></div>
+            <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <h2 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white tracking-tight">Manage Questions</h2>
               <div className="flex gap-4 items-center w-full sm:w-auto justify-between sm:justify-end">
                 {selectedForDelete.length > 0 && (
@@ -565,9 +568,9 @@ const AdminDashboard = () => {
               </select>
             </div>
 
-            <div className="overflow-x-auto custom-scrollbar border border-slate-200 dark:border-slate-700 rounded-xl w-full">
-              <table className="min-w-[1000px] w-full divide-y divide-slate-200 dark:divide-slate-700">
-                <thead className="bg-slate-50 dark:bg-slate-900/50">
+            <div className="relative z-10 overflow-x-auto custom-scrollbar border border-slate-200 dark:border-white/10 rounded-xl w-full shadow-inner">
+              <table className="min-w-[1000px] w-full divide-y divide-slate-200 dark:divide-white/5">
+                <thead className="bg-slate-50 dark:bg-black/20">
                   <tr>
                     <th className="px-6 py-4 text-left w-12">
                       <input type="checkbox" className="rounded border-slate-300 w-4 h-4 text-cyan-500 focus:ring-cyan-500/50 cursor-pointer"
@@ -583,9 +586,9 @@ const AdminDashboard = () => {
                     <th className="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800/50">
+                <tbody className="divide-y divide-slate-200 dark:divide-white/5 bg-white dark:bg-transparent">
                   {questions.map(q => (
-                    <tr key={q._id} className={`hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${selectedForDelete.includes(q._id) ? 'bg-cyan-50 dark:bg-cyan-900/10' : ''}`}>
+                    <tr key={q._id} className={`hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group ${selectedForDelete.includes(q._id) ? 'bg-cyan-50 dark:bg-cyan-900/10' : ''}`}>
                       <td className="px-6 py-4">
                         <input type="checkbox" className="rounded border-slate-300 w-4 h-4 text-cyan-500 focus:ring-cyan-500/50 cursor-pointer"
                           checked={selectedForDelete.includes(q._id)}
@@ -651,8 +654,9 @@ const AdminDashboard = () => {
 
       case 'create_test':
         return (
-          <div className="bg-white dark:bg-slate-800/80 backdrop-blur-xl p-4 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-slate-700/50 w-full overflow-hidden">
-            <h2 className="text-2xl sm:text-3xl font-black mb-6 text-slate-800 dark:text-white tracking-tight px-2 sm:px-0">Create Manual Test</h2>
+          <div className="bg-white dark:bg-[linear-gradient(145deg,rgba(25,10,35,0.9),rgba(15,30,55,0.85))] backdrop-blur-xl p-4 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-teal-500/30 dark:shadow-[0_8px_30px_rgba(20,184,166,0.15)] w-full overflow-hidden relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-indigo-500/5 pointer-events-none"></div>
+            <h2 className="relative z-10 text-2xl sm:text-3xl font-black mb-6 text-slate-800 dark:text-white tracking-tight px-2 sm:px-0">Create Manual Test</h2>
             <form onSubmit={handleCreateTest} className="space-y-5 max-w-full lg:max-w-3xl px-2 sm:px-0">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
@@ -825,7 +829,8 @@ const AdminDashboard = () => {
 
       case 'create_question':
         return (
-          <div className="bg-white dark:bg-slate-800/80 backdrop-blur-xl p-4 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-slate-700/50 relative overflow-hidden">
+          <div className="bg-white dark:bg-[linear-gradient(145deg,rgba(40,10,30,0.9),rgba(20,20,50,0.85))] backdrop-blur-xl p-4 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-pink-500/30 dark:shadow-[0_8px_30px_rgba(236,72,153,0.15)] relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 to-purple-500/5 pointer-events-none"></div>
             {editQuestionId && (
               <button 
                 type="button" 
@@ -977,8 +982,8 @@ const AdminDashboard = () => {
                 onClick={() => setActiveTab(item.id)}
                 className={`w-full flex items-center px-4 py-3.5 text-sm font-bold rounded-xl transition-all duration-300 group ${
                   activeTab === item.id 
-                    ? 'bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 text-cyan-400 border border-cyan-500/30 shadow-[inset_0_0_20px_rgba(6,182,212,0.15)]' 
-                    : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 border border-transparent'
+                    ? 'bg-[linear-gradient(90deg,rgba(6,182,212,0.15),rgba(99,102,241,0.15))] text-cyan-300 border border-cyan-500/40 shadow-[inset_0_0_20px_rgba(6,182,212,0.2)]' 
+                    : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-200 border border-transparent'
                 }`}
               >
                 <item.icon className={`w-5 h-5 mr-3 transition-transform duration-300 group-hover:scale-110 ${activeTab === item.id ? 'stroke-[2.5] text-cyan-400' : 'stroke-2'}`} />

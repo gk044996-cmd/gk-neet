@@ -37,8 +37,9 @@ export default function AdminResults() {
   });
 
   return (
-    <motion.div initial={{opacity:0}} animate={{opacity:1}} className="bg-white dark:bg-slate-800/80 backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-slate-700/50 flex flex-col">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+    <motion.div initial={{opacity:0}} animate={{opacity:1}} className="bg-white dark:bg-[linear-gradient(145deg,rgba(40,15,55,0.9),rgba(20,10,40,0.85))] backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-rose-500/30 dark:shadow-[0_8px_30px_rgba(244,63,94,0.15)] flex flex-col relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-tl from-rose-500/5 to-purple-500/5 pointer-events-none"></div>
+      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
         <h2 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white tracking-tight">All Test Results</h2>
         <input 
           type="text" 
@@ -49,9 +50,9 @@ export default function AdminResults() {
         />
       </div>
       
-      <div className="overflow-x-auto custom-scrollbar border border-slate-200 dark:border-slate-700 rounded-xl w-full">
-        <table className="min-w-[1000px] w-full divide-y divide-slate-200 dark:divide-slate-700 text-left">
-          <thead className="bg-slate-50 dark:bg-slate-900/50">
+      <div className="relative z-10 overflow-x-auto custom-scrollbar border border-slate-200 dark:border-white/10 rounded-xl w-full shadow-inner">
+        <table className="min-w-[1000px] w-full divide-y divide-slate-200 dark:divide-white/5 text-left">
+          <thead className="bg-slate-50 dark:bg-black/20">
             <tr>
               <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider">Student</th>
               <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider">Test Title</th>
@@ -61,9 +62,9 @@ export default function AdminResults() {
               <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider">Date</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800/50">
+          <tbody className="divide-y divide-slate-200 dark:divide-white/5 bg-white dark:bg-transparent">
             {filteredResults.map(r => (
-              <tr key={r._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+              <tr key={r._id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
                 <td className="px-6 py-4">
                   <div className="font-bold text-slate-900 dark:text-white flex items-center">
                     {r.userId?.username || r.userId?.name || 'Unknown'}

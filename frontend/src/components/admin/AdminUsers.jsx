@@ -72,12 +72,13 @@ export default function AdminUsers() {
   if (loading) return <div className="py-12 text-center text-slate-500 font-bold">Loading users...</div>;
 
   return (
-    <motion.div initial={{opacity:0}} animate={{opacity:1}} className="bg-white dark:bg-slate-800/80 backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-slate-700/50 flex flex-col">
-      <h2 className="text-2xl sm:text-3xl font-black mb-6 text-slate-800 dark:text-white tracking-tight">User Management</h2>
+    <motion.div initial={{opacity:0}} animate={{opacity:1}} className="bg-white dark:bg-[linear-gradient(145deg,rgba(15,30,55,0.9),rgba(20,10,40,0.85))] backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-blue-500/30 dark:shadow-[0_8px_30px_rgba(59,130,246,0.15)] flex flex-col relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 to-cyan-500/5 pointer-events-none"></div>
+      <h2 className="relative z-10 text-2xl sm:text-3xl font-black mb-6 text-slate-800 dark:text-white tracking-tight">User Management</h2>
       
-      <div className="overflow-x-auto custom-scrollbar border border-slate-200 dark:border-slate-700 rounded-xl w-full">
-        <table className="min-w-[800px] w-full divide-y divide-slate-200 dark:divide-slate-700 text-left">
-          <thead className="bg-slate-50 dark:bg-slate-900/50">
+      <div className="relative z-10 overflow-x-auto custom-scrollbar border border-slate-200 dark:border-white/10 rounded-xl w-full shadow-inner">
+        <table className="min-w-[800px] w-full divide-y divide-slate-200 dark:divide-white/5 text-left">
+          <thead className="bg-slate-50 dark:bg-black/20">
             <tr>
               <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider">Username / Email</th>
               <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider">Role</th>
@@ -87,9 +88,9 @@ export default function AdminUsers() {
               <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800/50">
+          <tbody className="divide-y divide-slate-200 dark:divide-white/5 bg-white dark:bg-transparent">
             {users.map(u => (
-              <tr key={u._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+              <tr key={u._id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
                 <td className="px-6 py-4">
                   <div className="font-bold text-slate-900 dark:text-white flex items-center">
                     @{u.username}
