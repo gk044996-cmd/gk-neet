@@ -7,6 +7,10 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   role: { type: String, enum: ['student', 'admin'], default: 'student' },
   isVerified: { type: Boolean, default: false },
+  isPremium: { type: Boolean, default: false },
+  premiumPlan: { type: String, default: 'free' },
+  premiumPurchasedAt: { type: Date },
+  premiumExpiresAt: { type: Date },
   hasBadge: { type: Boolean, default: false },
   badgeExpiry: { type: Date },
   history: [{

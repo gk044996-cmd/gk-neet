@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { API_URL } from '../config';
 
-export default function Leaderboard() {
+export default function Leaderboard({ isAdmin }) {
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -12,7 +12,8 @@ export default function Leaderboard() {
   const fetchLeaderboard = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/api/users/leaderboard`, {
+      const endpoint = isAdmin ? `${API_URL}/api/admin/leaderboard` : `${API_URL}/api/users/leaderboard`;
+      const res = await fetch(endpoint, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -64,7 +65,7 @@ export default function Leaderboard() {
         {top3[1] && (
           <div className={`order-2 md:order-1 bg-gradient-to-b ${getMedalColor(1)} p-6 rounded-3xl shadow-xl border-t-4 text-center transform hover:-translate-y-2 transition-all`}>
             <div className="text-5xl mb-4 drop-shadow-md">{getMedalEmoji(1)}</div>
-            <h3 className="text-2xl font-bold mb-1 truncate px-2">{top3[1].name}</h3>
+            <h3 className="text-2xl font-bold mb-1 truncate px-2">{top3[1].name} {top3[1].isPremium && <span className="inline-flex items-center justify-center w-5 h-5 ml-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs shadow-md" title="Premium User">⭐</span>}</h3>
             <p className="opacity-90 font-semibold mb-4 tracking-wide">Rank #2</p>
             <div className="bg-white/30 rounded-xl p-4 backdrop-blur-sm mb-5 shadow-sm">
               <div className="text-4xl font-black mb-1 drop-shadow-sm">{top3[1].highestScore}</div>
@@ -85,7 +86,7 @@ export default function Leaderboard() {
           <div className={`order-1 md:order-2 bg-gradient-to-b ${getMedalColor(0)} p-8 rounded-3xl shadow-2xl border-t-4 text-center transform -translate-y-4 hover:-translate-y-6 transition-all relative z-10`}>
             <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-yellow-100 text-yellow-800 text-xs font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-md">Champion</div>
             <div className="text-6xl mb-4 drop-shadow-md">{getMedalEmoji(0)}</div>
-            <h3 className="text-3xl font-black mb-1 truncate px-2">{top3[0].name}</h3>
+            <h3 className="text-3xl font-black mb-1 truncate px-2">{top3[0].name} {top3[0].isPremium && <span className="inline-flex items-center justify-center w-6 h-6 ml-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs shadow-md" title="Premium User">⭐</span>}</h3>
             <p className="opacity-90 font-bold mb-6 tracking-wide">Rank #1</p>
             <div className="bg-white/40 rounded-xl p-6 backdrop-blur-sm shadow-inner mb-6">
               <div className="text-6xl font-black mb-1 drop-shadow-md">{top3[0].highestScore}</div>
@@ -105,7 +106,7 @@ export default function Leaderboard() {
         {top3[2] && (
           <div className={`order-3 md:order-3 bg-gradient-to-b ${getMedalColor(2)} p-6 rounded-3xl shadow-xl border-t-4 text-center transform hover:-translate-y-2 transition-all`}>
             <div className="text-5xl mb-4 drop-shadow-md">{getMedalEmoji(2)}</div>
-            <h3 className="text-2xl font-bold mb-1 truncate px-2">{top3[2].name}</h3>
+            <h3 className="text-2xl font-bold mb-1 truncate px-2">{top3[2].name} {top3[2].isPremium && <span className="inline-flex items-center justify-center w-5 h-5 ml-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs shadow-md" title="Premium User">⭐</span>}</h3>
             <p className="opacity-90 font-semibold mb-4 tracking-wide">Rank #3</p>
             <div className="bg-white/20 rounded-xl p-4 backdrop-blur-sm mb-5 shadow-sm">
               <div className="text-4xl font-black mb-1 drop-shadow-sm">{top3[2].highestScore}</div>
@@ -147,8 +148,9 @@ export default function Leaderboard() {
                         {idx + 4}
                       </span>
                     </td>
-                    <td className="px-6 py-5 font-bold text-slate-800 dark:text-white">
+                                        <td className="px-6 py-5 font-bold text-slate-800 dark:text-white flex items-center">
                       {user.name}
+                      {user.isPremium && <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-sm" title="Premium User">PREMIUM</span>}
                     </td>
                     <td className="px-6 py-5">
                       <span className="text-lg font-black text-indigo-600 dark:text-indigo-400">{user.highestScore}</span>

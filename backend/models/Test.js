@@ -8,6 +8,7 @@ const testSchema = new mongoose.Schema({
   questions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question' }],
   type: { type: String, enum: ['Full NEET Mock', 'Physics Test', 'Chemistry Test', 'Biology Test', 'Chapter Test', 'Custom Test'], default: 'Custom Test' },
   totalQuestions: { type: Number },
+  accessType: { type: String, enum: ['free', 'premium'], default: 'free' },
   published: { type: Boolean, default: false }
 }, { timestamps: true });
 

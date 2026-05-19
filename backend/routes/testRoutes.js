@@ -4,7 +4,7 @@ const Test = require('../models/Test');
 const Question = require('../models/Question');
 const Result = require('../models/Result');
 const Notification = require('../models/Notification');
-const { protect, admin } = require('../middleware/auth');
+const { protect, admin, checkPremiumAccess } = require('../middleware/auth');
 
 
 
@@ -89,7 +89,7 @@ router.get('/result/:resultId', protect, async (req, res) => {
 });
 
 // Get test by ID and Start Check
-router.get('/:id', protect, async (req, res) => {
+router.get('/:id', protect, checkPremiumAccess, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     
@@ -116,7 +116,7 @@ router.get('/:id', protect, async (req, res) => {
 // Admin: Create Test
 router.post('/', protect, admin, async (req, res) => {
   try {
-    const { title, description, duration, totalMarks, questions, published, type } = req.body;
+    const { title, description, duration, totalMarks, questions, published, type, accessType } = req.body;
 
     if (type === 'Full NEET Mock') {
       const qDocs = await Question.find({ _id: { $in: questions } });
@@ -131,7 +131,7 @@ router.post('/', protect, admin, async (req, res) => {
       }
     }
 
-    const test = new Test({ title, description, duration, totalMarks, questions, published, type, totalQuestions: questions.length });
+    const test = new Test({ title, description, duration, totalMarks, questions, published, type, accessType: accessType || 'free', totalQuestions: questions.length });
     await test.save();
 
     // Update question usage tracking
@@ -173,13 +173,9 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 // Evaluate and submit test
-router.post('/:id/submit', async (req, res) => {
+router.post('/:id/submit', protect, checkPremiumAccess, async (req, res) => {
   try {
-    const token = req.headers['authorization']?.split(' ')[1];
-    if (!token) return res.status(401).json({ error: 'No token, authorization denied' });
-    
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'mysecretkey123');
-    const user = await User.findById(decoded.id);
+    const user = req.user;
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     const { answers, timeTaken, submissionType = 'manual' } = req.body;

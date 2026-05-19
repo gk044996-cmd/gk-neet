@@ -154,7 +154,7 @@ router.post('/register', async (req, res) => {
     await user.save();
 
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'mysecretkey123', { expiresIn: '7d' });
-    res.json({ token, user: { id: user._id, email, username: user.username, role: user.role } });
+    res.json({ token, user: { id: user._id, email, username: user.username, role: user.role, isPremium: user.isPremium, premiumPlan: user.premiumPlan, premiumPurchasedAt: user.premiumPurchasedAt, premiumExpiresAt: user.premiumExpiresAt } });
   } catch (err) {
     if (err.code === 11000) {
       if (err.keyPattern?.username) return res.status(400).json({ error: 'Username already taken. Please choose another username.' });
@@ -184,7 +184,7 @@ router.post('/login', async (req, res) => {
       }
       
       const token = jwt.sign({ id: adminUser._id, role: 'admin' }, process.env.JWT_SECRET || 'mysecretkey123', { expiresIn: '7d' });
-      return res.json({ token, user: { id: adminUser._id, email: adminUser.email, username: adminUser.username, role: 'admin' }, redirectTo: '/admin' });
+      return res.json({ token, user: { id: adminUser._id, email: adminUser.email, username: adminUser.username, role: 'admin', isPremium: adminUser.isPremium, premiumPlan: adminUser.premiumPlan, premiumPurchasedAt: adminUser.premiumPurchasedAt, premiumExpiresAt: adminUser.premiumExpiresAt }, redirectTo: '/admin' });
     }
 
     const user = await User.findOne({ email });
@@ -198,7 +198,7 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'mysecretkey123', { expiresIn: '7d' });
-    res.json({ token, user: { id: user._id, email, username: user.username, role: user.role }, redirectTo: '/dashboard' });
+    res.json({ token, user: { id: user._id, email, username: user.username, role: user.role, isPremium: user.isPremium, premiumPlan: user.premiumPlan, premiumPurchasedAt: user.premiumPurchasedAt, premiumExpiresAt: user.premiumExpiresAt }, redirectTo: '/dashboard' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -236,7 +236,7 @@ router.put('/profile', async (req, res) => {
     }
     
     await user.save();
-    res.json({ message: 'Profile updated successfully', user: { id: user._id, email: user.email, username: user.username, role: user.role } });
+    res.json({ message: 'Profile updated successfully', user: { id: user._id, email: user.email, username: user.username, role: user.role, isPremium: user.isPremium, premiumPlan: user.premiumPlan, premiumPurchasedAt: user.premiumPurchasedAt, premiumExpiresAt: user.premiumExpiresAt } });
   } catch (err) {
     if (err.code === 11000 && err.keyPattern?.username) {
       return res.status(400).json({ error: 'Username already taken. Please choose another username.' });
@@ -250,7 +250,7 @@ router.get('/leaderboard', async (req, res) => {
   try {
     const results = await Result.find({ completed: true });
     const userIdsWithResults = [...new Set(results.map(r => r.userId.toString()))];
-    const users = await User.find({ _id: { $in: userIdsWithResults } }).select('username email');
+    const users = await User.find({ _id: { $in: userIdsWithResults } }).select('username email isPremium');
 
     let leaderboard = users.map(user => {
       const userResults = results.filter(r => r.userId.toString() === user._id.toString());
@@ -286,7 +286,8 @@ router.get('/leaderboard', async (req, res) => {
       
       return {
         _id: user._id,
-        name: user.username, // Using username as name for frontend compatibility if needed
+        name: user.username,
+        isPremium: user.isPremium, // Using username as name for frontend compatibility if needed
         username: user.username,
         totalTests,
         highestScore,

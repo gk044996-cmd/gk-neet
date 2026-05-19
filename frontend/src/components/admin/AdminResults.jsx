@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { API_URL } from '../../config';
 
-export default function AdminResults({ BASE_URL }) {
+export default function AdminResults() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     fetchResults();
@@ -26,9 +28,26 @@ export default function AdminResults({ BASE_URL }) {
 
   if (loading) return <div className="py-12 text-center text-slate-500 font-bold">Loading results...</div>;
 
+  const filteredResults = results.filter(r => {
+    const q = search.toLowerCase();
+    const studentName = r.userId?.username?.toLowerCase() || r.userId?.name?.toLowerCase() || '';
+    const studentEmail = r.userId?.email?.toLowerCase() || '';
+    const testTitle = r.testId?.title?.toLowerCase() || '';
+    return studentName.includes(q) || studentEmail.includes(q) || testTitle.includes(q);
+  });
+
   return (
     <motion.div initial={{opacity:0}} animate={{opacity:1}} className="bg-white dark:bg-slate-800/80 backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] shadow-xl border border-slate-200 dark:border-slate-700/50 flex flex-col">
-      <h2 className="text-2xl sm:text-3xl font-black mb-6 text-slate-800 dark:text-white tracking-tight">All Test Results</h2>
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white tracking-tight">All Test Results</h2>
+        <input 
+          type="text" 
+          placeholder="Search by student, email, or test title..." 
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-cyan-500 w-full md:w-80"
+        />
+      </div>
       
       <div className="overflow-x-auto custom-scrollbar border border-slate-200 dark:border-slate-700 rounded-xl w-full">
         <table className="min-w-[1000px] w-full divide-y divide-slate-200 dark:divide-slate-700 text-left">
@@ -43,10 +62,13 @@ export default function AdminResults({ BASE_URL }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800/50">
-            {results.map(r => (
+            {filteredResults.map(r => (
               <tr key={r._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                 <td className="px-6 py-4">
-                  <div className="font-bold text-slate-900 dark:text-white">{r.userId?.name || 'Unknown'}</div>
+                  <div className="font-bold text-slate-900 dark:text-white flex items-center">
+                    {r.userId?.username || r.userId?.name || 'Unknown'}
+                    {r.userId?.isPremium && <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-sm" title="Premium User">PREMIUM</span>}
+                  </div>
                   <div className="text-sm font-semibold text-slate-500 dark:text-slate-400 mt-1">{r.userId?.email || ''}</div>
                 </td>
                 <td className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">
@@ -66,7 +88,7 @@ export default function AdminResults({ BASE_URL }) {
                 </td>
               </tr>
             ))}
-            {results.length === 0 && (
+            {filteredResults.length === 0 && (
                <tr>
                  <td colSpan="6" className="px-6 py-12 text-center text-slate-500 font-bold text-lg">No results found.</td>
                </tr>

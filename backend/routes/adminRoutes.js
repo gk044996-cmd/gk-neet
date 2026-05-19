@@ -175,12 +175,16 @@ router.get('/stats', protect, admin, async (req, res, next) => {
     const totalTests = await Test.countDocuments();
     const publishedTests = await Test.countDocuments({ published: true });
     const totalUsers = await User.countDocuments();
+    const premiumUsersCount = await User.countDocuments({ isPremium: true });
     const totalAttempts = await Result.countDocuments();
     
+    // Simple revenue estimate based on ₹1499 per premium user
+    const revenueEstimate = premiumUsersCount * 1499;
+
     const results = await Result.find({ completed: true }, 'score');
     const averageScore = results.length > 0 ? Math.round(results.reduce((acc, r) => acc + r.score, 0) / results.length) : 0;
 
-    res.json({ totalQuestions, totalTests, publishedTests, totalUsers, totalAttempts, averageScore });
+    res.json({ totalQuestions, totalTests, publishedTests, totalUsers, premiumUsersCount, revenueEstimate, totalAttempts, averageScore });
   } catch (err) {
     next(err);
   }
@@ -252,8 +256,102 @@ router.get('/users/:id/history', protect, admin, async (req, res, next) => {
 // Get all test results across all users
 router.get('/results', protect, admin, async (req, res, next) => {
   try {
-    const results = await Result.find({ completed: true }).populate('userId', 'name email').populate('testId', 'title').sort({ attemptedAt: -1 });
+    const results = await Result.find({ completed: true }).populate('userId', 'username email isPremium').populate('testId', 'title').sort({ attemptedAt: -1 });
     res.json(results);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Toggle premium status
+router.put('/users/:id/toggle-premium', protect, admin, async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    user.isPremium = !user.isPremium;
+    if (user.isPremium) {
+      user.premiumPlan = 'monthly';
+      user.premiumPurchasedAt = new Date();
+      user.premiumExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    } else {
+      user.premiumPlan = 'free';
+      user.premiumExpiresAt = null;
+    }
+    await user.save();
+    
+    res.json({ message: `Premium status updated to ${user.isPremium}`, user });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Admin Leaderboard
+router.get('/leaderboard', protect, admin, async (req, res, next) => {
+  try {
+    const results = await Result.find({ completed: true });
+    const userIdsWithResults = [...new Set(results.map(r => r.userId.toString()))];
+    const users = await User.find({ _id: { $in: userIdsWithResults } }).select('username email isPremium');
+
+    let leaderboard = users.map(user => {
+      const userResults = results.filter(r => r.userId.toString() === user._id.toString());
+      const totalTests = userResults.length;
+      
+      let highestScore = -Infinity;
+      let totalScore = 0;
+      let timeTaken = 0;
+      let accuracy = 0;
+      let totalCorrect = 0;
+      let totalWrong = 0;
+      let totalAttempted = 0;
+
+      if (totalTests > 0) {
+        userResults.forEach(r => {
+          totalScore += (r.score || 0);
+        });
+        highestScore = Math.max(...userResults.map(r => r.score != null ? r.score : -Infinity));
+        const highestScoreResults = userResults.filter(r => r.score === highestScore);
+        
+        highestScoreResults.sort((a, b) => {
+           if (b.accuracy !== a.accuracy) return (b.accuracy || 0) - (a.accuracy || 0);
+           return (a.timeTaken || 0) - (b.timeTaken || 0);
+        });
+        
+        const bestResult = highestScoreResults[0];
+        timeTaken = bestResult.timeTaken || 0;
+        
+        totalCorrect = userResults.reduce((acc, r) => acc + (r.correctCount || 0), 0);
+        totalWrong = userResults.reduce((acc, r) => acc + (r.wrongCount || 0), 0);
+        totalAttempted = totalCorrect + totalWrong;
+        accuracy = totalAttempted > 0 ? (totalCorrect / totalAttempted) * 100 : 0;
+      }
+      
+      return {
+        _id: user._id,
+        name: user.username,
+        email: user.email,
+        isPremium: user.isPremium,
+        totalTests,
+        totalScore,
+        averagePercentage: accuracy,
+        highestScore,
+        accuracy,
+        timeTaken,
+        correctAnswers: totalCorrect,
+        wrongAnswers: totalWrong,
+        totalAttempted
+      };
+    });
+
+    leaderboard = leaderboard.filter(l => l.totalTests > 0);
+
+    // Sort primarily by highest average (accuracy), then total score
+    leaderboard.sort((a, b) => {
+      if (b.averagePercentage !== a.averagePercentage) return b.averagePercentage - a.averagePercentage;
+      return b.totalScore - a.totalScore;
+    });
+
+    res.json(leaderboard);
   } catch (err) {
     next(err);
   }

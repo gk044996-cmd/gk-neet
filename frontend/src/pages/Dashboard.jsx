@@ -120,7 +120,10 @@ export default function Dashboard() {
           return (
             <div key={test._id} className="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-2xl flex flex-col border border-purple-200 dark:border-purple-800 shadow-md hover:shadow-lg transition-shadow h-auto min-h-min overflow-visible relative z-10 break-words">
               <div className="flex justify-between items-start mb-2">
-                <h3 className="text-xl font-black text-black dark:text-white" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>{test.title}</h3>
+                                <h3 className="text-xl font-black text-black dark:text-white" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+                  {test.accessType === 'premium' && <span className="mr-2 inline-flex items-center" title="Premium Test">🔒</span>}
+                  {test.title}
+                </h3>
                 {attempt && (
                   <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-md shrink-0 border border-emerald-200">Attempted</span>
                 )}
@@ -150,10 +153,16 @@ export default function Dashboard() {
                     ✅ View Result
                   </Link>
                 </div>
-              ) : (
-                <Link to={`/test/${test._id}`} className="mt-auto block w-full text-center py-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors font-semibold">
-                  Start Test
-                </Link>
+                            ) : (
+                test.accessType === 'premium' && !currentUser?.isPremium && currentUser?.role !== 'admin' ? (
+                  <Link to="/subscription" className="mt-auto block w-full text-center py-3 bg-gradient-to-r from-amber-400 to-orange-500 text-white rounded-xl hover:opacity-90 transition-opacity font-bold shadow-md">
+                    🔒 Upgrade to Access
+                  </Link>
+                ) : (
+                  <Link to={`/test/${test._id}`} className="mt-auto block w-full text-center py-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors font-semibold">
+                    Start Test
+                  </Link>
+                )
               )}
             </div>
           );

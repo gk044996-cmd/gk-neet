@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { TrashIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
+import { API_URL } from '../../config';
+import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
+import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 
-export default function AdminUsers({ BASE_URL }) {
+export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -50,6 +53,22 @@ export default function AdminUsers({ BASE_URL }) {
     }
   };
 
+  const togglePremium = async (id, currentPremium) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/admin/users/${id}/toggle-premium`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        throw new Error('Failed to toggle premium');
+      }
+      fetchUsers();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   if (loading) return <div className="py-12 text-center text-slate-500 font-bold">Loading users...</div>;
 
   return (
@@ -72,7 +91,10 @@ export default function AdminUsers({ BASE_URL }) {
             {users.map(u => (
               <tr key={u._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                 <td className="px-6 py-4">
-                  <div className="font-bold text-slate-900 dark:text-white">@{u.username}</div>
+                  <div className="font-bold text-slate-900 dark:text-white flex items-center">
+                    @{u.username}
+                    {u.isPremium && <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-sm" title="Premium User">PREMIUM</span>}
+                  </div>
                   <div className="text-sm font-semibold text-slate-500 dark:text-slate-400 mt-1">{u.email}</div>
                   <div className="text-xs font-bold text-slate-400 dark:text-slate-500 mt-2">Joined: {new Date(u.createdAt).toLocaleDateString()}</div>
                 </td>
@@ -92,6 +114,9 @@ export default function AdminUsers({ BASE_URL }) {
                   {u.accuracy}%
                 </td>
                 <td className="px-6 py-4 text-right space-x-2">
+                  <button onClick={() => togglePremium(u._id, u.isPremium)} className={`p-2.5 rounded-xl transition-all ${u.isPremium ? 'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20' : 'text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20'}`} title="Toggle Premium">
+                    {u.isPremium ? <StarIconSolid className="w-5 h-5" /> : <StarIconOutline className="w-5 h-5" />}
+                  </button>
                   <button onClick={() => deleteUser(u._id, u.email)} className="p-2.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all" title="Delete User">
                     <TrashIcon className="w-5 h-5 stroke-[2]" />
                   </button>

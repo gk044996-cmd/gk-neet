@@ -24,7 +24,7 @@ const AdminDashboard = () => {
   const [questions, setQuestions] = useState([]);
   const [uploadFile, setUploadFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState({ loading: false, error: null, success: null });
-  const [newTest, setNewTest] = useState({ title: '', description: '', duration: 180, totalMarks: 720, published: false, type: 'Custom Test' });
+  const [newTest, setNewTest] = useState({ title: '', description: '', duration: 180, totalMarks: 720, published: false, type: 'Custom Test', accessType: 'free' });
   const [newTestQuestions, setNewTestQuestions] = useState('');
   const [createTestStatus, setCreateTestStatus] = useState({ loading: false, error: null, success: null });
   const [previewData, setPreviewData] = useState(null);
@@ -239,7 +239,7 @@ const AdminDashboard = () => {
       
       setCreateTestStatus({ loading: false, error: null, success: 'Test created successfully!' });
       toast.success('Test created successfully!');
-      setNewTest({ title: '', description: '', duration: 180, totalMarks: 720, published: false, type: 'Custom Test' });
+      setNewTest({ title: '', description: '', duration: 180, totalMarks: 720, published: false, type: 'Custom Test', accessType: 'free' });
       setSelectedQuestions([]);
       fetchStats();
     } catch (err) {
@@ -344,9 +344,11 @@ const AdminDashboard = () => {
         return (
           <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{duration:0.4}}>
             <h2 className="text-2xl font-black mb-6 text-slate-800 dark:text-white tracking-tight">Admin Home</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6">
               {[
                 { label: 'Total Users', value: stats.totalUsers, icon: AcademicCapIcon, color: 'from-blue-500 to-cyan-400', shadow: 'shadow-blue-500/20' },
+                { label: 'Premium Users', value: stats.premiumUsersCount || 0, icon: AcademicCapIcon, color: 'from-amber-500 to-orange-400', shadow: 'shadow-amber-500/20' },
+                { label: 'Est. Revenue', value: stats.revenueEstimate ? `₹${stats.revenueEstimate}` : '₹0', icon: ChartBarIcon, color: 'from-green-500 to-emerald-400', shadow: 'shadow-green-500/20' },
                 { label: 'Total Tests', value: stats.totalTests, icon: DocumentPlusIcon, color: 'from-emerald-500 to-teal-400', shadow: 'shadow-emerald-500/20' },
                 { label: 'Total Questions', value: stats.totalQuestions, icon: QueueListIcon, color: 'from-indigo-500 to-blue-500', shadow: 'shadow-indigo-500/20' },
                 { label: 'Total Attempts', value: stats.totalAttempts, icon: ChartBarIcon, color: 'from-purple-500 to-pink-500', shadow: 'shadow-purple-500/20' },
@@ -501,7 +503,11 @@ const AdminDashboard = () => {
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800/50">
                   {tests.map(test => (
                     <tr key={test._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 dark:text-white">{test.title}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 dark:text-white">
+                        {test.accessType === 'premium' && <span className="mr-2 text-[10px] font-bold px-2 py-0.5 rounded bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-sm">PREMIUM</span>}
+                        {test.accessType === 'free' && <span className="mr-2 text-[10px] font-bold px-2 py-0.5 rounded bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300 shadow-sm">FREE</span>}
+                        {test.title}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-500 dark:text-slate-400">{test.duration} mins</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${test.published ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}>
@@ -658,6 +664,13 @@ const AdminDashboard = () => {
                     <option value="Biology Test">Biology Test</option>
                     <option value="Chapter Test">Chapter Test</option>
                     <option value="Custom Test">Custom Test</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wide">Access Type</label>
+                  <select value={newTest.accessType} onChange={e => setNewTest({...newTest, accessType: e.target.value})} className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 outline-none transition-all font-medium shadow-sm cursor-pointer">
+                    <option value="free">Free Test</option>
+                    <option value="premium">Premium Test</option>
                   </select>
                 </div>
                 <div>
@@ -877,11 +890,11 @@ const AdminDashboard = () => {
         );
 
       case 'users':
-        return <AdminUsers BASE_URL={BASE_URL} />;
+        return <AdminUsers />;
       case 'test_results':
-        return <AdminResults BASE_URL={BASE_URL} />;
+        return <AdminResults />;
       case 'leaderboard':
-        return <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm"><Leaderboard BASE_URL={BASE_URL} /></div>;
+        return <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm"><Leaderboard isAdmin={true} /></div>;
 
       // Other cases like create manual test can be added similarly
       default:
