@@ -8,6 +8,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const compression = require('compression');
 const path = require('path');
+const connectDB = require('./config/db');
 const app = express();
 
 // Security Middlewares
@@ -31,6 +32,22 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again in an hour!'
 });
 app.use('/api', limiter);
+
+// Connect Database before routes
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error("Database connection failed in middleware:", err);
+    res.status(500).json({
+      success: false,
+      message: "Database connection failed",
+      error: err.message
+    });
+  }
+});
+
 // Routes
 const testRoutes = require('./routes/testRoutes');
 const questionRoutes = require('./routes/questionRoutes');
@@ -63,17 +80,18 @@ app.get('/', (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/gk-neet';
 
-mongoose.connect(MONGO_URI)
-  .then(() => {
-    console.log('Connected to MongoDB');
-    // Only listen if not running in Vercel
-    if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
-      app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Only listen if not running in Vercel
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, async () => {
+    try {
+      await connectDB();
+      console.log(`Server running on port ${PORT}`);
+    } catch (err) {
+      console.error("Failed to connect to database on startup:", err);
     }
-  })
-  .catch(err => console.error(err));
+  });
+}
 
 // Export app for Vercel Serverless Functions
 module.exports = app;
