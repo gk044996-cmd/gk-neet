@@ -5,20 +5,42 @@ import {
   ChartBarIcon, DocumentPlusIcon, ArrowUpTrayIcon, 
   QueueListIcon, AcademicCapIcon, TrashIcon, 
   PencilSquareIcon, CheckCircleIcon, EyeIcon, MagnifyingGlassIcon, FunnelIcon, XMarkIcon,
-  Bars3Icon
+  Bars3Icon, CreditCardIcon, Cog6ToothIcon
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { useLocation } from 'react-router-dom';
 import AdminUsers from '../../components/admin/AdminUsers';
 import AdminResults from '../../components/admin/AdminResults';
 import Leaderboard from '../../components/Leaderboard';
+import AdminErrorBoundary from '../../components/admin/AdminErrorBoundary';
 import { API_URL } from '../../config';
 import { useAuth } from '../../context/AuthContext';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { logout } = useAuth();
+  
+  const pathParts = location.pathname.split('/');
+  const tabFromUrl = pathParts.length > 2 ? pathParts[2] : 'dashboard';
+
+  const tabMapping = {
+    'dashboard': 'admin_home',
+    'tests': 'manage_tests',
+    'users': 'users',
+    'results': 'test_results',
+    'leaderboard': 'leaderboard',
+    'subscriptions': 'subscriptions',
+    'settings': 'settings',
+    'upload': 'upload',
+    'create-test': 'create_test',
+    'create-question': 'create_question',
+    'manage-questions': 'manage_questions'
+  };
+
+  const currentTab = tabMapping[tabFromUrl] || 'admin_home';
+  const [activeTab, setActiveTabState] = useState(currentTab);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('admin_home');
   const [stats, setStats] = useState({ totalQuestions: 0, totalTests: 0, publishedTests: 0 });
   const [tests, setTests] = useState([]);
   const [questions, setQuestions] = useState([]);
@@ -43,6 +65,19 @@ const AdminDashboard = () => {
   const [editQuestionId, setEditQuestionId] = useState(null);
   const [createQuestionStatus, setCreateQuestionStatus] = useState({ loading: false, error: null, success: null });
 
+
+  useEffect(() => {
+    setActiveTabState(currentTab);
+  }, [currentTab]);
+
+  const setActiveTab = (id) => {
+    const reverseMap = Object.entries(tabMapping).find(([k, v]) => v === id);
+    if (reverseMap) {
+      navigate(`/admin/${reverseMap[0]}`);
+    } else {
+      setActiveTabState(id);
+    }
+  };
 
   useEffect(() => {
     fetchStats();
@@ -76,7 +111,7 @@ const AdminDashboard = () => {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
-      setTests(data);
+      setTests(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
     }
@@ -94,7 +129,7 @@ const AdminDashboard = () => {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
-      setQuestions(data.questions || []);
+      setQuestions(Array.isArray(data.questions) ? data.questions : []);
       setQTotalPages(data.totalPages || 1);
     } catch (err) {
       console.error(err);
@@ -500,7 +535,7 @@ const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-white/5 bg-white dark:bg-transparent">
-                  {tests.map(test => (
+                  {(tests || []).map(test => (
                     <tr key={test._id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 dark:text-white">
                         {test.accessType === 'premium' && <span className="mr-2 text-[10px] font-bold px-2 py-0.5 rounded bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-sm">PREMIUM</span>}
@@ -571,10 +606,10 @@ const AdminDashboard = () => {
                     <th className="px-6 py-4 text-left w-12">
                       <input type="checkbox" className="rounded border-slate-300 w-4 h-4 text-cyan-500 focus:ring-cyan-500/50 cursor-pointer"
                         onChange={e => {
-                          if (e.target.checked) setSelectedForDelete(questions.map(q => q._id));
+                          if (e.target.checked) setSelectedForDelete((questions || []).map(q => q._id));
                           else setSelectedForDelete([]);
                         }}
-                        checked={questions.length > 0 && selectedForDelete.length === questions.length}
+                        checked={(questions || []).length > 0 && selectedForDelete.length === (questions || []).length}
                       />
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">Question</th>
@@ -583,7 +618,7 @@ const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-white/5 bg-white dark:bg-transparent">
-                  {questions.map(q => (
+                  {(questions || []).map(q => (
                     <tr key={q._id} className={`hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group ${selectedForDelete.includes(q._id) ? 'bg-cyan-50 dark:bg-cyan-900/10' : ''}`}>
                       <td className="px-6 py-4">
                         <input type="checkbox" className="rounded border-slate-300 w-4 h-4 text-cyan-500 focus:ring-cyan-500/50 cursor-pointer"
@@ -740,7 +775,7 @@ const AdminDashboard = () => {
                 </div>
 
                 <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                  {questions.map(q => {
+                  {(questions || []).map(q => {
                     const isSelected = selectedQuestions.some(sq => sq._id === q._id);
                     const isUsed = q.usageCount > 0;
                     const disabledCheckbox = !allowRepeated && isUsed;
@@ -910,7 +945,9 @@ const AdminDashboard = () => {
     { id: 'manage_tests', icon: QueueListIcon, label: 'Manage Tests' },
     { id: 'users', icon: AcademicCapIcon, label: 'Users' },
     { id: 'test_results', icon: CheckCircleIcon, label: 'Test Results' },
-    { id: 'leaderboard', icon: ChartBarIcon, label: 'Leaderboard' }
+    { id: 'leaderboard', icon: ChartBarIcon, label: 'Leaderboard' },
+    { id: 'subscriptions', icon: CreditCardIcon, label: 'Subscriptions' },
+    { id: 'settings', icon: Cog6ToothIcon, label: 'Settings' }
   ];
 
   return (
@@ -1033,17 +1070,19 @@ const AdminDashboard = () => {
         {/* Main Content */}
         <main className="flex-1 p-4 md:p-8 overflow-y-auto h-[calc(100vh-4rem)] relative bg-slate-50 dark:bg-[#0B0D14]">
         <div className="absolute inset-0 pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-[0.05]" />
-        <div className="max-w-[1400px] mx-auto relative z-10">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-          >
-            {renderContent()}
-          </motion.div>
-        </div>
+        <AdminErrorBoundary>
+          <div className="max-w-[1400px] mx-auto relative z-10">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
+            >
+              {renderContent()}
+            </motion.div>
+          </div>
+        </AdminErrorBoundary>
         
         {/* Preview Modal */}
         {previewQuestion && (

@@ -14,6 +14,7 @@ export default function Navbar() {
     { name: 'Tests', path: '/tests' },
     { name: 'My Results', path: '/results' },
     { name: 'Leaderboard', path: '/leaderboard' },
+    { name: 'Subscriptions', path: '/subscriptions' },
     { name: 'Alerts', path: '/notifications' }
   ];
 

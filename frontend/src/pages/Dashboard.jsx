@@ -66,11 +66,6 @@ export default function Dashboard() {
             </h1>
             <p className="text-slate-500 dark:text-slate-400 mt-2 text-lg">Ready to conquer your next mock test?</p>
           </div>
-          {!currentUser?.isPremium && (
-            <Link to="/premium" className="inline-flex items-center justify-center px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 text-white font-bold shadow-lg shadow-orange-500/30 hover:scale-105 transition-transform">
-              <span className="mr-2">⭐</span> Upgrade to Premium
-            </Link>
-          )}
         </motion.div>
 
         {/* Stats Grid */}

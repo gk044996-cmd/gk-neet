@@ -51,6 +51,7 @@ function AppContent() {
             <Route path="/bookmarks" element={<PrivateRoute><Bookmarks /></PrivateRoute>} />
             <Route path="/tests" element={<PrivateRoute><Tests /></PrivateRoute>} />
             <Route path="/premium" element={<PrivateRoute><Subscription /></PrivateRoute>} />
+            <Route path="/subscriptions" element={<PrivateRoute><Subscription /></PrivateRoute>} />
             <Route path="/payment-success" element={<PrivateRoute><PaymentSuccess /></PrivateRoute>} />
             <Route path="/admin/*" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           </Routes>

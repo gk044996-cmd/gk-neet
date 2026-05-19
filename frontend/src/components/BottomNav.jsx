@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Trophy, Bell, UserCircle2 } from 'lucide-react';
+import { Home, Trophy, Bell, UserCircle2, BookOpen } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 
@@ -12,6 +12,7 @@ export default function BottomNav() {
 
   const links = [
     { name: 'Home', path: '/dashboard', icon: Home },
+    { name: 'Tests', path: '/tests', icon: BookOpen },
     { name: 'Rank', path: '/leaderboard', icon: Trophy },
     { name: 'Alerts', path: '/notifications', icon: Bell },
     { name: 'Profile', path: '/profile', icon: UserCircle2 },

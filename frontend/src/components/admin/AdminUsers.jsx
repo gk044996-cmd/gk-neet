@@ -20,7 +20,7 @@ export default function AdminUsers() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
-      setUsers(data);
+      setUsers(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -88,7 +88,7 @@ export default function AdminUsers() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-white/5 bg-white dark:bg-transparent">
-            {users.map(u => (
+            {(users || []).map(u => (
               <tr key={u._id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
                 <td className="px-6 py-4">
                   <div className="font-bold text-slate-900 dark:text-white flex items-center">

@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { API_URL } from '../config';
+import { motion } from 'framer-motion';
+import { Sparkles, CheckCircle2, Crown, ShieldCheck } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function Subscription() {
-  const { currentUser, login } = useAuth();
+  const { currentUser } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
@@ -57,7 +60,7 @@ export default function Subscription() {
         currency: 'INR',
         name: 'GK NEET MOCK',
         description: 'Premium Subscription',
-        image: '/logo.png', // Fallback to whatever you have
+        image: '/logo.png', // Fallback
         order_id: orderData.orderId,
         handler: async function (response) {
           try {
@@ -92,7 +95,7 @@ export default function Subscription() {
           contact: ''
         },
         theme: {
-          color: '#4f46e5'
+          color: '#6366f1' // Indigo
         }
       };
 
@@ -106,73 +109,128 @@ export default function Subscription() {
     setLoading(false);
   };
 
-  return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-      <div className="max-w-3xl w-full space-y-8">
-        <div className="text-center">
-          <h2 className="mt-6 text-4xl font-extrabold text-slate-900 dark:text-white flex items-center justify-center gap-2">
-            Unlock <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Premium</span>
-          </h2>
-          <p className="mt-2 text-lg text-slate-600 dark:text-slate-400">
-            Supercharge your NEET preparation with exclusive mock tests and analytics.
-          </p>
-        </div>
+  const features = [
+    'Access to all Premium Mock Tests',
+    'Detailed Test Result Analytics',
+    'Exclusive Premium Badge',
+    'Global Leaderboard Access',
+    'New Tests Added Weekly'
+  ];
 
-        <div className="mt-8 bg-white dark:bg-slate-800 rounded-3xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-700 max-w-lg mx-auto">
-          <div className="px-6 py-8 sm:p-10 sm:pb-6">
-            <div>
-              <h3 className="inline-flex px-4 py-1 rounded-full text-sm font-semibold tracking-wide uppercase bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400">
-                Monthly Plan
-              </h3>
-            </div>
-            <div className="mt-4 flex items-baseline text-6xl font-extrabold text-slate-900 dark:text-white">
-              ₹49
-              <span className="ml-1 text-2xl font-medium text-slate-500 dark:text-slate-400">/mo</span>
-            </div>
-            <p className="mt-5 text-lg text-slate-500 dark:text-slate-400">
-              Get full access to all premium features for 30 days.
-            </p>
+  return (
+    <div className="min-h-screen bg-[#0B0D14] flex flex-col items-center justify-center py-12 px-4 sm:px-6 relative overflow-hidden font-sans">
+      <SEO title="Premium Subscription" />
+      
+      {/* Background Effects */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/20 blur-[120px] rounded-full mix-blend-screen" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-cyan-600/20 blur-[120px] rounded-full mix-blend-screen" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5" />
+      </div>
+
+      <div className="max-w-4xl w-full relative z-10">
+        
+        {/* Header Section */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-bold text-sm tracking-wide mb-6">
+            <Sparkles className="w-4 h-4" />
+            ELEVATE YOUR PREPARATION
           </div>
-          <div className="px-6 pt-6 pb-8 sm:px-10 sm:pt-6">
-            <ul className="space-y-5">
-              {[
-                'Access to all Premium Mock Tests',
-                'Detailed Test Result Analytics',
-                'Exclusive Premium Badge',
-                'Global Leaderboard Access',
-                'New Tests Added Weekly'
-              ].map((feature, index) => (
-                <li key={index} className="flex items-center group transition-all duration-300 hover:translate-x-2">
-                  <div className="flex-shrink-0 relative">
-                    <div className="absolute inset-0 bg-emerald-400/30 dark:bg-emerald-500/20 blur-md rounded-full scale-110 group-hover:scale-150 transition-transform duration-300"></div>
-                    <svg className="h-6 w-6 text-emerald-500 relative z-10 drop-shadow-sm group-hover:text-emerald-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <p className="ml-4 text-base sm:text-lg font-medium text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{feature}</p>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-8">
+          <h1 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight">
+            Unlock <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]">Premium</span>
+          </h1>
+          <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto font-medium">
+            Join the elite tier of NEET aspirants. Get unlimited access to high-yield mock tests, advanced analytics, and global rankings.
+          </p>
+        </motion.div>
+
+        {/* Pricing Card */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="max-w-lg mx-auto relative group"
+        >
+          {/* Animated Glow Border */}
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-500 rounded-[2.5rem] blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200 animate-gradient-xy"></div>
+          
+          <div className="relative bg-[#151821] border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden backdrop-blur-xl">
+            {/* Most Popular Ribbon */}
+            <div className="absolute top-6 right-0 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-black px-4 py-1 rounded-l-full shadow-lg shadow-orange-500/30 flex items-center gap-1.5">
+              <Crown className="w-3.5 h-3.5" />
+              MOST POPULAR
+            </div>
+
+            <div className="p-8 sm:p-10 border-b border-white/5">
+              <h3 className="text-xl font-bold text-slate-300 mb-2">NEET Pro Access</h3>
+              <div className="flex items-baseline gap-2 mb-2">
+                <span className="text-6xl font-black text-white tracking-tighter">₹49</span>
+                <span className="text-xl font-semibold text-slate-500">/mo</span>
+              </div>
+              <p className="text-slate-400 font-medium">Everything you need to conquer NEET, billed monthly.</p>
+            </div>
+
+            <div className="p-8 sm:p-10 bg-[#1A1D27]/50">
+              <ul className="space-y-5 mb-10">
+                {features.map((feature, index) => (
+                  <motion.li 
+                    key={index}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 + (index * 0.1) }}
+                    className="flex items-start gap-4 group/item"
+                  >
+                    <div className="relative shrink-0 mt-0.5">
+                      <div className="absolute inset-0 bg-cyan-400/30 blur-md rounded-full scale-110 opacity-0 group-hover/item:opacity-100 transition-opacity"></div>
+                      <CheckCircle2 className="w-6 h-6 text-cyan-400 relative z-10" />
+                    </div>
+                    <span className="text-slate-300 font-medium group-hover/item:text-white transition-colors">{feature}</span>
+                  </motion.li>
+                ))}
+              </ul>
+
               {currentUser?.isPremium ? (
-                <button
-                  disabled
-                  className="w-full flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-xl text-white bg-green-500 cursor-not-allowed"
-                >
-                  Already Premium
-                </button>
+                <div className="w-full relative">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-2xl blur opacity-30"></div>
+                  <button disabled className="relative w-full flex items-center justify-center gap-2 px-8 py-5 border border-emerald-500/50 text-xl font-black rounded-2xl text-white bg-emerald-500/10 cursor-not-allowed shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+                    <ShieldCheck className="w-6 h-6" /> Premium Active
+                  </button>
+                </div>
               ) : (
                 <button
                   onClick={handlePayment}
                   disabled={loading}
-                  className="w-full flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-xl text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-1"
+                  className="w-full relative group/btn flex items-center justify-center gap-2 px-8 py-5 text-xl font-black rounded-2xl text-white bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:via-blue-500 hover:to-indigo-500 shadow-[0_0_30px_rgba(99,102,241,0.4)] hover:shadow-[0_0_40px_rgba(99,102,241,0.6)] transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-1 active:scale-95"
                 >
-                  {loading ? 'Processing...' : 'Buy Premium Now'}
+                  {loading ? (
+                    <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      Buy Premium Now <Crown className="w-5 h-5 ml-1 transition-transform group-hover/btn:-rotate-12 group-hover/btn:scale-110" />
+                    </>
+                  )}
+                  {/* Button Glare */}
+                  <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none rounded-2xl"></div>
                 </button>
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
+        
+        {/* Secure Payment Footer */}
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="text-center mt-10 text-slate-500 text-sm font-medium flex items-center justify-center gap-2"
+        >
+          <ShieldCheck className="w-4 h-4" /> Secure 256-bit encrypted payments via Razorpay
+        </motion.p>
       </div>
     </div>
   );

@@ -18,7 +18,7 @@ export default function AdminResults() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
-      setResults(data);
+      setResults(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -62,7 +62,7 @@ export default function AdminResults() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-white/5 bg-white dark:bg-transparent">
-            {filteredResults.map(r => (
+            {(filteredResults || []).map(r => (
               <tr key={r._id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
                 <td className="px-6 py-4">
                   <div className="font-bold text-slate-900 dark:text-white flex items-center">
